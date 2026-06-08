@@ -1,0 +1,28 @@
+# Secrets — never commit the API key
+.env
+.env.local
+
+# Local agent / editor settings
+.claude/settings.local.json
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# JS / build output
+node_modules/
+dist/
+build/
+
+# Large / regenerable data pulls (sample data is kept under data/samples/)
+data/raw/
+*.tmp

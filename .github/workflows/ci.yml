@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  cdeclient:
+    name: cdeclient — lint, types, tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cdeclient
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies (locked)
+        run: uv sync --frozen
+
+      - name: Lint (ruff)
+        run: uv run ruff check
+
+      - name: Format check (ruff)
+        run: uv run ruff format --check
+
+      - name: Type-check (mypy, strict)
+        run: uv run mypy
+
+      - name: Test (pytest)
+        run: uv run pytest -q
