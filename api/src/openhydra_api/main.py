@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Annotated, Any
 
 import duckdb
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from .db import get_conn
 from .models import AgencyFeature, ArrestRow, Meta, OffenseMonthly, PoliceEmploymentRow
@@ -128,7 +131,15 @@ def police_employment(
     )
 
 
+# In production the built frontend is mounted at the root (path set via env in
+# the Docker image). The API routes above are registered first, so they take
+# precedence over this catch-all static mount.
+_static_dir = os.getenv("OPENHYDRA_STATIC_DIR")
+if _static_dir and Path(_static_dir).is_dir():
+    app.mount("/", StaticFiles(directory=_static_dir, html=True), name="static")
+
+
 def run() -> None:
     import uvicorn
 
-    uvicorn.run("openhydra_api.main:app", host="127.0.0.1", port=8000)
+    uvicorn.run("openhydra_api.main:app", host="127.0.0.1", port=int(os.getenv("PORT", "8000")))

@@ -4,16 +4,17 @@ An end-to-end crime-data analytics platform built on the **FBI Crime Data
 Explorer (CDE) API** — the FBI's public Uniform Crime Reporting (UCR) data for
 the United States. Ingest → store → analyze → serve → visualize.
 
+- **▶ Live demo:** https://openhydra-production.up.railway.app
 - API docs: https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi
 - Get a key: https://api.data.gov/signup/
 
 ![OpenHydra command-center dashboard](docs/dashboard.png)
 
-> **Status:** Phases 0–5 done — the full stack is built: verified API + docs
-> reference, the `cdeclient` package, the DuckDB/dbt warehouse, analysis
-> notebooks, the FastAPI service, and the React/MapLibre command-center
-> dashboard. Phase 6 (polish + deploy to Railway) is next. The API surface below
-> is verified against the live API.
+> **Status: complete & deployed.** All six phases shipped — the `cdeclient`
+> package, the DuckDB/dbt warehouse, analysis notebooks, the FastAPI service, the
+> React/MapLibre command-center dashboard, and a live deployment on Railway
+> (single image: FastAPI serves the API + the built dashboard). The API surface
+> below is verified against the live API.
 
 ## Architecture
 
@@ -53,7 +54,7 @@ critical path for wheel stability).
 - [x] **Phase 3** — analysis notebooks + narrative (Polars + Plotly over the marts)
 - [x] **Phase 4** — FastAPI service over the marts (7 tests, CORS, OpenAPI docs)
 - [x] **Phase 5** — React/Vite/TS command-center dashboard (Recharts + MapLibre GL)
-- [ ] **Phase 6** — polish: docs, screenshots, live demo, green CI
+- [x] **Phase 6** — deployed to Railway (Dockerfile, live demo, screenshot, green CI)
 
 ## Setup
 
@@ -102,11 +103,27 @@ Hits one endpoint per family and writes JSON into `data/samples/` (plus
   base / deprecated Swagger UI (`https://crime-data-api.fr.cloud.gov/swagger-ui/`).
   Revisit if the project needs national estimates or incident-level NIBRS data.
 
+## Deploy
+
+A single container (`Dockerfile`) serves everything: one stage builds the web
+app, another builds the DuckDB marts from `deploy/seed/` via dbt, and the FastAPI
+runtime serves the API **and** the static dashboard (same origin — no API key or
+CORS in the browser). Live on Railway:
+
+```bash
+railway up        # builds the Dockerfile and deploys; FastAPI binds $PORT
+```
+
 ## Layout
 
 ```
-.env(.example)        API key + base URL (key is git-ignored)
-explore.sh            pulls one sample per endpoint family
-data/samples/         saved JSON responses + _manifest.tsv
-cdeclient/            typed Python client library + CLI  (Phase 1)
+cdeclient/    typed Python CDE API client + CLI            (Phase 1)
+warehouse/    ETL (oh-etl) + dbt → DuckDB/Parquet marts     (Phase 2)
+analysis/     Polars + Plotly notebooks + FINDINGS.md       (Phase 3)
+api/          FastAPI service over the marts (oh-api)       (Phase 4)
+web/          React + Vite + MapLibre command-center UI     (Phase 5)
+Dockerfile    one image: web build → dbt marts → API+static (Phase 6)
+docs/         verified API reference + dashboard screenshot
+data/samples/ saved sample API responses (fixtures)
+.env          API key + base URL (git-ignored)
 ```
