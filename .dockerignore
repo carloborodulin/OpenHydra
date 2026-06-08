@@ -1,0 +1,17 @@
+.git
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/dist
+**/target
+**/.vite
+*.duckdb
+*.duckdb.wal
+data/raw
+.env
+.env.local
+analysis/outputs
+**/.DS_Store
