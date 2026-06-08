@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [cdeclient, warehouse]
+        package: [cdeclient, warehouse, api]
     defaults:
       run:
         working-directory: ${{ matrix.package }}
