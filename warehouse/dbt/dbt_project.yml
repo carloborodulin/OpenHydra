@@ -1,0 +1,14 @@
+name: "openhydra"
+version: "1.0.0"
+profile: "openhydra"
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages", "logs"]
+
+models:
+  openhydra:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

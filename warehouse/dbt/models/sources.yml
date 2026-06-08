@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Long-format Parquet landed by `oh-etl pull` under data/raw/.
+    meta:
+      # {name} is replaced with the table name below; path is relative to the
+      # directory dbt is invoked from (warehouse/dbt).
+      external_location: "read_parquet('../../data/raw/{name}.parquet')"
+    tables:
+      - name: summarized
+      - name: agencies
+      - name: arrests
+      - name: pe

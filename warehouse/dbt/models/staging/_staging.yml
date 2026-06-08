@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_summarized
+    description: Monthly offense & clearance series (long format).
+    columns:
+      - name: series
+        tests:
+          - accepted_values:
+              values: ["offenses", "clearances", "other"]
+      - name: measure
+        tests:
+          - accepted_values:
+              values: ["rate", "actual"]
+      - name: level
+        tests:
+          - accepted_values:
+              values: ["national", "state", "agency"]
+
+  - name: stg_agencies
+    description: One row per reporting agency (ORI).
+    columns:
+      - name: ori
+        tests:
+          - not_null
+
+  - name: stg_arrests
+    description: Arrest demographic breakdowns (long format).
+
+  - name: stg_police_employment
+    description: Law-enforcement employment by year (long format).

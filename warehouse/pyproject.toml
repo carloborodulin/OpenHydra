@@ -30,6 +30,11 @@ dev = [
     "ruff>=0.5",
     "mypy>=1.10",
 ]
+# Heavy; install on demand with `uv sync --group dbt`. Kept out of the default
+# env so lint/type/test stays fast.
+dbt = [
+    "dbt-duckdb>=1.8",
+]
 
 [tool.ruff]
 line-length = 100

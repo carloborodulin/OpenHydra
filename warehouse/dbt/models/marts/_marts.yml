@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: fct_offenses_monthly
+    description: One row per level/area/offense/month with offense & clearance rates/actuals and a clearance ratio.
+    columns:
+      - name: level
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["national", "state", "agency"]
+      - name: offense
+        tests:
+          - not_null
+      - name: period
+        tests:
+          - not_null
+
+  - name: dim_agencies
+    description: One row per reporting agency (ORI).
+    columns:
+      - name: ori
+        tests:
+          - not_null
+          - unique
+
+  - name: fct_arrests
+    description: Arrest demographic breakdowns.
+    columns:
+      - name: category
+        tests:
+          - not_null
+      - name: value
+        tests:
+          - not_null
+
+  - name: fct_police_employment
+    description: Law-enforcement employment by year.
+    columns:
+      - name: metric
+        tests:
+          - not_null
