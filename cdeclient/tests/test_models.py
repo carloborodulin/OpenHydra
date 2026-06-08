@@ -43,3 +43,12 @@ def test_arrest_counts_timeseries(sample: Callable[[str], Any]) -> None:
 def test_pe_parse(sample: Callable[[str], Any]) -> None:
     r = ChartResponse.model_validate(sample("pe_national"))
     assert "Male Officers" in r.actuals
+
+
+def test_null_tooltips_and_populations_coerce_to_empty() -> None:
+    # Some responses (e.g. /pe) send tooltips/populations as null, not {}.
+    r = ChartResponse.model_validate(
+        {"rates": {}, "actuals": {}, "tooltips": None, "populations": None}
+    )
+    assert r.tooltips == {}
+    assert r.populations == {}

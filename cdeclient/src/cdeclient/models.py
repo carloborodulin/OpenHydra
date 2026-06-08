@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 # series name -> period (MM-YYYY or YYYY) -> value
 TimeSeries = dict[str, dict[str, float | None]]
@@ -51,6 +51,12 @@ class _Envelope(BaseModel):
     populations: dict[str, Any] = Field(default_factory=dict)
     tooltips: dict[str, Any] = Field(default_factory=dict)
     cde_properties: CdeProperties | None = None
+
+    @field_validator("populations", "tooltips", mode="before")
+    @classmethod
+    def _null_to_empty(cls, value: Any) -> Any:
+        # Some responses (e.g. /pe) send these as null rather than {}.
+        return {} if value is None else value
 
 
 class Offenses(BaseModel):

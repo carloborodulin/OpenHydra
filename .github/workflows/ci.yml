@@ -6,12 +6,16 @@ on:
   pull_request:
 
 jobs:
-  cdeclient:
-    name: cdeclient — lint, types, tests
+  check:
+    name: ${{ matrix.package }} — lint, types, tests
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [cdeclient, warehouse]
     defaults:
       run:
-        working-directory: cdeclient
+        working-directory: ${{ matrix.package }}
     steps:
       - uses: actions/checkout@v4
 

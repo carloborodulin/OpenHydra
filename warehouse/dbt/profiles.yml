@@ -1,0 +1,9 @@
+# Run dbt from this directory:  uv run --group dbt dbt build --profiles-dir .
+openhydra:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # relative to this dbt project dir -> warehouse/openhydra.duckdb
+      path: "../openhydra.duckdb"
+      threads: 4

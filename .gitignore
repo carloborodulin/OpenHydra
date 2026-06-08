@@ -26,3 +26,11 @@ build/
 # Large / regenerable data pulls (sample data is kept under data/samples/)
 data/raw/
 *.tmp
+
+# dbt / DuckDB build artifacts (regenerable)
+*.duckdb
+*.duckdb.wal
+warehouse/dbt/target/
+warehouse/dbt/dbt_packages/
+warehouse/dbt/logs/
+warehouse/dbt/.user.yml
