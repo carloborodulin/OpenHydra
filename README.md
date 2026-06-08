@@ -7,9 +7,9 @@ the United States. Ingest → store → analyze → serve → visualize.
 - API docs: https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi
 - Get a key: https://api.data.gov/signup/
 
-> **Status:** Phase 1 complete — `cdeclient` (typed Python client + CLI) is
-> built, tested, and lint/type-clean, with CI. Phase 2 (ETL → warehouse) is next.
-> The API surface below is verified against the live API.
+> **Status:** Phases 0–3 done — verified API + docs reference, the `cdeclient`
+> package, the DuckDB/dbt warehouse, and the analysis notebooks. Phase 4 (FastAPI
+> service) is next. The API surface below is verified against the live API.
 
 ## Architecture
 
@@ -19,7 +19,7 @@ web/        React + Vite + TS dashboard (MapLibre GL map, Recharts)   ← fronte
 api/        FastAPI service over the warehouse (no API key in browser) ← backend
    │ reads
 warehouse/  DuckDB + Parquet, transformed with dbt                     ← data engineering
-notebooks/  COVID-spike / clearance-rate / demographics analysis       ← data science
+analysis/   COVID-spike / clearance-rate / demographics notebooks      ← data science
    │ ETL writes
 cdeclient/  typed Python client + CLI (retries, pydantic models)       ← SWE / packaging
    │ HTTP
@@ -45,8 +45,8 @@ critical path for wheel stability).
 
 - [x] **Phase 0** — API key, git, `explore.sh`, samples, verified API reference
 - [x] **Phase 1** — `cdeclient`: typed client + CLI, retries, 20 tests, strict mypy, CI
-- [ ] **Phase 2** — ETL → DuckDB/Parquet warehouse (dbt models)
-- [ ] **Phase 3** — analysis notebooks + narrative
+- [x] **Phase 2** — ETL → DuckDB/Parquet warehouse (dbt models, 13 tests)
+- [x] **Phase 3** — analysis notebooks + narrative (Polars + Plotly over the marts)
 - [ ] **Phase 4** — FastAPI service
 - [ ] **Phase 5** — React/MapLibre dashboard, deployed to Railway
 - [ ] **Phase 6** — polish: docs, screenshots, live demo, green CI

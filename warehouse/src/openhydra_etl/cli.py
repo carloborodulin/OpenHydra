@@ -46,7 +46,9 @@ def pull(
     offs = [o.lower() for o in _split(offenses)] or ALL_OFFENSES
     doms = [d.lower() for d in _split(domains)]
 
-    with CdeClient() as client:
+    # Generous retries: a bulk pull makes many calls and the gateway throws
+    # intermittent 503 spells; ride through them rather than aborting mid-run.
+    with CdeClient(max_attempts=8, base_wait=1.0, max_wait=30.0) as client:
         ex = Extractor(client)
         if "summarized" in doms:
             f = ex.pull_summarized(offs, st, from_, to)
