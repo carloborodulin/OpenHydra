@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+/* ---- design tokens (command-center / HUD) ------------------------------- */
+@theme {
+  --color-bg: #04070d;
+  --color-bg2: #0a131e;
+  --color-line: rgba(45, 212, 238, 0.16);
+  --color-line-strong: rgba(45, 212, 238, 0.45);
+  --color-accent: #22d3ee; /* cyan */
+  --color-warn: #f5b54a; /* amber */
+  --color-alert: #ff5470; /* red */
+  --color-good: #3df5b0; /* green */
+  --color-violet: #a78bfa;
+  --color-ink: #cfe9f5;
+  --color-muted: #5f7d92;
+
+  --font-display: "Orbitron", sans-serif;
+  --font-mono: "Share Tech Mono", ui-monospace, monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    overflow: hidden;
+    background-image:
+      radial-gradient(circle at 15% -10%, rgba(34, 211, 238, 0.1), transparent 45%),
+      radial-gradient(circle at 110% 120%, rgba(167, 139, 250, 0.08), transparent 45%),
+      linear-gradient(rgba(45, 212, 238, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45, 212, 238, 0.035) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      100% 100%,
+      42px 42px,
+      42px 42px;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .panel {
+    position: relative;
+    background: linear-gradient(180deg, rgba(13, 22, 33, 0.78), rgba(7, 13, 21, 0.62));
+    border: 1px solid var(--color-line);
+    backdrop-filter: blur(6px);
+    box-shadow:
+      inset 0 0 36px rgba(34, 211, 238, 0.045),
+      0 8px 30px rgba(0, 0, 0, 0.45);
+  }
+  .brackets::before,
+  .brackets::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--color-line-strong);
+    pointer-events: none;
+  }
+  .brackets::before {
+    top: -1px;
+    left: -1px;
+    border-right: 0;
+    border-bottom: 0;
+  }
+  .brackets::after {
+    bottom: -1px;
+    right: -1px;
+    border-left: 0;
+    border-top: 0;
+  }
+  .panel-title {
+    font-family: var(--font-mono);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    color: var(--color-accent);
+  }
+  .mono {
+    font-family: var(--font-mono);
+  }
+  .display {
+    font-family: var(--font-display);
+  }
+  .glow {
+    text-shadow: 0 0 14px currentColor;
+  }
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-good);
+    box-shadow: 0 0 10px var(--color-good);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes flicker {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.enter {
+  animation: flicker 0.5s ease-out both;
+}
+
+/* MapLibre dark tweaks */
+.maplibregl-ctrl-attrib {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: var(--color-muted) !important;
+  font-size: 9px;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--color-muted) !important;
+}
+.maplibregl-canvas {
+  outline: none;
+}

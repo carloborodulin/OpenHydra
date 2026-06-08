@@ -7,10 +7,13 @@ the United States. Ingest → store → analyze → serve → visualize.
 - API docs: https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi
 - Get a key: https://api.data.gov/signup/
 
-> **Status:** Phases 0–4 done — verified API + docs reference, the `cdeclient`
-> package, the DuckDB/dbt warehouse, the analysis notebooks, and the FastAPI
-> service over the marts. Phase 5 (React/MapLibre dashboard) is next. The API
-> surface below is verified against the live API.
+![OpenHydra command-center dashboard](docs/dashboard.png)
+
+> **Status:** Phases 0–5 done — the full stack is built: verified API + docs
+> reference, the `cdeclient` package, the DuckDB/dbt warehouse, analysis
+> notebooks, the FastAPI service, and the React/MapLibre command-center
+> dashboard. Phase 6 (polish + deploy to Railway) is next. The API surface below
+> is verified against the live API.
 
 ## Architecture
 
@@ -49,7 +52,7 @@ critical path for wheel stability).
 - [x] **Phase 2** — ETL → DuckDB/Parquet warehouse (dbt models, 13 tests)
 - [x] **Phase 3** — analysis notebooks + narrative (Polars + Plotly over the marts)
 - [x] **Phase 4** — FastAPI service over the marts (7 tests, CORS, OpenAPI docs)
-- [ ] **Phase 5** — React/MapLibre dashboard, deployed to Railway
+- [x] **Phase 5** — React/Vite/TS command-center dashboard (Recharts + MapLibre GL)
 - [ ] **Phase 6** — polish: docs, screenshots, live demo, green CI
 
 ## Setup
