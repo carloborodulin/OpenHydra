@@ -1,0 +1,27 @@
+[project]
+name = "openhydra-analysis"
+version = "0.1.0"
+description = "Analysis notebooks over the OpenHydra DuckDB warehouse"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "duckdb>=1.0",
+    "polars>=1.0",
+    "pandas>=2.0",       # plotly express input (via polars .to_pandas)
+    "pyarrow>=14",       # polars -> pandas conversion
+    "plotly>=5.22",
+    "kaleido>=0.2",      # static PNG export for plotly
+    "jupytext>=1.16",    # pairs the percent-format .py with .ipynb
+]
+
+[tool.uv]
+package = false          # this is an environment, not a distributable package
+
+[dependency-groups]
+dev = [
+    "jupyterlab>=4",
+    "ipykernel>=6",
+    "nbconvert>=7",
+]
+
+[tool.ruff]
+line-length = 100
