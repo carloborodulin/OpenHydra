@@ -7,9 +7,10 @@ the United States. Ingest → store → analyze → serve → visualize.
 - API docs: https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi
 - Get a key: https://api.data.gov/signup/
 
-> **Status:** Phases 0–3 done — verified API + docs reference, the `cdeclient`
-> package, the DuckDB/dbt warehouse, and the analysis notebooks. Phase 4 (FastAPI
-> service) is next. The API surface below is verified against the live API.
+> **Status:** Phases 0–4 done — verified API + docs reference, the `cdeclient`
+> package, the DuckDB/dbt warehouse, the analysis notebooks, and the FastAPI
+> service over the marts. Phase 5 (React/MapLibre dashboard) is next. The API
+> surface below is verified against the live API.
 
 ## Architecture
 
@@ -47,7 +48,7 @@ critical path for wheel stability).
 - [x] **Phase 1** — `cdeclient`: typed client + CLI, retries, 20 tests, strict mypy, CI
 - [x] **Phase 2** — ETL → DuckDB/Parquet warehouse (dbt models, 13 tests)
 - [x] **Phase 3** — analysis notebooks + narrative (Polars + Plotly over the marts)
-- [ ] **Phase 4** — FastAPI service
+- [x] **Phase 4** — FastAPI service over the marts (7 tests, CORS, OpenAPI docs)
 - [ ] **Phase 5** — React/MapLibre dashboard, deployed to Railway
 - [ ] **Phase 6** — polish: docs, screenshots, live demo, green CI
 
