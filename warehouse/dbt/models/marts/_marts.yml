@@ -25,8 +25,11 @@ models:
           - unique
 
   - name: fct_arrests
-    description: Arrest demographic breakdowns.
+    description: Arrest demographic breakdowns, per offense.
     columns:
+      - name: offense
+        tests:
+          - not_null
       - name: category
         tests:
           - not_null

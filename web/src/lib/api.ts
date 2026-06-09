@@ -31,6 +31,13 @@ export interface AgencyFeature {
   nibrs_start_year: number | null;
 }
 
+export interface PoliceEmploymentRow {
+  section: string; // "rate" | "actual"
+  metric: string;
+  year: number;
+  value: number | null;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${path}`);
@@ -47,7 +54,9 @@ export const api = {
   meta: () => get<Meta>("/api/meta"),
   offensesMonthly: (offense: string, level = "national", area = "US") =>
     get<OffenseMonthly[]>(`/api/offenses/monthly?${qs({ offense, level, area })}`),
-  arrests: (category: string, level = "national", area = "US") =>
-    get<ArrestRow[]>(`/api/arrests?${qs({ level, area, category })}`),
+  arrests: (category: string, offense?: string, level = "national", area = "US") =>
+    get<ArrestRow[]>(`/api/arrests?${qs({ level, area, offense, category })}`),
   agencies: (state?: string) => get<AgencyFeature[]>(`/api/agencies?${qs({ state })}`),
+  policeEmployment: (level = "national", area = "US") =>
+    get<PoliceEmploymentRow[]>(`/api/police-employment?${qs({ level, area })}`),
 };

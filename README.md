@@ -13,8 +13,11 @@ the United States. Ingest → store → analyze → serve → visualize.
 > **Status: complete & deployed.** All six phases shipped — the `cdeclient`
 > package, the DuckDB/dbt warehouse, analysis notebooks, the FastAPI service, the
 > React/MapLibre command-center dashboard, and a live deployment on Railway
-> (single image: FastAPI serves the API + the built dashboard). The API surface
-> below is verified against the live API.
+> (single image: FastAPI serves the API + the built dashboard). The dashboard
+> is filterable by **region** (national + all 50 states + DC) across every
+> panel — offense trends, clearance, **arrests-by-race per offense**, **police
+> employment**, and a geocoded agency map. The API surface below is verified
+> against the live API.
 
 ## Architecture
 
@@ -85,10 +88,10 @@ Hits one endpoint per family and writes JSON into `data/samples/` (plus
 
 | Family | Example path | Data shape |
 |---|---|---|
-| **Agencies** | `/agency/byStateAbbr/{ST}` | Object keyed by county → array of agencies. Each: `ori`, `agency_name`, `agency_type_name`, `latitude`, `longitude`, `is_nibrs`, `nibrs_start_date`, `counties`, `state_abbr`. (NY = 537 agencies.) **Geocoded → mapping.** |
-| **Summarized** | `/summarized/{national\|state/{ST}\|agency/{ori}}/{offense}` | `offenses.rates` + `offenses.actuals`, each `{series → {MM-YYYY → value}}` with "…Offenses" and "…Clearances" series; plus `populations` (population + participated_population) and `cde_properties`. **Time-series / trends.** |
-| **Arrests** | `/arrest/{national\|state/{ST}}/{offense}?type={totals\|counts}` | `type=totals` → demographic breakdowns (`Arrestee Sex`, `Arrestee Race`, `Male/Female Arrests By Age`, `Offense Name/Category/Breakdown`). `type=counts` → monthly `rates`/`actuals` time series. **Demographics + trends.** |
-| **Police Employment** | `/pe/{national\|state/{ST}}?from=YYYY&to=YYYY` | `rates` (LE employees per 1,000) + `actuals` (Male/Female Officers/Civilians) by year. ⚠️ Many cells are `null` — coverage is sparse for recent years. |
+| **Agencies** | `/agency/byStateAbbr/{ST}` | Object keyed by county → array of agencies. Each: `ori`, `agency_name`, `agency_type_name`, `latitude`, `longitude`, `is_nibrs`, `nibrs_start_date`, `counties`, `state_abbr`. (537 in NY; **19,619 across all 50 states + DC**.) **Geocoded → mapping.** |
+| **Summarized** | `/summarized/{national\|state/{ST}\|agency/{ori}}/{offense}` | `offenses.rates` + `offenses.actuals`, each `{series → {MM-YYYY → value}}` with "…Offenses" and "…Clearances" series; plus `populations` and `cde_properties`. ⚠️ A **state** query also returns a `United States …` **benchmark** series — drop it or it collides with the state's own series. **Time-series / trends.** |
+| **Arrests** | `/arrest/{national\|state/{ST}}/{offense}?type={totals\|counts}` | `type=totals` → demographic breakdowns (`Arrestee Sex`, `Arrestee Race`, `Male/Female Arrests By Age`, `Offense Name/Category/Breakdown`). ⚠️ `offense` is a **numeric code** (e.g. `11`=homicide, `70`=larceny), not the summarized slug — ingested per-offense via a slug→code map. `type=counts` → monthly time series. **Demographics + trends.** |
+| **Police Employment** | `/pe?from=YYYY&to=YYYY` · `/pe/{ST}` · `/pe/{ST}/{ori}` | `rates` (LE employees per 1,000) + `actuals` (Male/Female Officers/Civilians) by year. ⚠️ Use these **canonical** paths — the `/pe/national` and `/pe/state/{ST}` variants answer `200` but return **all-`null`** values. Agency-level / older cells can still be sparse. |
 
 ### Verified offense slugs (summarized)
 

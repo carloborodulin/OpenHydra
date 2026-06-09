@@ -1,6 +1,7 @@
 select
     level,
     area,
+    offense,
     category,
     label,
     value

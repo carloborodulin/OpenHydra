@@ -18,6 +18,17 @@ def test_summarized_to_frame(sample: Callable[[str], Any]) -> None:
     assert df.height > 0
     assert df.schema["period"] == pl.Date
     assert set(df["series"].unique()) >= {"offenses", "clearances"}
+
+
+def test_summarized_state_drops_national_benchmark(sample: Callable[[str], Any]) -> None:
+    # A state query also returns a "United States ..." benchmark series; it must
+    # be dropped so it doesn't collide with the state's own series and inflate
+    # the rate via the mart's max() pivot.
+    resp = SummarizedResponse.model_validate(sample("summarized_state_NY_violent"))
+    df = normalize.summarized_to_frame(resp, level="state", area="NY", offense="violent-crime")
+    # Exactly one row per (series, measure, period) — no benchmark duplicates.
+    dup = df.group_by(["series", "measure", "period"]).len().filter(pl.col("len") > 1)
+    assert dup.height == 0
     assert set(df["measure"].unique()) == {"rate", "actual"}
     assert df["period"].min() >= date(2000, 1, 1)
 
@@ -33,10 +44,11 @@ def test_agencies_to_frame(sample: Callable[[str], Any]) -> None:
 
 def test_arrests_to_frame(sample: Callable[[str], Any]) -> None:
     resp = ArrestTotalsResponse.model_validate(sample("arrest_national_all_totals"))
-    df = normalize.arrests_to_frame(resp, level="national", area="US")
+    df = normalize.arrests_to_frame(resp, level="national", area="US", offense="violent-crime")
     assert df.columns == list(normalize.ARRESTS_SCHEMA)
     assert df.height > 0
     assert "Arrestee Sex" in set(df["category"].unique())
+    assert set(df["offense"].unique()) == {"violent-crime"}
 
 
 def test_pe_to_frame(sample: Callable[[str], Any]) -> None:

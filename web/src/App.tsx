@@ -6,11 +6,17 @@ import { StatTile } from "./components/StatTile";
 import { TopBar } from "./components/TopBar";
 import { ArrestsChart } from "./components/charts/ArrestsChart";
 import { ClearanceChart } from "./components/charts/ClearanceChart";
+import { PoliceEmploymentChart } from "./components/charts/PoliceEmploymentChart";
 import { TrendChart } from "./components/charts/TrendChart";
 import { fmtNum, fmtPct, fmtRate, lastNonNull, monthLabel, titleCase } from "./lib/format";
-import { useAgencies, useArrests, useMeta, useOffenseMonthly } from "./lib/queries";
-
-const MAP_STATE = "NY";
+import { regionName } from "./lib/states";
+import {
+  useAgencies,
+  useArrests,
+  useMeta,
+  useOffenseMonthly,
+  usePoliceEmployment,
+} from "./lib/queries";
 
 function Empty({ state }: { state: { isLoading: boolean; isError: boolean } }) {
   const label = state.isError ? "Signal Lost" : state.isLoading ? "Acquiring…" : "No Data";
@@ -39,12 +45,20 @@ function Legend() {
 export default function App() {
   const meta = useMeta();
   const offenses = meta.data?.offenses ?? [];
+  const states = meta.data?.states ?? [];
   const [offense, setOffense] = useState("homicide");
+  const [region, setRegion] = useState("US"); // "US" = national
   const active = offenses.includes(offense) ? offense : (offenses[0] ?? offense);
 
-  const monthly = useOffenseMonthly(active);
-  const race = useArrests("Arrestee Race");
-  const agencies = useAgencies(MAP_STATE);
+  const isNational = region === "US";
+  const level = isNational ? "national" : "state";
+  const area = region;
+  const regionLabel = regionName(region);
+
+  const monthly = useOffenseMonthly(active, level, area);
+  const race = useArrests("Arrestee Race", active, level, area);
+  const agencies = useAgencies(isNational ? undefined : region);
+  const pe = usePoliceEmployment(level, area);
 
   const rows = useMemo(() => monthly.data ?? [], [monthly.data]);
   const win = rows.length
@@ -68,17 +82,24 @@ export default function App() {
   const ag = agencies.data ?? [];
   const nibrs = ag.filter((a) => a.is_nibrs).length;
   const nibrsPct = ag.length ? Math.round((nibrs / ag.length) * 100) : 0;
+  const hasPe = (pe.data ?? []).some((r) => r.value != null);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <TopBar window={win} />
       <main
         className="grid min-h-0 flex-1 grid-cols-12 gap-3 p-3"
-        style={{ gridTemplateRows: "auto auto minmax(0, 1fr) minmax(0, 1fr)" }}
+        style={{ gridTemplateRows: "auto auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)" }}
       >
-        <section className="panel brackets enter col-span-12 flex items-center gap-4 px-4 py-2.5">
-          <span className="panel-title shrink-0">Offense</span>
-          <Controls offenses={offenses} value={active} onChange={setOffense} />
+        <section className="panel brackets enter col-span-12 flex items-center px-4 py-2.5">
+          <Controls
+            offenses={offenses}
+            value={active}
+            onChange={setOffense}
+            states={states}
+            region={region}
+            onRegionChange={setRegion}
+          />
         </section>
 
         <div className="col-span-3">
@@ -106,7 +127,7 @@ export default function App() {
         </div>
         <div className="col-span-3">
           <StatTile
-            label={`Agencies · ${MAP_STATE}`}
+            label={`Agencies · ${region}`}
             accent="good"
             value={fmtNum(ag.length)}
             sub={`${nibrs} NIBRS · ${nibrsPct}%`}
@@ -114,16 +135,16 @@ export default function App() {
         </div>
 
         <Panel
-          title={`Offense Rate · ${titleCase(active)} · National`}
+          title={`Offense Rate · ${titleCase(active)} · ${regionLabel}`}
           className="col-span-8 col-start-1 row-start-3"
         >
           {rows.length ? <TrendChart data={rows} /> : <Empty state={monthly} />}
         </Panel>
 
         <Panel
-          title={`Agency Network · ${MAP_STATE}`}
+          title={`Agency Network · ${regionLabel}`}
           right={<Legend />}
-          className="col-span-4 col-start-9 row-start-3 row-span-2"
+          className="col-span-4 col-start-9 row-start-3 row-span-3"
           bodyClass="relative overflow-hidden p-0"
         >
           {ag.length ? <MapPanel agencies={ag} /> : <Empty state={agencies} />}
@@ -136,8 +157,18 @@ export default function App() {
           {rows.length ? <ClearanceChart data={rows} /> : <Empty state={monthly} />}
         </Panel>
 
-        <Panel title="Arrests by Race · National" className="col-span-4 col-start-5 row-start-4">
+        <Panel
+          title={`Arrests by Race · ${titleCase(active)} · ${regionLabel}`}
+          className="col-span-4 col-start-5 row-start-4"
+        >
           {race.data?.length ? <ArrestsChart data={race.data} /> : <Empty state={race} />}
+        </Panel>
+
+        <Panel
+          title={`Police Employment · ${regionLabel}`}
+          className="col-span-8 col-start-1 row-start-5"
+        >
+          {hasPe ? <PoliceEmploymentChart data={pe.data ?? []} /> : <Empty state={pe} />}
         </Panel>
       </main>
     </div>
