@@ -21,6 +21,10 @@ RUN uvx --from "dbt-duckdb>=1.8" dbt build --profiles-dir .
 
 # ---- 3. API runtime --------------------------------------------------------
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS final
+# The api depends on the local cdeclient (uv.sources path = "../cdeclient", used
+# by the live agency drill-down routes), so it must sit alongside the api dir for
+# `uv sync` to resolve and editable-install it.
+COPY cdeclient/ /app/cdeclient/
 WORKDIR /app/api
 COPY api/ ./
 RUN uv sync --frozen --no-dev
