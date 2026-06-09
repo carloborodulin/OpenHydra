@@ -1,11 +1,12 @@
 # OpenHydra
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/carloborodulin/OpenHydra/ci.yml?branch=main&logo=githubactions&logoColor=white)](https://github.com/carloborodulin/OpenHydra/actions)
-[![Last Commit](https://img.shields.io/github/last-commit/carloborodulin/OpenHydra?logo=git&logoColor=white)](https://github.com/carloborodulin/OpenHydra/commits/main)
-[![Repo Size](https://img.shields.io/github/repo-size/carloborodulin/OpenHydra?logo=github&logoColor=white)](https://github.com/carloborodulin/OpenHydra)
-[![Open Issues](https://img.shields.io/github/issues/carloborodulin/OpenHydra?logo=github&logoColor=white)](https://github.com/carloborodulin/OpenHydra/issues)
-[![Open Pull Requests](https://img.shields.io/github/issues-pr/carloborodulin/OpenHydra?logo=github&logoColor=white&label=prs)](https://github.com/carloborodulin/OpenHydra/pulls)
-[![Languages](https://img.shields.io/github/languages/count/carloborodulin/OpenHydra?logo=github&logoColor=white)](https://github.com/carloborodulin/OpenHydra)
+[![Build Status](https://github.com/carloborodulin/OpenHydra/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/carloborodulin/OpenHydra/actions/workflows/ci.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)](https://github.com/carloborodulin/OpenHydra)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://react.dev/)
+[![dbt](https://img.shields.io/badge/dbt-FF694B?logo=dbt&logoColor=white)](https://www.getdbt.com/)
+[![DuckDB](https://img.shields.io/badge/DuckDB-FFF000?logo=duckdb&logoColor=black)](https://duckdb.org/)
+[![Deployed on Railway](https://img.shields.io/badge/Railway-000000?logo=railway&logoColor=white)](https://openhydra-production.up.railway.app)
 
 An end-to-end crime-data analytics platform built on the **FBI Crime Data
 Explorer (CDE) API** — the FBI's public Uniform Crime Reporting (UCR) data for
