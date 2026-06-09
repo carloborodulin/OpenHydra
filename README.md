@@ -1,5 +1,12 @@
 # OpenHydra
 
+[![Build Status](https://img.shields.io/github/actions/workflow/status/carloborodulin/OpenHydra/ci.yml?branch=main&logo=githubactions&logoColor=white)](https://github.com/carloborodulin/OpenHydra/actions)
+[![Last Commit](https://img.shields.io/github/last-commit/carloborodulin/OpenHydra?logo=git&logoColor=white)](https://github.com/carloborodulin/OpenHydra/commits/main)
+[![Repo Size](https://img.shields.io/github/repo-size/carloborodulin/OpenHydra?logo=github&logoColor=white)](https://github.com/carloborodulin/OpenHydra)
+[![Open Issues](https://img.shields.io/github/issues/carloborodulin/OpenHydra?logo=github&logoColor=white)](https://github.com/carloborodulin/OpenHydra/issues)
+[![Open Pull Requests](https://img.shields.io/github/issues-pr/carloborodulin/OpenHydra?logo=github&logoColor=white&label=prs)](https://github.com/carloborodulin/OpenHydra/pulls)
+[![Languages](https://img.shields.io/github/languages/count/carloborodulin/OpenHydra?logo=github&logoColor=white)](https://github.com/carloborodulin/OpenHydra)
+
 An end-to-end crime-data analytics platform built on the **FBI Crime Data
 Explorer (CDE) API** — the FBI's public Uniform Crime Reporting (UCR) data for
 the United States. Ingest → store → analyze → serve → visualize.
