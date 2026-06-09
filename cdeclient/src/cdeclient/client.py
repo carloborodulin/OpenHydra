@@ -176,6 +176,17 @@ class CdeClient:
             f"arrest/state/{state.upper()}/{_slug(offense)}", arrest_type, from_, to
         )
 
+    def arrests_agency(
+        self,
+        ori: str,
+        offense: Offense | str = "all",
+        *,
+        arrest_type: ArrestType | str = ArrestType.TOTALS,
+        from_: str | date,
+        to: str | date,
+    ) -> ArrestTotalsResponse | ChartResponse:
+        return self._arrests(f"arrest/agency/{ori}/{_slug(offense)}", arrest_type, from_, to)
+
     def _arrests(
         self,
         path: str,
@@ -201,4 +212,15 @@ class CdeClient:
         self, state: str, from_: str | date, to: str | date
     ) -> ChartResponse:
         data = self._get_json(f"pe/{state.upper()}", self._range(from_, to, yearly=True))
+        return ChartResponse.model_validate(data)
+
+    def police_employment_agency(
+        self, state: str, ori: str, from_: str | date, to: str | date
+    ) -> ChartResponse:
+        """Agency-level LE employment via the canonical /pe/{state}/{ori} path.
+
+        Agency / older cells are often null (sparse) — callers should tolerate
+        empty series.
+        """
+        data = self._get_json(f"pe/{state.upper()}/{ori}", self._range(from_, to, yearly=True))
         return ChartResponse.model_validate(data)

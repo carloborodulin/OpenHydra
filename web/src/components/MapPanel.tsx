@@ -6,9 +6,21 @@ import type { AgencyFeature } from "../lib/api";
 
 const STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
-export function MapPanel({ agencies }: { agencies: AgencyFeature[] }) {
+export function MapPanel({
+  agencies,
+  onSelectAgency,
+}: {
+  agencies: AgencyFeature[];
+  onSelectAgency?: (ori: string, name: string) => void;
+}) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
+  // Keep the latest callback in a ref so the once-registered map listeners
+  // never close over a stale prop (updated in an effect, not during render).
+  const onSelect = useRef(onSelectAgency);
+  useEffect(() => {
+    onSelect.current = onSelectAgency;
+  });
 
   useEffect(() => {
     if (!container.current || map.current) return;
@@ -21,6 +33,19 @@ export function MapPanel({ agencies }: { agencies: AgencyFeature[] }) {
     });
     m.on("error", (e) => console.error("[map]", e.error?.message ?? String(e)));
     m.on("load", () => m.resize());
+    // Click a point to drill into that agency; the layer is added later, but a
+    // layer-scoped listener is resolved at dispatch time so registering here is
+    // safe and runs only once.
+    m.on("click", "agencies-core", (e) => {
+      const p = e.features?.[0]?.properties as { ori?: string; name?: string } | undefined;
+      if (p?.ori) onSelect.current?.(p.ori, p.name ?? p.ori);
+    });
+    m.on("mouseenter", "agencies-core", () => {
+      m.getCanvas().style.cursor = "pointer";
+    });
+    m.on("mouseleave", "agencies-core", () => {
+      m.getCanvas().style.cursor = "";
+    });
     map.current = m;
     // MapLibre has no built-in resize handling; the panel starts at 0px during
     // the first layout pass, so observe and resize when it gets real dimensions.
@@ -48,7 +73,7 @@ export function MapPanel({ agencies }: { agencies: AgencyFeature[] }) {
       .map((a) => ({
         type: "Feature",
         geometry: { type: "Point", coordinates: [a.longitude as number, a.latitude as number] },
-        properties: { nibrs: a.is_nibrs ? 1 : 0, name: a.agency_name },
+        properties: { nibrs: a.is_nibrs ? 1 : 0, name: a.agency_name, ori: a.ori },
       }));
     const data: FeatureCollection = { type: "FeatureCollection", features };
 

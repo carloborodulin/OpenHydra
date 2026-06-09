@@ -59,4 +59,14 @@ export const api = {
   agencies: (state?: string) => get<AgencyFeature[]>(`/api/agencies?${qs({ state })}`),
   policeEmployment: (level = "national", area = "US") =>
     get<PoliceEmploymentRow[]>(`/api/police-employment?${qs({ level, area })}`),
+
+  // Agency drill-down: served live from the CDE API by the backend, same shapes.
+  agencyOffenses: (ori: string, offense: string) =>
+    get<OffenseMonthly[]>(`/api/agency/${encodeURIComponent(ori)}/offenses?${qs({ offense })}`),
+  agencyArrests: (ori: string, category: string, offense?: string) =>
+    get<ArrestRow[]>(
+      `/api/agency/${encodeURIComponent(ori)}/arrests?${qs({ category, offense })}`,
+    ),
+  agencyPoliceEmployment: (ori: string) =>
+    get<PoliceEmploymentRow[]>(`/api/agency/${encodeURIComponent(ori)}/police-employment`),
 };

@@ -30,3 +30,29 @@ export const usePoliceEmployment = (level = "national", area = "US") =>
     queryKey: ["police-employment", level, area],
     queryFn: () => api.policeEmployment(level, area),
   });
+
+// Agency drill-down hooks — disabled until an agency (ori) is selected.
+export const useAgencyOffenseMonthly = (ori: string | undefined, offense: string) =>
+  useQuery({
+    queryKey: ["agency-offense-monthly", ori, offense],
+    queryFn: () => api.agencyOffenses(ori as string, offense),
+    enabled: Boolean(ori && offense),
+  });
+
+export const useAgencyArrests = (
+  ori: string | undefined,
+  category: string,
+  offense?: string,
+) =>
+  useQuery({
+    queryKey: ["agency-arrests", ori, category, offense],
+    queryFn: () => api.agencyArrests(ori as string, category, offense),
+    enabled: Boolean(ori),
+  });
+
+export const useAgencyPoliceEmployment = (ori: string | undefined) =>
+  useQuery({
+    queryKey: ["agency-pe", ori],
+    queryFn: () => api.agencyPoliceEmployment(ori as string),
+    enabled: Boolean(ori),
+  });

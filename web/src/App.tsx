@@ -12,6 +12,9 @@ import { fmtNum, fmtPct, fmtRate, lastNonNull, monthLabel, titleCase } from "./l
 import { regionName } from "./lib/states";
 import {
   useAgencies,
+  useAgencyArrests,
+  useAgencyOffenseMonthly,
+  useAgencyPoliceEmployment,
   useArrests,
   useMeta,
   useOffenseMonthly,
@@ -48,17 +51,38 @@ export default function App() {
   const states = meta.data?.states ?? [];
   const [offense, setOffense] = useState("homicide");
   const [region, setRegion] = useState("US"); // "US" = national
+  // When set, the trend/clearance/arrests/PE panels drill into one department
+  // (served live by the backend); the map still shows the region's agencies.
+  const [selectedAgency, setSelectedAgency] = useState<{ ori: string; name: string } | null>(
+    null,
+  );
   const active = offenses.includes(offense) ? offense : (offenses[0] ?? offense);
 
   const isNational = region === "US";
   const level = isNational ? "national" : "state";
   const area = region;
   const regionLabel = regionName(region);
+  // Picking a region clears any drilled-in agency.
+  const selectRegion = (r: string) => {
+    setRegion(r);
+    setSelectedAgency(null);
+  };
 
-  const monthly = useOffenseMonthly(active, level, area);
-  const race = useArrests("Arrestee Race", active, level, area);
+  // Region-level (warehouse) and agency-level (live) sources; the agency hooks
+  // stay disabled until an agency is selected. Display whichever is active.
+  const ori = selectedAgency?.ori;
+  const monthlyRegion = useOffenseMonthly(active, level, area);
+  const raceRegion = useArrests("Arrestee Race", active, level, area);
+  const peRegion = usePoliceEmployment(level, area);
+  const monthlyAgency = useAgencyOffenseMonthly(ori, active);
+  const raceAgency = useAgencyArrests(ori, "Arrestee Race", active);
+  const peAgency = useAgencyPoliceEmployment(ori);
+
+  const monthly = selectedAgency ? monthlyAgency : monthlyRegion;
+  const race = selectedAgency ? raceAgency : raceRegion;
+  const pe = selectedAgency ? peAgency : peRegion;
   const agencies = useAgencies(isNational ? undefined : region);
-  const pe = usePoliceEmployment(level, area);
+  const focusLabel = selectedAgency ? selectedAgency.name : regionLabel;
 
   const rows = useMemo(() => monthly.data ?? [], [monthly.data]);
   const win = rows.length
@@ -91,15 +115,25 @@ export default function App() {
         className="grid min-h-0 flex-1 grid-cols-12 gap-3 p-3"
         style={{ gridTemplateRows: "auto auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)" }}
       >
-        <section className="panel brackets enter col-span-12 flex items-center px-4 py-2.5">
+        <section className="panel brackets enter col-span-12 flex items-center gap-4 px-4 py-2.5">
           <Controls
             offenses={offenses}
             value={active}
             onChange={setOffense}
             states={states}
             region={region}
-            onRegionChange={setRegion}
+            onRegionChange={selectRegion}
           />
+          {selectedAgency && (
+            <button
+              type="button"
+              onClick={() => setSelectedAgency(null)}
+              title={`Exit ${selectedAgency.name}`}
+              className="mono glow ml-auto shrink-0 cursor-pointer border border-accent bg-[rgba(34,211,238,0.1)] px-2.5 py-1 text-[0.62rem] tracking-wider text-accent uppercase transition hover:border-line-strong"
+            >
+              ← {regionLabel} · ✕ {selectedAgency.name}
+            </button>
+          )}
         </section>
 
         <div className="col-span-3">
@@ -135,7 +169,7 @@ export default function App() {
         </div>
 
         <Panel
-          title={`Offense Rate · ${titleCase(active)} · ${regionLabel}`}
+          title={`Offense Rate · ${titleCase(active)} · ${focusLabel}`}
           className="col-span-8 col-start-1 row-start-3"
         >
           {rows.length ? <TrendChart data={rows} /> : <Empty state={monthly} />}
@@ -147,7 +181,14 @@ export default function App() {
           className="col-span-4 col-start-9 row-start-3 row-span-3"
           bodyClass="relative overflow-hidden p-0"
         >
-          {ag.length ? <MapPanel agencies={ag} /> : <Empty state={agencies} />}
+          {ag.length ? (
+            <MapPanel
+              agencies={ag}
+              onSelectAgency={(ori, name) => setSelectedAgency({ ori, name })}
+            />
+          ) : (
+            <Empty state={agencies} />
+          )}
         </Panel>
 
         <Panel
@@ -158,14 +199,14 @@ export default function App() {
         </Panel>
 
         <Panel
-          title={`Arrests by Race · ${titleCase(active)} · ${regionLabel}`}
+          title={`Arrests by Race · ${titleCase(active)} · ${focusLabel}`}
           className="col-span-4 col-start-5 row-start-4"
         >
           {race.data?.length ? <ArrestsChart data={race.data} /> : <Empty state={race} />}
         </Panel>
 
         <Panel
-          title={`Police Employment · ${regionLabel}`}
+          title={`Police Employment · ${focusLabel}`}
           className="col-span-8 col-start-1 row-start-5"
         >
           {hasPe ? <PoliceEmploymentChart data={pe.data ?? []} /> : <Empty state={pe} />}

@@ -7,15 +7,32 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import duckdb
+from cdeclient import CdeClient, CdeError
+from cdeclient.constants import ARREST_OFFENSE_CODES
+from cdeclient.models import ArrestTotalsResponse
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pydantic import ValidationError
 
+from . import agency_live
+from .cde import get_cde_client
 from .db import get_conn
 from .models import AgencyFeature, ArrestRow, Meta, OffenseMonthly, PoliceEmploymentRow
 
 # Request-scoped read-only DuckDB connection (FastAPI Annotated dependency).
 Conn = Annotated[duckdb.DuckDBPyConnection, Depends(get_conn)]
+# Request-scoped live CDE client for agency drill-down.
+Cde = Annotated[CdeClient, Depends(get_cde_client)]
+
+# Window for live agency calls (mirrors the ETL defaults). Most endpoints take
+# MM-YYYY; /pe takes 4-digit years.
+LIVE_FROM, LIVE_TO = "01-2020", "12-2022"
+LIVE_FROM_YEAR, LIVE_TO_YEAR = "2020", "2022"
+
+# Live agency calls degrade to empty rows on these: gateway/network hiccups
+# (CdeError) or an unexpected/sparse response shape (ValidationError).
+LIVE_ERRORS = (CdeError, ValidationError)
 
 app = FastAPI(
     title="OpenHydra API",
@@ -133,6 +150,62 @@ def police_employment(
         "where level = ? and area = ? order by metric, year",
         [level, area],
     )
+
+
+# -- agency drill-down (live, proxied from the CDE API) --------------------
+# The warehouse only holds national + state rows. Per-agency data for ~19,619
+# agencies can't be pre-materialized, so these routes fetch live via cdeclient
+# and normalize to the same row shapes the warehouse routes return, with a small
+# TTL cache in front (see agency_live).
+
+
+@app.get("/api/agency/{ori}/offenses", response_model=list[OffenseMonthly])
+def agency_offenses(ori: str, offense: str, client: Cde) -> list[dict[str, Any]]:
+    def produce() -> list[dict[str, Any]]:
+        try:
+            resp = client.summarized_agency(ori, offense, LIVE_FROM, LIVE_TO)
+        except LIVE_ERRORS:
+            return []
+        return agency_live.offenses_to_rows(resp)
+
+    return agency_live.cached(agency_live.cache_key("offenses", ori, offense), produce)
+
+
+@app.get("/api/agency/{ori}/arrests", response_model=list[ArrestRow])
+def agency_arrests(
+    ori: str,
+    client: Cde,
+    category: str | None = None,
+    offense: str | None = None,
+) -> list[dict[str, Any]]:
+    # Arrests use a numeric offense code, not the summarized slug (same map the
+    # ETL uses); the two aggregate slugs fall back to "all".
+    code = ARREST_OFFENSE_CODES.get(offense, "all") if offense else "all"
+
+    def produce() -> list[dict[str, Any]]:
+        try:
+            resp = client.arrests_agency(ori, code, from_=LIVE_FROM, to=LIVE_TO)
+        except LIVE_ERRORS:
+            return []
+        if not isinstance(resp, ArrestTotalsResponse):  # type=totals -> totals shape
+            return []
+        return agency_live.arrests_to_rows(resp, category)
+
+    return agency_live.cached(agency_live.cache_key("arrests", ori, code, category), produce)
+
+
+@app.get("/api/agency/{ori}/police-employment", response_model=list[PoliceEmploymentRow])
+def agency_police_employment(ori: str, client: Cde) -> list[dict[str, Any]]:
+    state = ori[:2]  # NCIC ORIs are state-prefixed; /pe needs {state}/{ori}
+
+    def produce() -> list[dict[str, Any]]:
+        try:
+            resp = client.police_employment_agency(state, ori, LIVE_FROM_YEAR, LIVE_TO_YEAR)
+        except LIVE_ERRORS:
+            return []
+        return agency_live.pe_to_rows(resp)
+
+    return agency_live.cached(agency_live.cache_key("pe", ori), produce)
 
 
 # In production the built frontend is mounted at the root (path set via env in

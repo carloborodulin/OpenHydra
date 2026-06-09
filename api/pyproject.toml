@@ -9,10 +9,14 @@ dependencies = [
     "uvicorn[standard]>=0.29",
     "duckdb>=1.0",
     "pydantic>=2.7",
+    "cdeclient",
 ]
 
 [project.scripts]
 oh-api = "openhydra_api.main:run"
+
+[tool.uv.sources]
+cdeclient = { path = "../cdeclient", editable = true }
 
 [build-system]
 requires = ["hatchling"]

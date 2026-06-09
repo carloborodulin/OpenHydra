@@ -65,6 +65,13 @@ class Offenses(BaseModel):
     rates: TimeSeries = Field(default_factory=dict)
     actuals: TimeSeries = Field(default_factory=dict)
 
+    @field_validator("rates", "actuals", mode="before")
+    @classmethod
+    def _series_null_to_empty(cls, value: Any) -> Any:
+        # Sparse areas (e.g. an agency with no reported data) send rates/actuals
+        # as null rather than {}; coerce so validation still passes.
+        return {} if value is None else value
+
 
 class SummarizedResponse(_Envelope):
     """/summarized/* — monthly offense & clearance series under ``offenses``."""
@@ -77,6 +84,11 @@ class ChartResponse(_Envelope):
 
     rates: TimeSeries = Field(default_factory=dict)
     actuals: TimeSeries = Field(default_factory=dict)
+
+    @field_validator("rates", "actuals", mode="before")
+    @classmethod
+    def _series_null_to_empty(cls, value: Any) -> Any:
+        return {} if value is None else value
 
 
 class ArrestTotalsResponse(_Envelope):

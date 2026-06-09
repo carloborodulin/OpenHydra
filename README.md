@@ -24,8 +24,11 @@ the United States. Ingest → store → analyze → serve → visualize.
 > (single image: FastAPI serves the API + the built dashboard). The dashboard
 > is filterable by **region** (national + all 50 states + DC) across every
 > panel — offense trends, clearance, **arrests-by-race per offense**, **police
-> employment**, and a geocoded agency map. The API surface below is verified
-> against the live API.
+> employment**, and a geocoded agency map. **Clicking any agency on the map
+> drills into that department** — its offense, clearance, arrests, and
+> employment panels are fetched **live** from the CDE API (cached) since
+> per-agency data for ~19,600 agencies isn't pre-materialized. The API surface
+> below is verified against the live API.
 
 ## Architecture
 
@@ -101,6 +104,21 @@ Hits one endpoint per family and writes JSON into `data/samples/` (plus
 | **Arrests** | `/arrest/{national\|state/{ST}}/{offense}?type={totals\|counts}` | `type=totals` → demographic breakdowns (`Arrestee Sex`, `Arrestee Race`, `Male/Female Arrests By Age`, `Offense Name/Category/Breakdown`). ⚠️ `offense` is a **numeric code** (e.g. `11`=homicide, `70`=larceny), not the summarized slug — ingested per-offense via a slug→code map. `type=counts` → monthly time series. **Demographics + trends.** |
 | **Police Employment** | `/pe?from=YYYY&to=YYYY` · `/pe/{ST}` · `/pe/{ST}/{ori}` | `rates` (LE employees per 1,000) + `actuals` (Male/Female Officers/Civilians) by year. ⚠️ Use these **canonical** paths — the `/pe/national` and `/pe/state/{ST}` variants answer `200` but return **all-`null`** values. Agency-level / older cells can still be sparse. |
 
+### Agency drill-down (served live)
+
+The warehouse holds national + state rows only. Clicking an agency on the map
+hits three backend routes that proxy the CDE API **live** (via `cdeclient`) and
+normalize the responses to the same row shapes the warehouse routes return, with
+a small in-process TTL cache in front:
+
+| Backend route | Upstream CDE path |
+|---|---|
+| `/api/agency/{ori}/offenses` | `/summarized/agency/{ori}/{offense}` |
+| `/api/agency/{ori}/arrests` | `/arrest/agency/{ori}/{code}?type=totals` |
+| `/api/agency/{ori}/police-employment` | `/pe/{ST}/{ori}` |
+
+Agency-level data is sparse upstream, so panels degrade gracefully to "No Data".
+
 ### Verified offense slugs (summarized)
 
 `violent-crime`, `homicide`, `rape`, `robbery`, `aggravated-assault`,
@@ -124,6 +142,11 @@ CORS in the browser). Live on Railway:
 ```bash
 railway up        # builds the Dockerfile and deploys; FastAPI binds $PORT
 ```
+
+> **Runtime env:** set **`FBI_CDE_API_KEY`** in the Railway environment. The
+> warehouse-backed panels need no key, but the live **agency drill-down** routes
+> (`/api/agency/{ori}/*`) call the CDE API at request time. The browser still
+> never sees the key — it calls our API, which calls the FBI.
 
 ## Layout
 

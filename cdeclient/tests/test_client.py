@@ -90,6 +90,54 @@ def test_pe_state_uses_canonical_path() -> None:
     assert route.called
 
 
+@respx.mock
+def test_arrests_agency_builds_path(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/arrest/agency/NY0303000/11").mock(
+        return_value=Response(200, json=sample("arrest_state_NY_all"))
+    )
+    with _client() as c:
+        c.arrests_agency("NY0303000", "11", from_="01-2020", to="12-2022")
+
+    assert route.called
+    params = route.calls.last.request.url.params
+    assert params["type"] == "totals"
+    assert params["from"] == "01-2020"
+
+
+@respx.mock
+def test_pe_agency_uses_state_and_ori_path() -> None:
+    route = respx.get(f"{BASE}/pe/NY/NY0303000").mock(
+        return_value=Response(200, json={"rates": {}, "actuals": {}})
+    )
+    with _client() as c:
+        c.police_employment_agency("ny", "NY0303000", "2018", "2022")
+
+    assert route.called
+    params = route.calls.last.request.url.params
+    assert params["from"] == "2018"  # yearly range, not MM-YYYY
+
+
+@respx.mock
+def test_summarized_tolerates_null_series_for_sparse_area() -> None:
+    # An agency with no reported data returns offenses.actuals = null (not {}).
+    respx.get(f"{BASE}/summarized/agency/ZZ9999999/homicide").mock(
+        return_value=Response(200, json={"offenses": {"rates": None, "actuals": None}})
+    )
+    with _client() as c:
+        r = c.summarized_agency("ZZ9999999", "homicide", "01-2020", "12-2022")
+    assert r.offenses.rates == {} and r.offenses.actuals == {}
+
+
+@respx.mock
+def test_pe_tolerates_null_series() -> None:
+    respx.get(f"{BASE}/pe/NY/NY0303000").mock(
+        return_value=Response(200, json={"rates": None, "actuals": None})
+    )
+    with _client() as c:
+        r = c.police_employment_agency("NY", "NY0303000", "2018", "2022")
+    assert r.rates == {} and r.actuals == {}
+
+
 def test_arrest_offense_codes_cover_all_offenses() -> None:
     # Every summarized offense slug has an arrest code; aggregates fall back to "all".
     assert set(ARREST_OFFENSE_CODES) == set(Offense)
