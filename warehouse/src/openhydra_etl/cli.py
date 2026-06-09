@@ -62,8 +62,10 @@ def pull(
             else:
                 typer.echo("agencies   -> skipped (pass --states; agencies are per-state)")
         if "arrests" in doms:
-            f = ex.pull_arrests(st, from_, to)
-            typer.echo(f"arrests    -> {f.height} rows")
+            f = ex.pull_arrests(st, offs, from_, to)
+            typer.echo(
+                f"arrests    -> {f.height} rows ({len(offs)} offenses, {len(st)} states + national)"
+            )
         if "pe" in doms:
             f = ex.pull_pe(st, from_, to)
             typer.echo(f"pe         -> {f.height} rows")

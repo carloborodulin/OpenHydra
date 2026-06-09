@@ -36,11 +36,14 @@ def client(tmp_path) -> Iterator[TestClient]:
             ('NY001','Test PD','City','ERIE','NY','New York', 42.0, -78.0, true, 2021);
 
         create table fct_arrests(
-            level varchar, area varchar, category varchar, label varchar, value double
+            level varchar, area varchar, offense varchar,
+            category varchar, label varchar, value double
         );
         insert into fct_arrests values
-            ('national','US','Arrestee Sex','Male', 100.0),
-            ('national','US','Arrestee Sex','Female', 40.0);
+            ('national','US','homicide','Arrestee Sex','Male', 100.0),
+            ('national','US','homicide','Arrestee Sex','Female', 40.0),
+            ('national','US','burglary','Arrestee Sex','Male', 200.0),
+            ('national','US','burglary','Arrestee Sex','Female', 80.0);
 
         create table fct_police_employment(
             level varchar, area varchar, section varchar,

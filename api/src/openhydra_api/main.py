@@ -106,10 +106,14 @@ def arrests(
     conn: Conn,
     level: str = "national",
     area: str = "US",
+    offense: str | None = None,
     category: str | None = None,
 ) -> list[dict[str, Any]]:
     sql = "select category, label, value from fct_arrests where level = ? and area = ?"
     params: list[Any] = [level, area]
+    if offense:
+        sql += " and offense = ?"
+        params.append(offense)
     if category:
         sql += " and category = ?"
         params.append(category)

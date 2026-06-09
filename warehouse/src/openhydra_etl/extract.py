@@ -7,7 +7,7 @@ from pathlib import Path
 
 import polars as pl
 from cdeclient import CdeClient
-from cdeclient.constants import Offense
+from cdeclient.constants import ARREST_OFFENSE_CODES, Offense
 
 from . import normalize
 from .config import RAW_DIR
@@ -71,15 +71,43 @@ class Extractor:
         return frame
 
     def pull_arrests(
-        self, states: list[str], from_: str, to: str, *, include_national: bool = True
+        self,
+        states: list[str],
+        offenses: list[str],
+        from_: str,
+        to: str,
+        *,
+        include_national: bool = True,
     ) -> pl.DataFrame:
+        # Arrests take a numeric offense code, a different taxonomy from the
+        # summarized slugs. Map slug -> code; the two aggregate slugs share the
+        # "all" code, so fetch each unique code once per area then emit a frame
+        # per slug (keyed on the summarized slug the rest of the app uses).
+        codes: dict[str, str] = {off: ARREST_OFFENSE_CODES.get(off, "all") for off in offenses}
+
+        def _per_area(fetch, level: str, area: str) -> list[pl.DataFrame]:  # type: ignore[no-untyped-def]
+            by_code: dict[str, object] = {}
+            out: list[pl.DataFrame] = []
+            for off, code in codes.items():
+                resp = by_code.setdefault(code, fetch(code))
+                out.append(
+                    normalize.arrests_to_frame(resp, level=level, area=area, offense=off)  # type: ignore[arg-type]
+                )
+            return out
+
         frames: list[pl.DataFrame] = []
         if include_national:
-            resp = self.client.arrests_national("all", from_=from_, to=to)
-            frames.append(normalize.arrests_to_frame(resp, level="national", area="US"))  # type: ignore[arg-type]
+            frames += _per_area(
+                lambda code: self.client.arrests_national(code, from_=from_, to=to),
+                "national",
+                "US",
+            )
         for st in states:
-            resp = self.client.arrests_state(st, "all", from_=from_, to=to)
-            frames.append(normalize.arrests_to_frame(resp, level="state", area=st))  # type: ignore[arg-type]
+            frames += _per_area(
+                lambda code, st=st: self.client.arrests_state(st, code, from_=from_, to=to),
+                "state",
+                st,
+            )
         frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.ARRESTS_SCHEMA)
         self._write("arrests", frame)
         return frame

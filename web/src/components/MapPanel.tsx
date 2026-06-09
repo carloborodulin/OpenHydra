@@ -15,8 +15,8 @@ export function MapPanel({ agencies }: { agencies: AgencyFeature[] }) {
     const m = new maplibregl.Map({
       container: container.current,
       style: STYLE,
-      center: [-75.4, 42.9],
-      zoom: 5.2,
+      center: [-98.5, 39.5], // continental US; fitBounds reframes to the data
+      zoom: 3.2,
       attributionControl: { compact: true },
     });
     m.on("error", (e) => console.error("[map]", e.error?.message ?? String(e)));
@@ -37,8 +37,14 @@ export function MapPanel({ agencies }: { agencies: AgencyFeature[] }) {
     const m = map.current;
     if (!m || agencies.length === 0) return;
 
+    // Sanity-bound to US lon/lat: drops mis-geocoded points (e.g. an agency at
+    // -9,-9) and the lone Aleutian outpost past the antimeridian that would
+    // otherwise stretch fitBounds across the whole globe.
+    const inUS = (lat: number, lon: number) =>
+      lon >= -180 && lon <= -64 && lat >= 15 && lat <= 72;
     const features: Feature[] = agencies
       .filter((a) => a.latitude != null && a.longitude != null)
+      .filter((a) => inUS(a.latitude as number, a.longitude as number))
       .map((a) => ({
         type: "Feature",
         geometry: { type: "Point", coordinates: [a.longitude as number, a.latitude as number] },
@@ -50,31 +56,32 @@ export function MapPanel({ agencies }: { agencies: AgencyFeature[] }) {
       const src = m.getSource("agencies") as maplibregl.GeoJSONSource | undefined;
       if (src) {
         src.setData(data);
-        return;
+      } else {
+        m.addSource("agencies", { type: "geojson", data });
+        m.addLayer({
+          id: "agencies-glow",
+          type: "circle",
+          source: "agencies",
+          paint: {
+            "circle-radius": 16,
+            "circle-blur": 1,
+            "circle-opacity": 0.5,
+            "circle-color": ["case", ["==", ["get", "nibrs"], 1], "#22d3ee", "#a78bfa"],
+          },
+        });
+        m.addLayer({
+          id: "agencies-core",
+          type: "circle",
+          source: "agencies",
+          paint: {
+            "circle-radius": 4,
+            "circle-color": ["case", ["==", ["get", "nibrs"], 1], "#3df5b0", "#ff5470"],
+            "circle-stroke-color": "#04070d",
+            "circle-stroke-width": 0.6,
+          },
+        });
       }
-      m.addSource("agencies", { type: "geojson", data });
-      m.addLayer({
-        id: "agencies-glow",
-        type: "circle",
-        source: "agencies",
-        paint: {
-          "circle-radius": 16,
-          "circle-blur": 1,
-          "circle-opacity": 0.5,
-          "circle-color": ["case", ["==", ["get", "nibrs"], 1], "#22d3ee", "#a78bfa"],
-        },
-      });
-      m.addLayer({
-        id: "agencies-core",
-        type: "circle",
-        source: "agencies",
-        paint: {
-          "circle-radius": 4,
-          "circle-color": ["case", ["==", ["get", "nibrs"], 1], "#3df5b0", "#ff5470"],
-          "circle-stroke-color": "#04070d",
-          "circle-stroke-width": 0.6,
-        },
-      });
+      // Re-fit on every data change so switching region re-centers the map.
       const lons = features.map((f) => (f.geometry as Point).coordinates[0]);
       const lats = features.map((f) => (f.geometry as Point).coordinates[1]);
       if (lons.length) {

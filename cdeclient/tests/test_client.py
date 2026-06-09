@@ -7,7 +7,7 @@ import respx
 from httpx import Response
 
 from cdeclient.client import CdeClient
-from cdeclient.constants import Offense
+from cdeclient.constants import ARREST_OFFENSE_CODES, Offense
 
 BASE = "https://api.test/crime/fbi/cde"
 
@@ -66,8 +66,9 @@ def test_summarized_normalizes_date_range_and_offense_enum() -> None:
 
 
 @respx.mock
-def test_pe_uses_year_range() -> None:
-    route = respx.get(f"{BASE}/pe/national").mock(
+def test_pe_uses_canonical_path_and_year_range() -> None:
+    # The canonical `/pe` path returns real data; `/pe/national` returns all-null.
+    route = respx.get(f"{BASE}/pe").mock(
         return_value=Response(200, json={"rates": {}, "actuals": {}})
     )
     with _client() as c:
@@ -76,3 +77,21 @@ def test_pe_uses_year_range() -> None:
     params = route.calls.last.request.url.params
     assert params["from"] == "2018"
     assert params["to"] == "2022"
+
+
+@respx.mock
+def test_pe_state_uses_canonical_path() -> None:
+    route = respx.get(f"{BASE}/pe/NY").mock(
+        return_value=Response(200, json={"rates": {}, "actuals": {}})
+    )
+    with _client() as c:
+        c.police_employment_state("ny", "2018", "2022")
+
+    assert route.called
+
+
+def test_arrest_offense_codes_cover_all_offenses() -> None:
+    # Every summarized offense slug has an arrest code; aggregates fall back to "all".
+    assert set(ARREST_OFFENSE_CODES) == set(Offense)
+    assert ARREST_OFFENSE_CODES[Offense.HOMICIDE] == "11"
+    assert ARREST_OFFENSE_CODES[Offense.VIOLENT_CRIME] == "all"

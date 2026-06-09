@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .client import CdeClient, CdeError, CdeServerError
 from .config import Settings
-from .constants import STATES, ArrestType, Offense
+from .constants import ARREST_OFFENSE_CODES, STATES, ArrestType, Offense
 from .models import (
     Agency,
     ArrestTotalsResponse,
@@ -15,6 +15,7 @@ from .models import (
 )
 
 __all__ = [
+    "ARREST_OFFENSE_CODES",
     "STATES",
     "Agency",
     "ArrestTotalsResponse",

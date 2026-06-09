@@ -37,6 +37,7 @@ AGENCIES_SCHEMA: dict[str, pl.DataType] = {
 ARRESTS_SCHEMA: dict[str, pl.DataType] = {
     "level": pl.String(),
     "area": pl.String(),
+    "offense": pl.String(),
     "category": pl.String(),
     "label": pl.String(),
     "value": pl.Float64(),
@@ -73,6 +74,13 @@ def summarized_to_frame(
     rows: list[dict[str, object]] = []
     for measure, ts in (("rate", resp.offenses.rates), ("actual", resp.offenses.actuals)):
         for series_name, points in ts.items():
+            # State/agency queries also return a "United States ..." benchmark
+            # series for comparison; it would otherwise be mis-tagged with the
+            # queried area and collide with the area's own series. Keep only the
+            # area's own series (the national query's own series IS "United
+            # States ...", so it's preserved).
+            if level != "national" and series_name.startswith("United States"):
+                continue
             kind = _series_kind(series_name)
             for period, value in points.items():
                 rows.append(
@@ -110,7 +118,9 @@ def agencies_to_frame(by_county: dict[str, list[Agency]]) -> pl.DataFrame:
     return pl.DataFrame(rows, schema=AGENCIES_SCHEMA)
 
 
-def arrests_to_frame(resp: ArrestTotalsResponse, *, level: str, area: str) -> pl.DataFrame:
+def arrests_to_frame(
+    resp: ArrestTotalsResponse, *, level: str, area: str, offense: str
+) -> pl.DataFrame:
     rows: list[dict[str, object]] = []
     for category, mapping in resp.breakdowns.items():
         if not isinstance(mapping, dict):
@@ -121,6 +131,7 @@ def arrests_to_frame(resp: ArrestTotalsResponse, *, level: str, area: str) -> pl
                     {
                         "level": level,
                         "area": area,
+                        "offense": offense,
                         "category": category,
                         "label": str(label),
                         "value": float(value),

@@ -43,11 +43,20 @@ def test_agencies_filtered(client: TestClient) -> None:
 
 
 def test_arrests(client: TestClient) -> None:
-    r = client.get("/api/arrests", params={"category": "Arrestee Sex"})
+    r = client.get("/api/arrests", params={"offense": "homicide", "category": "Arrestee Sex"})
     assert r.status_code == 200
     rows = r.json()
     assert {row["label"] for row in rows} == {"Male", "Female"}
     assert rows[0]["value"] == 100.0  # ordered by value desc
+
+
+def test_arrests_offense_filter(client: TestClient) -> None:
+    # The same demographic varies by offense — the whole point of the offense filter.
+    sex = {"category": "Arrestee Sex"}
+    homicide = client.get("/api/arrests", params={"offense": "homicide", **sex})
+    burglary = client.get("/api/arrests", params={"offense": "burglary", **sex})
+    assert homicide.json()[0]["value"] == 100.0
+    assert burglary.json()[0]["value"] == 200.0
 
 
 def test_police_employment(client: TestClient) -> None:

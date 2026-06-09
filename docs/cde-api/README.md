@@ -29,9 +29,10 @@ building OpenHydra without re-scraping the live site.
 
 ### Notes / discrepancies observed against the live API
 
-- The spec lists Law Enforcement Employees as `/pe`, `/pe/{state}`,
-  `/pe/{state}/{ori}`. The live API **also** answers `/pe/national` (used by
-  `cdeclient`) and `/pe/state/{state}`. Both work; the spec form is canonical.
+- Law Enforcement Employees: only the **canonical** spec paths `/pe`,
+  `/pe/{state}`, `/pe/{state}/{ori}` return real data. The `/pe/national` and
+  `/pe/state/{state}` variants answer `200` but return **all-`null`** values — do
+  not use them (this earlier bit `cdeclient`, which now uses the canonical forms).
 - `/agency/{query}/{value}` is generic — `cdeclient` uses the `byStateAbbr`
   query (`/agency/byStateAbbr/{ST}`), which the live API accepts.
 - `/pe` endpoints take 4-digit **years**; most others take **`MM-YYYY`**.

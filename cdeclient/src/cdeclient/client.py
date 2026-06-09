@@ -191,12 +191,14 @@ class CdeClient:
         return ArrestTotalsResponse.model_validate(data)
 
     # -- police employment (yearly) ---------------------------------------
+    # Use the canonical spec paths (`/pe`, `/pe/{state}`). The `/pe/national`
+    # and `/pe/state/{ST}` variants answer 200 but return all-null values.
     def police_employment_national(self, from_: str | date, to: str | date) -> ChartResponse:
-        data = self._get_json("pe/national", self._range(from_, to, yearly=True))
+        data = self._get_json("pe", self._range(from_, to, yearly=True))
         return ChartResponse.model_validate(data)
 
     def police_employment_state(
         self, state: str, from_: str | date, to: str | date
     ) -> ChartResponse:
-        data = self._get_json(f"pe/state/{state.upper()}", self._range(from_, to, yearly=True))
+        data = self._get_json(f"pe/{state.upper()}", self._range(from_, to, yearly=True))
         return ChartResponse.model_validate(data)
