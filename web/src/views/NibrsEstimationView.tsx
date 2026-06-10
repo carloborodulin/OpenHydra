@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Select } from "../components/Select";
 import { useNibrsEstimation } from "../lib/queries";
 import { BreakdownView, type Dimension } from "./BreakdownView";
 
@@ -35,9 +36,6 @@ const DIMENSIONS: Dimension[] = [
   { key: "Incident_Clearance Status", label: "Clearance Status" },
 ];
 
-const SELECT =
-  "mono max-w-[16rem] cursor-pointer border border-line bg-[rgba(34,211,238,0.06)] px-2 py-1 text-[0.62rem] tracking-wider text-accent uppercase transition hover:border-line-strong focus:border-accent focus:outline-none";
-
 export function NibrsEstimationView() {
   const [offense, setOffense] = useState("133");
   const [geoIdx, setGeoIdx] = useState(0);
@@ -48,18 +46,13 @@ export function NibrsEstimationView() {
     <>
       <div className="mx-3 mt-3 flex flex-wrap items-center gap-3">
         <span className="panel-title shrink-0">Estimated · Offense</span>
-        <select
+        <Select
           value={offense}
-          onChange={(e) => setOffense(e.target.value)}
-          className={SELECT}
+          onChange={setOffense}
+          options={OFFENSES.map((o) => ({ value: o.code, label: o.label }))}
           title="Estimation offense"
-        >
-          {OFFENSES.map((o) => (
-            <option key={o.code} value={o.code}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+          className="w-60"
+        />
         <span className="h-4 w-px bg-line" />
         <div className="flex flex-wrap gap-1.5">
           {GEOS.map((g, i) => {

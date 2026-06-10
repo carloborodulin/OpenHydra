@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Empty } from "../components/Empty";
 import { Panel } from "../components/Panel";
+import { Select } from "../components/Select";
 import { ArrestsChart } from "../components/charts/ArrestsChart";
 import type { ArrestRow } from "../lib/api";
 import { useLesdc } from "../lib/queries";
@@ -25,8 +26,6 @@ const CHART_TYPES: { code: string; label: string }[] = [
   { code: "wellness", label: "Agency Wellness Programs" },
 ];
 const YEARS = [2023, 2022];
-const SELECT =
-  "mono max-w-[14rem] cursor-pointer border border-line bg-[rgba(34,211,238,0.06)] px-2 py-1 text-[0.62rem] tracking-wider text-accent uppercase transition hover:border-line-strong focus:border-accent focus:outline-none";
 
 export function LesdcView() {
   const [year, setYear] = useState(2023);
@@ -67,18 +66,13 @@ export function LesdcView() {
           })}
         </div>
         <span className="h-4 w-px bg-line" />
-        <select
+        <Select
           value={chartType}
-          onChange={(e) => setChartType(e.target.value)}
-          className={SELECT}
+          onChange={setChartType}
+          options={CHART_TYPES.map((c) => ({ value: c.code, label: c.label }))}
           title="LESDC chart type"
-        >
-          {CHART_TYPES.map((c) => (
-            <option key={c.code} value={c.code}>
-              {c.label}
-            </option>
-          ))}
-        </select>
+          className="w-56"
+        />
       </div>
 
       <main

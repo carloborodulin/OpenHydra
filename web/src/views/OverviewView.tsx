@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Empty } from "../components/Empty";
 import { MapPanel } from "../components/MapPanel";
 import { Panel } from "../components/Panel";
+import { Select } from "../components/Select";
 import { StatTile } from "../components/StatTile";
 import { ArrestsChart } from "../components/charts/ArrestsChart";
 import { ClearanceChart } from "../components/charts/ClearanceChart";
@@ -41,9 +42,6 @@ function Legend() {
     </div>
   );
 }
-
-const SELECT =
-  "mono max-w-[8rem] cursor-pointer border border-line bg-[rgba(34,211,238,0.06)] px-1.5 py-0.5 text-[0.6rem] tracking-wider text-accent uppercase transition hover:border-line-strong focus:border-accent focus:outline-none";
 
 export function OverviewView({ offense, region }: { offense: string; region: string }) {
   const meta = useMeta();
@@ -195,35 +193,24 @@ export function OverviewView({ offense, region }: { offense: string; region: str
         title="Arrests"
         right={
           <div className="flex items-center gap-1.5">
-            <select
+            <Select
               value={arrestCategory}
-              onChange={(e) => setArrestCategory(e.target.value)}
-              className={SELECT}
+              onChange={setArrestCategory}
+              options={arrestCats.map((c) => ({ value: c, label: c }))}
               title="Arrest demographic category"
-            >
-              {arrestCats.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            <select
+              className="w-32"
+            />
+            <Select
               value={arrestOffense}
-              onChange={(e) => setArrestOffense(e.target.value)}
-              className={SELECT}
+              onChange={setArrestOffense}
+              options={[{ value: "", label: `Follow · ${titleCase(offense)}` }]}
+              groups={offenseGroups.map(([cat, offs]) => ({
+                label: cat,
+                options: offs.map((o) => ({ value: o.slug, label: o.name })),
+              }))}
               title="Arrest offense"
-            >
-              <option value="">Follow · {titleCase(offense)}</option>
-              {offenseGroups.map(([cat, offs]) => (
-                <optgroup key={cat} label={cat}>
-                  {offs.map((o) => (
-                    <option key={o.slug} value={o.slug}>
-                      {o.name}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+              className="w-36"
+            />
           </div>
         }
         className="col-span-4 col-start-5 row-start-3"

@@ -1,5 +1,6 @@
 import { regionName } from "../lib/states";
 import { titleCase } from "../lib/format";
+import { Select } from "./Select";
 
 interface Props {
   offenses: string[];
@@ -26,18 +27,16 @@ export function Controls({
     <div className="flex flex-wrap items-center gap-4">
       <div className="flex items-center gap-2">
         <span className="panel-title shrink-0">Region</span>
-        <select
+        <Select
           value={region}
-          onChange={(e) => onRegionChange(e.target.value)}
-          className="mono cursor-pointer border border-line bg-[rgba(34,211,238,0.06)] px-2.5 py-1 text-[0.62rem] tracking-wider text-accent uppercase transition hover:border-line-strong focus:border-accent focus:outline-none"
-        >
-          <option value="US">{regionName("US")}</option>
-          {states.map((s) => (
-            <option key={s} value={s}>
-              {regionName(s)}
-            </option>
-          ))}
-        </select>
+          onChange={onRegionChange}
+          options={[
+            { value: "US", label: regionName("US") },
+            ...states.map((s) => ({ value: s, label: regionName(s) })),
+          ]}
+          title="Region"
+          className="w-44"
+        />
       </div>
 
       {showOffenses && (
