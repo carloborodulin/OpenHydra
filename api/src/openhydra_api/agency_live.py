@@ -135,9 +135,7 @@ def cache_key(*parts: str | None) -> str:
     return "|".join("" if p is None else p for p in parts)
 
 
-def cached(
-    key: str, produce: Callable[[], list[dict[str, Any]]]
-) -> list[dict[str, Any]]:
+def cached(key: str, produce: Callable[[], list[dict[str, Any]]]) -> list[dict[str, Any]]:
     """Return cached rows, else call ``produce`` and cache only non-empty results."""
     now = time.monotonic()
     hit = _cache.get(key)
