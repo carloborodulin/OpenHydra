@@ -13,10 +13,67 @@
   --color-violet: #a78bfa;
   --color-ink: #cfe9f5;
   --color-muted: #5f7d92;
+  --color-grid: rgba(45, 212, 238, 0.08); /* chart gridlines */
+  --color-axis: rgba(45, 212, 238, 0.25); /* chart axis lines */
 
   --font-display: "Orbitron", sans-serif;
   --font-mono: "Share Tech Mono", ui-monospace, monospace;
   --font-sans: "Inter", system-ui, sans-serif;
+}
+
+/* ---- light "analytics platform" theme (GA-style) ------------------------ */
+/* Overrides the dark defaults above when <html data-theme="light">. Tokens win
+   on specificity; the component overrides are unlayered so they beat Tailwind's
+   @layer components rules. */
+:root[data-theme="light"] {
+  --color-bg: #f1f3f4; /* page */
+  --color-bg2: #ffffff; /* cards */
+  --color-line: #e8eaed; /* faint border */
+  --color-line-strong: #dadce0; /* border */
+  --color-accent: #1a73e8; /* google blue */
+  --color-warn: #f9ab00; /* amber */
+  --color-alert: #d93025; /* red */
+  --color-good: #1e8e3e; /* green */
+  --color-violet: #9334e6; /* purple */
+  --color-ink: #202124; /* primary text */
+  --color-muted: #5f6368; /* secondary text */
+  --color-grid: #e8eaed;
+  --color-axis: #dadce0;
+
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-mono: "Inter", system-ui, sans-serif;
+}
+
+[data-theme="light"] body {
+  background-image: none; /* drop the HUD grid + neon radials */
+}
+[data-theme="light"] .panel {
+  background: var(--color-bg2);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  backdrop-filter: none;
+  box-shadow:
+    0 1px 2px rgba(60, 64, 67, 0.08),
+    0 1px 3px rgba(60, 64, 67, 0.12);
+}
+[data-theme="light"] header.panel {
+  border-radius: 0; /* keep the full-width top bar square */
+}
+[data-theme="light"] .brackets::before,
+[data-theme="light"] .brackets::after {
+  display: none; /* no HUD corner brackets */
+}
+[data-theme="light"] .glow {
+  text-shadow: none; /* no neon glow */
+}
+[data-theme="light"] .panel-title {
+  color: var(--color-muted); /* GA card labels are gray, not accent */
+}
+[data-theme="light"] .live-dot {
+  box-shadow: 0 0 0 3px rgba(30, 142, 62, 0.16);
+}
+[data-theme="light"] .maplibregl-ctrl-attrib {
+  background: rgba(255, 255, 255, 0.7) !important;
 }
 
 @layer base {

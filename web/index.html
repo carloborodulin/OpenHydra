@@ -10,6 +10,16 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap"
       rel="stylesheet"
     />
+    <script>
+      // Set the theme before first paint so returning light-mode users don't
+      // flash the dark default. Mirrors lib/theme.tsx (key "oh-theme").
+      try {
+        var t = localStorage.getItem("oh-theme");
+        document.documentElement.dataset.theme = t === "light" ? "light" : "dark";
+      } catch (e) {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

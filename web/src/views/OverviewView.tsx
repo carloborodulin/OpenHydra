@@ -27,15 +27,15 @@ function Legend() {
     <div className="mono flex items-center gap-3 text-[0.55rem] tracking-wider text-muted uppercase">
       <span className="flex items-center gap-1">
         <span
-          className="inline-block h-2 w-2 rounded-full"
-          style={{ background: "#3df5b0", boxShadow: "0 0 6px #3df5b0" }}
+          className="inline-block h-2 w-2 rounded-full bg-good"
+          style={{ boxShadow: "0 0 6px var(--color-good)" }}
         />
         NIBRS
       </span>
       <span className="flex items-center gap-1">
         <span
-          className="inline-block h-2 w-2 rounded-full"
-          style={{ background: "#ff5470", boxShadow: "0 0 6px #ff5470" }}
+          className="inline-block h-2 w-2 rounded-full bg-alert"
+          style={{ boxShadow: "0 0 6px var(--color-alert)" }}
         />
         SRS
       </span>
@@ -165,7 +165,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
                 type="button"
                 onClick={() => setSelectedAgency(null)}
                 title={`Exit ${selectedAgency.name}`}
-                className="mono glow cursor-pointer border border-accent bg-[rgba(34,211,238,0.1)] px-2 py-0.5 text-[0.58rem] tracking-wider text-accent uppercase transition hover:border-line-strong"
+                className="mono glow cursor-pointer border border-accent bg-accent/10 px-2 py-0.5 text-[0.58rem] tracking-wider text-accent uppercase transition hover:border-line-strong"
               >
                 ✕ {selectedAgency.name}
               </button>

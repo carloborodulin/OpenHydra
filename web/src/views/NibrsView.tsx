@@ -46,7 +46,7 @@ export function NibrsView({ region }: { region: string }) {
                 onClick={() => setOffense(o.code)}
                 className={`mono cursor-pointer border px-2.5 py-1 text-[0.62rem] tracking-wider uppercase transition ${
                   on
-                    ? "glow border-accent bg-[rgba(34,211,238,0.1)] text-accent"
+                    ? "glow border-accent bg-accent/10 text-accent"
                     : "border-line text-muted hover:border-line-strong hover:text-ink"
                 }`}
               >

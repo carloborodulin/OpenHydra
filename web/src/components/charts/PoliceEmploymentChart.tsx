@@ -1,8 +1,8 @@
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { PoliceEmploymentRow } from "../../lib/api";
+import { useChartColors } from "../../lib/theme";
 import { DarkTooltip } from "./DarkTooltip";
 
-const TICK = { fill: "#5f7d92", fontSize: 10, fontFamily: "Share Tech Mono" };
 const compact = (v: number) => Intl.NumberFormat("en", { notation: "compact" }).format(v);
 
 // Collapse the long-format rows into one point per year with Officers (sworn)
@@ -24,32 +24,34 @@ function toYearly(data: PoliceEmploymentRow[]) {
 }
 
 export function PoliceEmploymentChart({ data }: { data: PoliceEmploymentRow[] }) {
+  const c = useChartColors();
+  const tick = { fill: c.muted, fontSize: 10, fontFamily: c.font };
   const rows = toYearly(data);
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={rows} margin={{ top: 6, right: 14, bottom: 0, left: -6 }}>
-        <CartesianGrid stroke="rgba(34,211,238,0.08)" vertical={false} />
-        <XAxis dataKey="year" tick={TICK} stroke="rgba(34,211,238,0.25)" />
-        <YAxis tick={TICK} width={46} stroke="rgba(34,211,238,0.25)" tickFormatter={compact} />
-        <Tooltip content={<DarkTooltip />} cursor={{ stroke: "rgba(34,211,238,0.3)" }} />
-        <Legend wrapperStyle={{ fontFamily: "Share Tech Mono", fontSize: 10, color: "#5f7d92" }} />
+        <CartesianGrid stroke={c.grid} vertical={false} />
+        <XAxis dataKey="year" tick={tick} stroke={c.axis} />
+        <YAxis tick={tick} width={46} stroke={c.axis} tickFormatter={compact} />
+        <Tooltip content={<DarkTooltip />} cursor={{ stroke: c.axis }} />
+        <Legend wrapperStyle={{ fontFamily: c.font, fontSize: 10, color: c.muted }} />
         <Line
           type="monotone"
           dataKey="Officers"
-          stroke="#22d3ee"
+          stroke={c.accent}
           strokeWidth={2}
           dot={false}
           connectNulls
-          activeDot={{ r: 4, fill: "#22d3ee", stroke: "#04070d" }}
+          activeDot={{ r: 4, fill: c.accent, stroke: c.bg }}
         />
         <Line
           type="monotone"
           dataKey="Civilians"
-          stroke="#a78bfa"
+          stroke={c.violet}
           strokeWidth={2}
           dot={false}
           connectNulls
-          activeDot={{ r: 4, fill: "#a78bfa", stroke: "#04070d" }}
+          activeDot={{ r: 4, fill: c.violet, stroke: c.bg }}
         />
       </LineChart>
     </ResponsiveContainer>

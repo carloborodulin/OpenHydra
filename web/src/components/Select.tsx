@@ -83,7 +83,7 @@ export function Select({
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="mono flex w-full items-center justify-between gap-2 border border-line bg-[rgba(34,211,238,0.06)] px-2.5 py-1 text-left text-[0.62rem] tracking-wider text-accent uppercase transition hover:border-line-strong focus:border-accent focus:outline-none"
+        className="mono flex w-full items-center justify-between gap-2 border border-line bg-accent/[0.06] px-2.5 py-1 text-left text-[0.62rem] tracking-wider text-accent uppercase transition hover:border-line-strong focus:border-accent focus:outline-none"
       >
         <span className="truncate">{current?.label ?? placeholder ?? value}</span>
         <span
@@ -103,7 +103,7 @@ export function Select({
             ref={popupRef}
             role="listbox"
             style={{ top: pos.top, left: pos.left, minWidth: pos.minWidth }}
-            className="fixed z-[100] max-h-[60vh] w-max max-w-[22rem] overflow-y-auto border border-line-strong bg-[rgba(8,15,24,0.97)] py-1 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-sm"
+            className="fixed z-[100] max-h-[60vh] w-max max-w-[22rem] overflow-y-auto border border-line-strong bg-bg2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
           >
             {options.map((o) => (
               <Item key={o.value} option={o} active={o.value === value} onPick={pick} />
@@ -142,8 +142,8 @@ function Item({
       onClick={() => onPick(option.value)}
       className={`mono block w-full cursor-pointer truncate px-2.5 py-1 text-left text-[0.62rem] tracking-wider uppercase transition ${
         active
-          ? "glow bg-[rgba(34,211,238,0.14)] text-accent"
-          : "text-muted hover:bg-[rgba(34,211,238,0.07)] hover:text-ink"
+          ? "glow bg-accent/15 text-accent"
+          : "text-muted hover:bg-accent/[0.07] hover:text-ink"
       }`}
     >
       {option.label}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function TopBar({ window: win }: { window?: string }) {
   const [now, setNow] = useState(() => new Date());
@@ -33,6 +34,7 @@ export function TopBar({ window: win }: { window?: string }) {
         <span className="text-ink tabular-nums">
           {date} · {time}
         </span>
+        <ThemeToggle />
       </div>
     </header>
   );

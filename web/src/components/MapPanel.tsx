@@ -3,8 +3,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { Feature, FeatureCollection, Point } from "geojson";
 import { useEffect, useRef } from "react";
 import type { AgencyFeature } from "../lib/api";
+import { useChartColors, useTheme } from "../lib/theme";
 
-const STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+const BASEMAP = {
+  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+};
 
 export function MapPanel({
   agencies,
@@ -13,6 +17,8 @@ export function MapPanel({
   agencies: AgencyFeature[];
   onSelectAgency?: (ori: string, name: string) => void;
 }) {
+  const { theme } = useTheme();
+  const c = useChartColors();
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   // Keep the latest callback in a ref so the once-registered map listeners
@@ -22,11 +28,13 @@ export function MapPanel({
     onSelect.current = onSelectAgency;
   });
 
+  // Re-initialize the map when the theme flips so it picks up the new basemap;
+  // the cleanup below tears down the old instance first.
   useEffect(() => {
     if (!container.current || map.current) return;
     const m = new maplibregl.Map({
       container: container.current,
-      style: STYLE,
+      style: BASEMAP[theme],
       center: [-98.5, 39.5], // continental US; fitBounds reframes to the data
       zoom: 3.2,
       attributionControl: { compact: true },
@@ -56,7 +64,7 @@ export function MapPanel({
       m.remove();
       map.current = null;
     };
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
     const m = map.current;
@@ -91,7 +99,7 @@ export function MapPanel({
             "circle-radius": 16,
             "circle-blur": 1,
             "circle-opacity": 0.5,
-            "circle-color": ["case", ["==", ["get", "nibrs"], 1], "#22d3ee", "#a78bfa"],
+            "circle-color": ["case", ["==", ["get", "nibrs"], 1], c.accent, c.violet],
           },
         });
         m.addLayer({
@@ -100,8 +108,8 @@ export function MapPanel({
           source: "agencies",
           paint: {
             "circle-radius": 4,
-            "circle-color": ["case", ["==", ["get", "nibrs"], 1], "#3df5b0", "#ff5470"],
-            "circle-stroke-color": "#04070d",
+            "circle-color": ["case", ["==", ["get", "nibrs"], 1], c.good, c.alert],
+            "circle-stroke-color": c.bg,
             "circle-stroke-width": 0.6,
           },
         });
@@ -122,7 +130,9 @@ export function MapPanel({
 
     if (m.isStyleLoaded()) apply();
     else m.once("load", apply);
-  }, [agencies]);
+    // `c` re-runs this after a theme rebuild so markers are re-added with the
+    // new palette on the fresh basemap (it's memoized, so stable within a theme).
+  }, [agencies, c]);
 
   // h-full/w-full (not absolute): MapLibre forces position:relative on its
   // container via its own CSS, which would defeat `absolute inset-0`.
