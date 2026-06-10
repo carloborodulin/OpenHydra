@@ -234,6 +234,28 @@ def expanded_property(
     return _dicts(conn, sql, params)
 
 
+@app.get("/api/nibrs", response_model=list[ArrestRow])
+def nibrs(
+    conn: Conn,
+    level: str = "national",
+    area: str = "US",
+    offense: str | None = None,
+    category: str | None = None,
+) -> list[dict[str, Any]]:
+    # NIBRS incident breakdowns; `offense` is a NIBRS code, `category` the
+    # section_dimension (victim_age, offense_weapons, offender_race, …).
+    sql = "select category, label, value from fct_nibrs where level = ? and area = ?"
+    params: list[Any] = [level, area]
+    if offense:
+        sql += " and offense = ?"
+        params.append(offense)
+    if category:
+        sql += " and category = ?"
+        params.append(category)
+    sql += " order by category, value desc"
+    return _dicts(conn, sql, params)
+
+
 # -- agency drill-down (live, proxied from the CDE API) --------------------
 # The warehouse only holds national + state rows. Per-agency data for ~19,619
 # agencies can't be pre-materialized, so these routes fetch live via cdeclient
@@ -337,6 +359,23 @@ def agency_property(
         return agency_live.breakdowns_to_rows(resp.breakdowns, category)
 
     return agency_live.cached(agency_live.cache_key("property", ori, offense, category), produce)
+
+
+@app.get("/api/agency/{ori}/nibrs", response_model=list[ArrestRow])
+def agency_nibrs(
+    ori: str,
+    client: Cde,
+    offense: str = "13A",
+    category: str | None = None,
+) -> list[dict[str, Any]]:
+    def produce() -> list[dict[str, Any]]:
+        try:
+            resp = client.nibrs_agency(ori, offense, LIVE_FROM, LIVE_TO)
+        except LIVE_ERRORS:
+            return []
+        return agency_live.breakdowns_to_rows(resp.breakdowns, category)
+
+    return agency_live.cached(agency_live.cache_key("nibrs", ori, offense, category), produce)
 
 
 # In production the built frontend is mounted at the root (path set via env in

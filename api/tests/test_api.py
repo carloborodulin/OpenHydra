@@ -95,3 +95,11 @@ def test_property_offense_filter(client: TestClient) -> None:
     # NL has different data — the offense filter isolates it
     nl = client.get("/api/property", params={"offense": "NL", "category": "stolen_value"})
     assert {row["label"] for row in nl.json()} == {"Currency, Notes, etc."}
+
+
+def test_nibrs(client: TestClient) -> None:
+    r = client.get("/api/nibrs", params={"offense": "13A", "category": "offense_weapons"})
+    assert r.status_code == 200
+    rows = r.json()
+    assert {row["label"] for row in rows} == {"Handgun", "Firearm"}
+    assert rows[0]["value"] == 414248.0  # Handgun, value desc

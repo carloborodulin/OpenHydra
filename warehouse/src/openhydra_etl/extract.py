@@ -7,7 +7,13 @@ from pathlib import Path
 
 import polars as pl
 from cdeclient import CdeClient
-from cdeclient.constants import ARREST_OFFENSES, EXPANDED_PROPERTY_OFFENSES, Offense, arrest_code
+from cdeclient.constants import (
+    ARREST_OFFENSES,
+    EXPANDED_PROPERTY_OFFENSES,
+    NIBRS_OFFENSES,
+    Offense,
+    arrest_code,
+)
 
 from . import normalize
 from .config import RAW_DIR
@@ -180,6 +186,35 @@ class Extractor:
                 )
         frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.PROPERTY_SCHEMA)
         self._write("property", frame)
+        return frame
+
+    def pull_nibrs(
+        self, states: list[str], from_: str, to: str, *, include_national: bool = True
+    ) -> pl.DataFrame:
+        offenses = list(NIBRS_OFFENSES)  # curated subset of the 72 codes
+        frames: list[pl.DataFrame] = []
+        if include_national:
+            for off in offenses:
+                frames.append(
+                    normalize.nibrs_to_frame(
+                        self.client.nibrs_national(off, from_, to),
+                        level="national",
+                        area="US",
+                        offense=off,
+                    )
+                )
+        for st in states:
+            for off in offenses:
+                frames.append(
+                    normalize.nibrs_to_frame(
+                        self.client.nibrs_state(st, off, from_, to),
+                        level="state",
+                        area=st,
+                        offense=off,
+                    )
+                )
+        frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.NIBRS_SCHEMA)
+        self._write("nibrs", frame)
         return frame
 
     def pull_pe(

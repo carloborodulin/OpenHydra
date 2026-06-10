@@ -12,6 +12,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    NibrsResponse,
     PropertyResponse,
     ShrResponse,
     SummarizedResponse,
@@ -40,6 +41,7 @@ class FakeCde:
         hate_crime: Any = None,
         shr: Any = None,
         property_: Any = None,
+        nibrs: Any = None,
     ) -> None:
         self._summarized = summarized
         self._arrests = arrests
@@ -47,6 +49,7 @@ class FakeCde:
         self._hate_crime = hate_crime
         self._shr = shr
         self._property = property_
+        self._nibrs = nibrs
         self.calls = {
             "summarized": 0,
             "arrests": 0,
@@ -54,6 +57,7 @@ class FakeCde:
             "hate_crime": 0,
             "shr": 0,
             "property": 0,
+            "nibrs": 0,
         }
 
     def summarized_agency(self, ori: str, offense: str, from_: str, to: str) -> Any:
@@ -81,6 +85,10 @@ class FakeCde:
     def property_agency(self, ori: str, offense: str, from_: str, to: str) -> Any:
         self.calls["property"] += 1
         return _resolve(self._property)
+
+    def nibrs_agency(self, ori: str, offense: str, from_: str, to: str) -> Any:
+        self.calls["nibrs"] += 1
+        return _resolve(self._nibrs)
 
 
 def _resolve(value: Any) -> Any:
@@ -189,6 +197,17 @@ def test_agency_property_breakdowns(make_client) -> None:
     assert r.status_code == 200
     rows = r.json()
     assert rows and {row["category"] for row in rows} == {"stolen_value"}
+    assert rows == sorted(rows, key=lambda x: -x["value"])
+
+
+def test_agency_nibrs_breakdowns(make_client) -> None:
+    fake = FakeCde(nibrs=NibrsResponse.model_validate(_sample("nibrs_agency_13A_totals")))
+    r = make_client(fake).get(
+        "/api/agency/NY0303000/nibrs", params={"offense": "13A", "category": "victim_location"}
+    )
+    assert r.status_code == 200
+    rows = r.json()
+    assert rows and {row["category"] for row in rows} == {"victim_location"}
     assert rows == sorted(rows, key=lambda x: -x["value"])
 
 

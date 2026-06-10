@@ -88,3 +88,16 @@ models:
       - name: value
         tests:
           - not_null
+
+  - name: fct_nibrs
+    description: NIBRS incident breakdowns (victim/offense/offender) by offense & dimension.
+    columns:
+      - name: offense
+        tests:
+          - not_null
+      - name: category
+        tests:
+          - not_null
+      - name: value
+        tests:
+          - not_null

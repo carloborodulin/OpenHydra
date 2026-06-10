@@ -10,6 +10,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    NibrsResponse,
     PropertyResponse,
     ShrResponse,
     SummarizedResponse,
@@ -88,6 +89,15 @@ def test_property_to_frame(sample: Callable[[str], Any]) -> None:
     assert df.height > 0
     assert set(df["offense"].unique()) == {"NB"}
     assert {"stolen_value", "recovered_value"} <= set(df["category"].unique())
+
+
+def test_nibrs_to_frame(sample: Callable[[str], Any]) -> None:
+    resp = NibrsResponse.model_validate(sample("nibrs_national_13A_totals"))
+    df = normalize.nibrs_to_frame(resp, level="national", area="US", offense="13A")
+    assert df.columns == list(normalize.NIBRS_SCHEMA)
+    assert df.height > 0
+    assert set(df["offense"].unique()) == {"13A"}
+    assert {"victim_location", "offense_weapons"} <= set(df["category"].unique())
 
 
 def test_pe_to_frame(sample: Callable[[str], Any]) -> None:

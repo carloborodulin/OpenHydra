@@ -204,6 +204,26 @@ EXPANDED_PROPERTY_OFFENSES: dict[str, str] = {
 }
 
 
+# A curated subset of the 72 NIBRS offense codes (the API's `nibrs_offenses`
+# enum) used for the warehouse + UI selector — the common Group A crimes. The
+# client/endpoints accept any of the 72 codes (so live agency drill-down can
+# reach the long tail); only these are pre-materialized nationally/by-state.
+NIBRS_OFFENSES: dict[str, str] = {
+    "09A": "Murder & Nonnegligent Manslaughter",
+    "11A": "Rape",
+    "120": "Robbery",
+    "13A": "Aggravated Assault",
+    "13B": "Simple Assault",
+    "200": "Arson",
+    "220": "Burglary / Breaking & Entering",
+    "23F": "Theft From Motor Vehicle",
+    "240": "Motor Vehicle Theft",
+    "250": "Counterfeiting / Forgery",
+    "35A": "Drug / Narcotic Violations",
+    "520": "Weapon Law Violations",
+}
+
+
 # 50 states + DC, plus three additional CDE reporting areas the API's `states`
 # enum also accepts: FS (federal agencies), GM (Guam), VI (U.S. Virgin Islands).
 # 54 total. The API uses USPS-style two-letter abbreviations.

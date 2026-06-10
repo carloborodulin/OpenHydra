@@ -15,6 +15,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    NibrsResponse,
     PropertyResponse,
     ShrResponse,
     SummarizedResponse,
@@ -79,6 +80,15 @@ PROPERTY_SCHEMA: dict[str, pl.DataType] = {
     "area": pl.String(),
     "offense": pl.String(),  # NB | NL | NMVT | NROB
     "category": pl.String(),  # dimension (stolen_value, recovered_value, location_counts, …)
+    "label": pl.String(),
+    "value": pl.Float64(),
+}
+
+NIBRS_SCHEMA: dict[str, pl.DataType] = {
+    "level": pl.String(),
+    "area": pl.String(),
+    "offense": pl.String(),  # NIBRS offense code (e.g. 13A)
+    "category": pl.String(),  # section_dimension (victim_age, offense_weapons, …)
     "label": pl.String(),
     "value": pl.Float64(),
 }
@@ -223,6 +233,14 @@ def property_to_frame(
     on the property offense (NB/NL/NMVT/NROB)."""
     return _breakdowns_to_frame(
         resp, PROPERTY_SCHEMA, level=level, area=area, extra={"offense": offense}
+    )
+
+
+def nibrs_to_frame(resp: NibrsResponse, *, level: str, area: str, offense: str) -> pl.DataFrame:
+    """Flatten NIBRS victim/offense/offender dimensions to tidy long rows, keyed
+    on the NIBRS offense code; category is ``<section>_<dimension>``."""
+    return _breakdowns_to_frame(
+        resp, NIBRS_SCHEMA, level=level, area=area, extra={"offense": offense}
     )
 
 

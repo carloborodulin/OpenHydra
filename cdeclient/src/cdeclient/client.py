@@ -24,6 +24,7 @@ from .models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    NibrsResponse,
     PropertyResponse,
     ShrResponse,
     SummarizedResponse,
@@ -274,6 +275,31 @@ class CdeClient:
             f"supplemental/agency/{ori}/{offense}", {**self._range(from_, to), "type": "totals"}
         )
         return PropertyResponse.model_validate(data)
+
+    # -- NIBRS incidents ---------------------------------------------------
+    # offense is a NIBRS code (NIBRS_OFFENSES lists the curated subset; any of the
+    # 72 `nibrs_offenses` codes is accepted).
+    def nibrs_national(self, offense: str, from_: str | date, to: str | date) -> NibrsResponse:
+        data = self._get_json(
+            f"nibrs/national/{offense}", {**self._range(from_, to), "type": "totals"}
+        )
+        return NibrsResponse.model_validate(data)
+
+    def nibrs_state(
+        self, state: str, offense: str, from_: str | date, to: str | date
+    ) -> NibrsResponse:
+        data = self._get_json(
+            f"nibrs/state/{state.upper()}/{offense}", {**self._range(from_, to), "type": "totals"}
+        )
+        return NibrsResponse.model_validate(data)
+
+    def nibrs_agency(
+        self, ori: str, offense: str, from_: str | date, to: str | date
+    ) -> NibrsResponse:
+        data = self._get_json(
+            f"nibrs/agency/{ori}/{offense}", {**self._range(from_, to), "type": "totals"}
+        )
+        return NibrsResponse.model_validate(data)
 
     # -- police employment (yearly) ---------------------------------------
     # Use the canonical spec paths (`/pe`, `/pe/{state}`). The `/pe/national`

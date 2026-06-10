@@ -38,3 +38,6 @@ models:
 
   - name: stg_property
     description: Expanded property value/count breakdowns by offense & dimension (long format).
+
+  - name: stg_nibrs
+    description: NIBRS incident breakdowns by offense & section_dimension (long format).

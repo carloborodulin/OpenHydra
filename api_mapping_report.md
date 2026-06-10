@@ -62,7 +62,7 @@ graph TD
 | **Exp. Property** | ✅ Yes | ✅ Yes (`fct_property`) | ✅ Yes (`/api/property` + live agency proxy) | ✅ Yes (Property view) |
 | **Use Of Force** | ❌ No | ❌ No | ❌ No | ❌ No |
 | **LESDC** | ❌ No | ❌ No | ❌ No | ❌ No |
-| **NIBRS Incidents** | ❌ No | ❌ No | ❌ No | ❌ No |
+| **NIBRS Incidents** | ✅ Yes | ✅ Yes (`fct_nibrs`, curated offenses) | ✅ Yes (`/api/nibrs` + live agency proxy) | ✅ Yes (NIBRS view) |
 | **NIBRS Estimations**| ❌ No | ❌ No | ❌ No | ❌ No |
 
 ---

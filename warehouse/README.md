@@ -45,3 +45,4 @@ uv run mypy
 | `hate_crime` | level × area × dimension × label | `level, area, category, label, value` |
 | `shr` | level × area × section_dimension × label | `level, area, category, label, value` |
 | `property` | level × area × offense × dimension × label | `level, area, offense, category, label, value` |
+| `nibrs` | level × area × offense × section_dimension × label | `level, area, offense, category, label, value` |

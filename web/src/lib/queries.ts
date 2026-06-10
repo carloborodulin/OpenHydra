@@ -69,6 +69,26 @@ export const useAgencyProperty = (ori: string | undefined, offense: string, cate
     enabled: Boolean(ori),
   });
 
+// NIBRS incidents. `offense` is a NIBRS code; `category` undefined => all dims.
+export const useNibrs = (
+  offense: string,
+  category: string | undefined,
+  level = "national",
+  area = "US",
+) =>
+  useQuery({
+    queryKey: ["nibrs", offense, category, level, area],
+    queryFn: () => api.nibrs(offense, category, level, area),
+    enabled: Boolean(offense),
+  });
+
+export const useAgencyNibrs = (ori: string | undefined, offense: string, category?: string) =>
+  useQuery({
+    queryKey: ["agency-nibrs", ori, offense, category],
+    queryFn: () => api.agencyNibrs(ori as string, offense, category),
+    enabled: Boolean(ori),
+  });
+
 // `state` undefined => all agencies (national view).
 export const useAgencies = (state?: string) =>
   useQuery({ queryKey: ["agencies", state ?? "all"], queryFn: () => api.agencies(state) });

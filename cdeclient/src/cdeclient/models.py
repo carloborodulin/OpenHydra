@@ -138,17 +138,15 @@ class HateCrimeResponse(BaseModel):
         return merged
 
 
-class ShrResponse(BaseModel):
-    """/shr/* type=totals — Supplementary Homicide Report breakdowns.
-
-    Three sections — ``victim`` and ``offender`` (each: age, sex, race,
-    ethnicity) and ``offense`` (weapons, circumstance, relationship). Exposed via
-    :attr:`breakdowns` as ``{"<section>_<dimension>": {label: count}}`` (e.g.
+class _VictimOffenderBreakdowns(BaseModel):
+    """Shared totals shape for SHR + NIBRS: ``victim``, ``offense``, and
+    ``offender`` sections, each a set of ``{label: count}`` dimensions. Exposed
+    via :attr:`breakdowns` as ``{"<section>_<dimension>": {label: count}}`` (e.g.
     ``victim_age``, ``offender_race``, ``offense_weapons``) so victim/offender
     dimensions of the same name don't collide.
 
     (The ``type=counts`` variant returns the rates/actuals shape — parse it with
-    :class:`ChartResponse`.)
+    :class:`ChartResponse` / :class:`SummarizedResponse`.)
     """
 
     model_config = ConfigDict(extra="allow")
@@ -176,6 +174,17 @@ class ShrResponse(BaseModel):
                 if isinstance(mapping, dict):
                     merged[f"{name}_{dimension}"] = mapping
         return merged
+
+
+class ShrResponse(_VictimOffenderBreakdowns):
+    """/shr/* type=totals — Supplementary Homicide Report breakdowns (victim &
+    offender: age/sex/race/ethnicity; offense: weapons/circumstance/relationship)."""
+
+
+class NibrsResponse(_VictimOffenderBreakdowns):
+    """/nibrs/* type=totals — incident-based breakdowns. Same victim/offense/
+    offender sections as SHR, with extra dimensions (victim location &
+    relationship, offense related_offenses)."""
 
 
 class PropertyResponse(BaseModel):

@@ -178,6 +178,21 @@ def test_property_national_parses_value_breakdowns(sample: Callable[[str], Any])
 
 
 @respx.mock
+def test_nibrs_national_parses_sectioned_breakdowns(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/nibrs/national/13A").mock(
+        return_value=Response(200, json=sample("nibrs_national_13A_totals"))
+    )
+    with _client() as c:
+        r = c.nibrs_national("13A", "01-2020", "12-2022")
+
+    assert route.called
+    assert route.calls.last.request.url.params["type"] == "totals"
+    bd = r.breakdowns
+    # NIBRS adds victim location & relationship beyond SHR's dimensions
+    assert {"victim_location", "victim_relationship", "offense_weapons"} <= set(bd)
+
+
+@respx.mock
 def test_pe_agency_uses_state_and_ori_path() -> None:
     route = respx.get(f"{BASE}/pe/NY/NY0303000").mock(
         return_value=Response(200, json={"rates": {}, "actuals": {}})

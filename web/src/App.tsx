@@ -5,6 +5,7 @@ import { TopBar } from "./components/TopBar";
 import { useMeta } from "./lib/queries";
 import { HateCrimeView } from "./views/HateCrimeView";
 import { HomicideView } from "./views/HomicideView";
+import { NibrsView } from "./views/NibrsView";
 import { OverviewView } from "./views/OverviewView";
 import { PropertyView } from "./views/PropertyView";
 
@@ -15,6 +16,7 @@ const VIEWS: NavItem[] = [
   { id: "hate-crime", label: "Hate Crime" },
   { id: "homicide", label: "Homicide" },
   { id: "property", label: "Property" },
+  { id: "nibrs", label: "NIBRS" },
 ];
 
 export default function App() {
@@ -47,6 +49,7 @@ export default function App() {
       {view === "hate-crime" && <HateCrimeView region={region} />}
       {view === "homicide" && <HomicideView region={region} />}
       {view === "property" && <PropertyView region={region} />}
+      {view === "nibrs" && <NibrsView region={region} />}
     </div>
   );
 }

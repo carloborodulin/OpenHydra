@@ -81,6 +81,9 @@ export const api = {
   // Expanded property; `offense` is NB/NL/NMVT/NROB.
   property: (offense: string, category?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/property?${qs({ level, area, offense, category })}`),
+  // NIBRS incidents; `offense` is a NIBRS code (e.g. 13A).
+  nibrs: (offense: string, category?: string, level = "national", area = "US") =>
+    get<ArrestRow[]>(`/api/nibrs?${qs({ level, area, offense, category })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>
@@ -97,4 +100,6 @@ export const api = {
     get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/shr?${qs({ category })}`),
   agencyProperty: (ori: string, offense: string, category?: string) =>
     get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/property?${qs({ offense, category })}`),
+  agencyNibrs: (ori: string, offense: string, category?: string) =>
+    get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/nibrs?${qs({ offense, category })}`),
 };
