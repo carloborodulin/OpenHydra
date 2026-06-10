@@ -26,6 +26,7 @@ from .models import (
     Meta,
     OffenseMonthly,
     PoliceEmploymentRow,
+    UofParticipationRow,
 )
 
 # Request-scoped read-only DuckDB connection (FastAPI Annotated dependency).
@@ -272,6 +273,33 @@ def lesdc(
         sql += " and section = ?"
         params.append(section)
     sql += " order by section, value desc"
+    return _dicts(conn, sql, params)
+
+
+@app.get("/api/uof/participation", response_model=list[UofParticipationRow])
+def uof_participation(conn: Conn) -> list[dict[str, Any]]:
+    # Use-of-Force national reporting participation, one row per year.
+    return _dicts(
+        conn,
+        "select year, participating_agencies, total_agencies, participation_percent "
+        "from fct_uof_participation order by year",
+    )
+
+
+@app.get("/api/uof/questions", response_model=list[ArrestRow])
+def uof_questions(
+    conn: Conn,
+    year: int = 2022,
+    category: str | None = None,
+) -> list[dict[str, Any]]:
+    # Use-of-Force report items; `category` is the quest group (report / contact
+    # / force / means).
+    sql = "select category, label, value from fct_uof_questions where year = ?"
+    params: list[Any] = [year]
+    if category:
+        sql += " and category = ?"
+        params.append(category)
+    sql += " order by category, value desc"
     return _dicts(conn, sql, params)
 
 

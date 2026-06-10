@@ -9,20 +9,22 @@ import { LesdcView } from "./views/LesdcView";
 import { NibrsView } from "./views/NibrsView";
 import { OverviewView } from "./views/OverviewView";
 import { PropertyView } from "./views/PropertyView";
+import { UseOfForceView } from "./views/UseOfForceView";
 
-// Top-level views. Each domain group (Use of Force, …) adds an entry here and a
-// branch in the render switch below.
+// Top-level views. Each domain group adds an entry here and a branch in the
+// render switch below.
 const VIEWS: NavItem[] = [
   { id: "overview", label: "Overview" },
   { id: "hate-crime", label: "Hate Crime" },
   { id: "homicide", label: "Homicide" },
   { id: "property", label: "Property" },
   { id: "nibrs", label: "NIBRS" },
+  { id: "use-of-force", label: "Use of Force" },
   { id: "lesdc", label: "LESDC" },
 ];
 
 // Views with their own controls / no geography don't use the shared region bar.
-const NO_REGION_VIEWS = new Set(["lesdc"]);
+const NO_REGION_VIEWS = new Set(["lesdc", "use-of-force"]);
 
 export default function App() {
   const meta = useMeta();
@@ -59,6 +61,7 @@ export default function App() {
       {view === "homicide" && <HomicideView region={region} />}
       {view === "property" && <PropertyView region={region} />}
       {view === "nibrs" && <NibrsView region={region} />}
+      {view === "use-of-force" && <UseOfForceView />}
       {view === "lesdc" && <LesdcView />}
     </div>
   );

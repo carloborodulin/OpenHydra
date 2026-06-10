@@ -17,3 +17,5 @@ sources:
       - name: property
       - name: nibrs
       - name: lesdc
+      - name: uof_participation
+      - name: uof_questions

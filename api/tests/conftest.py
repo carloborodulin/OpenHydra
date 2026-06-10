@@ -95,6 +95,22 @@ def client(tmp_path) -> Iterator[TestClient]:
             (2022,'manner','S','Firearm', 42.0),
             (2022,'manner','S','Hanging', 4.0),
             (2022,'manner','AS','Overdose of prescription drugs', 4.0);
+
+        create table fct_uof_participation(
+            year integer, participating_agencies double,
+            total_agencies double, participation_percent double
+        );
+        insert into fct_uof_participation values
+            (2021, 8929.0, 18514.0, 65.0),
+            (2022, 10353.0, 18514.0, 75.0);
+
+        create table fct_uof_questions(
+            year integer, category varchar, label varchar, value double
+        );
+        insert into fct_uof_questions values
+            (2022,'force','Baton', 9.0),
+            (2022,'force','Canine', 4.0),
+            (2022,'report','Death of a person due to law enforcement use of force', 31.0);
         """
     )
     con.close()

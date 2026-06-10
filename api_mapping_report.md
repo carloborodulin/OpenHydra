@@ -60,7 +60,7 @@ graph TD
 | **Hate Crime** | ✅ Yes | ✅ Yes (`fct_hate_crime`) | ✅ Yes (`/api/hate-crime` + live agency proxy) | ✅ Yes (Hate Crime view) |
 | **Exp. Homicide** | ✅ Yes | ✅ Yes (`fct_shr`) | ✅ Yes (`/api/shr` + live agency proxy) | ✅ Yes (Homicide view) |
 | **Exp. Property** | ✅ Yes | ✅ Yes (`fct_property`) | ✅ Yes (`/api/property` + live agency proxy) | ✅ Yes (Property view) |
-| **Use Of Force** | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Use Of Force** | ✅ Yes | ✅ Yes (`fct_uof_participation`, `fct_uof_questions`) | ✅ Yes (`/api/uof/*`, national) | ✅ Yes (Use of Force view) |
 | **LESDC** | ✅ Yes | ✅ Yes (`fct_lesdc`) | ✅ Yes (`/api/lesdc`, national only) | ✅ Yes (LESDC view) |
 | **NIBRS Incidents** | ✅ Yes | ✅ Yes (`fct_nibrs`, curated offenses) | ✅ Yes (`/api/nibrs` + live agency proxy) | ✅ Yes (NIBRS view) |
 | **NIBRS Estimations**| ❌ No | ❌ No | ❌ No | ❌ No |

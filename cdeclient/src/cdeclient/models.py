@@ -210,6 +210,37 @@ class LesdcResponse(BaseModel):
         return cls(sections=sections)
 
 
+class UofParticipation(BaseModel):
+    """One year's national Use-of-Force participation summary
+    (/participation/national/uof/nationalByYear). The API wraps it in a
+    single-element list — :meth:`from_payload` unwraps it."""
+
+    model_config = ConfigDict(extra="allow")
+
+    data_year: int | None = None
+    participating_agencies: float | None = None
+    total_agencies: float | None = None
+    participation_percent: float | None = None
+
+    @classmethod
+    def from_payload(cls, payload: Any) -> UofParticipation:
+        record = payload[0] if isinstance(payload, list) and payload else (payload or {})
+        return cls.model_validate(record if isinstance(record, dict) else {})
+
+
+class UofQuestionItem(BaseModel):
+    """One Use-of-Force report item (/uof/questions/{grp}/{year}/{quarter}).
+
+    ``quest`` groups items (report / contact / force / means); ``item`` is the
+    label and ``value`` the metric (sometimes a numeric string)."""
+
+    model_config = ConfigDict(extra="allow")
+
+    quest: str | None = None
+    item: str | None = None
+    value: Any = None
+
+
 class PropertyResponse(BaseModel):
     """/supplemental/* type=totals — expanded property (stolen/recovered values
     and offense analysis).

@@ -24,6 +24,8 @@ ALL_OFFENSES: list[str] = [o.value for o in Offense]
 ALL_ARREST_OFFENSES: list[str] = list(ARREST_OFFENSES)
 # LESDC has data for these years only (national, year-keyed).
 LESDC_YEARS: list[str] = ["2022", "2023"]
+# Use-of-Force collection years (national, year-keyed).
+UOF_YEARS: list[str] = ["2019", "2020", "2021", "2022", "2023"]
 
 
 def _year(month: str | date) -> str:
@@ -234,6 +236,24 @@ class Extractor:
         frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.LESDC_SCHEMA)
         self._write("lesdc", frame)
         return frame
+
+    def pull_uof(self, years: list[str] | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:
+        # Use of Force is national + year-keyed: participation summary + report
+        # questions. Writes two domains (uof_participation, uof_questions).
+        years = years or UOF_YEARS
+        part = normalize.uof_participation_to_frame(
+            [self.client.uof_participation_national(yr) for yr in years]
+        )
+        self._write("uof_participation", part)
+        q_frames = [
+            normalize.uof_questions_to_frame(self.client.uof_questions(yr), year=int(yr))
+            for yr in years
+        ]
+        questions = (
+            pl.concat(q_frames) if q_frames else pl.DataFrame(schema=normalize.UOF_QUESTIONS_SCHEMA)
+        )
+        self._write("uof_questions", questions)
+        return part, questions
 
     def pull_pe(
         self, states: list[str], from_: str, to: str, *, include_national: bool = True

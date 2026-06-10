@@ -29,6 +29,8 @@ from .models import (
     PropertyResponse,
     ShrResponse,
     SummarizedResponse,
+    UofParticipation,
+    UofQuestionItem,
 )
 
 # Statuses worth retrying: gateway hiccups (the API throws intermittent 503s)
@@ -301,6 +303,24 @@ class CdeClient:
             f"nibrs/agency/{ori}/{offense}", {**self._range(from_, to), "type": "totals"}
         )
         return NibrsResponse.model_validate(data)
+
+    # -- Use of Force (national; participation + report questions) ----------
+    def uof_participation_national(
+        self, year: str | int, quarter: str | int = 4
+    ) -> UofParticipation:
+        data = self._get_json(
+            "participation/national/uof/nationalByYear",
+            {"year": str(year), "quarter": str(quarter)},
+        )
+        return UofParticipation.from_payload(data)
+
+    def uof_questions(
+        self, year: str | int, grp: str = "A", quarter: str | int = 4
+    ) -> list[UofQuestionItem]:
+        data = self._get_json(f"uof/questions/{grp}/{year}/{quarter}", {})
+        if not isinstance(data, list):
+            return []
+        return [UofQuestionItem.model_validate(x) for x in data if isinstance(x, dict)]
 
     # -- LESDC (LE suicide data collection; national only, by chart type) ---
     def lesdc(self, chart_type: str, year: str | int) -> LesdcResponse:

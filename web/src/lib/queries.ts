@@ -97,6 +97,16 @@ export const useLesdc = (chartType: string, year: number, section?: string) =>
     enabled: Boolean(chartType),
   });
 
+// Use of Force — national only.
+export const useUofParticipation = () =>
+  useQuery({ queryKey: ["uof-participation"], queryFn: api.uofParticipation });
+
+export const useUofQuestions = (year: number, category?: string) =>
+  useQuery({
+    queryKey: ["uof-questions", year, category],
+    queryFn: () => api.uofQuestions(year, category),
+  });
+
 // `state` undefined => all agencies (national view).
 export const useAgencies = (state?: string) =>
   useQuery({ queryKey: ["agencies", state ?? "all"], queryFn: () => api.agencies(state) });

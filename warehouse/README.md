@@ -47,3 +47,5 @@ uv run mypy
 | `property` | level × area × offense × dimension × label | `level, area, offense, category, label, value` |
 | `nibrs` | level × area × offense × section_dimension × label | `level, area, offense, category, label, value` |
 | `lesdc` | year × chart_type × section × label (national) | `year, chart_type, section, label, value` |
+| `uof_participation` | year (national) | `year, participating_agencies, total_agencies, participation_percent` |
+| `uof_questions` | year × quest × item (national) | `year, category, label, value` |

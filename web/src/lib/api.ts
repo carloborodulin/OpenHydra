@@ -55,6 +55,13 @@ export interface LesdcRow {
   value: number | null;
 }
 
+export interface UofParticipationRow {
+  year: number;
+  participating_agencies: number | null;
+  total_agencies: number | null;
+  participation_percent: number | null;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${path}`);
@@ -93,6 +100,10 @@ export const api = {
   // LESDC (LE suicide data collection); national only, by year + chart type.
   lesdc: (chartType: string, year: number, section?: string) =>
     get<LesdcRow[]>(`/api/lesdc?${qs({ chart_type: chartType, year: String(year), section })}`),
+  // Use of Force; national only.
+  uofParticipation: () => get<UofParticipationRow[]>("/api/uof/participation"),
+  uofQuestions: (year: number, category?: string) =>
+    get<ArrestRow[]>(`/api/uof/questions?${qs({ year: String(year), category })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>

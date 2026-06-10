@@ -93,6 +93,9 @@ def pull(
         if "lesdc" in doms:
             f = ex.pull_lesdc()  # national-only, year-keyed (ignores --states/--from/--to)
             typer.echo(f"lesdc      -> {f.height} rows")
+        if "uof" in doms:
+            pf, qf = ex.pull_uof()  # national-only, year-keyed
+            typer.echo(f"uof        -> {pf.height} participation, {qf.height} question rows")
         if "pe" in doms:
             f = ex.pull_pe(st, from_, to)
             typer.echo(f"pe         -> {f.height} rows")

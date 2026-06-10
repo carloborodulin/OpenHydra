@@ -111,3 +111,19 @@ def test_lesdc(client: TestClient) -> None:
     rows = r.json()
     assert {row["label"] for row in rows} == {"Firearm", "Hanging"}
     assert rows[0]["value"] == 42.0  # Firearm, value desc
+
+
+def test_uof_participation(client: TestClient) -> None:
+    r = client.get("/api/uof/participation")
+    assert r.status_code == 200
+    rows = r.json()
+    assert [row["year"] for row in rows] == [2021, 2022]  # ordered by year
+    assert rows[-1]["participation_percent"] == 75.0
+
+
+def test_uof_questions(client: TestClient) -> None:
+    r = client.get("/api/uof/questions", params={"year": 2022, "category": "force"})
+    assert r.status_code == 200
+    rows = r.json()
+    assert {row["label"] for row in rows} == {"Baton", "Canine"}
+    assert rows[0]["value"] == 9.0  # Baton, value desc

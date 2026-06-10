@@ -60,3 +60,10 @@ class LesdcRow(BaseModel):
     section: str  # S (suicide) | AS (attempted suicide)
     label: str
     value: float | None = None
+
+
+class UofParticipationRow(BaseModel):
+    year: int
+    participating_agencies: float | None = None
+    total_agencies: float | None = None
+    participation_percent: float | None = None

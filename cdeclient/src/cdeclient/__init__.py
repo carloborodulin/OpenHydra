@@ -28,6 +28,8 @@ from .models import (
     PropertyResponse,
     ShrResponse,
     SummarizedResponse,
+    UofParticipation,
+    UofQuestionItem,
 )
 
 __all__ = [
@@ -56,6 +58,8 @@ __all__ = [
     "Offenses",
     "Settings",
     "SummarizedResponse",
+    "UofParticipation",
+    "UofQuestionItem",
 ]
 
 __version__ = "0.1.0"

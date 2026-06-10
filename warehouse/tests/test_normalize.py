@@ -15,6 +15,8 @@ from cdeclient.models import (
     PropertyResponse,
     ShrResponse,
     SummarizedResponse,
+    UofParticipation,
+    UofQuestionItem,
 )
 from pydantic import TypeAdapter
 
@@ -117,6 +119,25 @@ def test_lesdc_to_frame_record_shape(sample: Callable[[str], Any]) -> None:
     df = normalize.lesdc_to_frame(resp, year=2022, chart_type="demographics")
     assert df.height > 0
     assert "Female" in set(df["label"])
+
+
+def test_uof_participation_to_frame(sample: Callable[[str], Any]) -> None:
+    rec = UofParticipation.from_payload(sample("uof_participation_national_2022"))
+    df = normalize.uof_participation_to_frame([rec])
+    assert df.columns == list(normalize.UOF_PARTICIPATION_SCHEMA)
+    assert df.height == 1
+    assert df["year"][0] == 2022
+    assert df["participation_percent"][0] == 75.0
+
+
+def test_uof_questions_to_frame(sample: Callable[[str], Any]) -> None:
+    items = [UofQuestionItem.model_validate(x) for x in sample("uof_questions_A_2022")]
+    df = normalize.uof_questions_to_frame(items, year=2022)
+    assert df.columns == list(normalize.UOF_QUESTIONS_SCHEMA)
+    assert df.height > 0
+    assert {"report", "force", "contact", "means"} <= set(df["category"].unique())
+    # numeric-string values are coerced to floats
+    assert df["value"].null_count() == 0
 
 
 def test_pe_to_frame(sample: Callable[[str], Any]) -> None:

@@ -20,6 +20,8 @@ from cdeclient.models import (
     PropertyResponse,
     ShrResponse,
     SummarizedResponse,
+    UofParticipation,
+    UofQuestionItem,
 )
 
 
@@ -98,6 +100,20 @@ LESDC_SCHEMA: dict[str, pl.DataType] = {
     "year": pl.Int32(),
     "chart_type": pl.String(),
     "section": pl.String(),  # S (suicide) | AS (attempted suicide)
+    "label": pl.String(),
+    "value": pl.Float64(),
+}
+
+UOF_PARTICIPATION_SCHEMA: dict[str, pl.DataType] = {
+    "year": pl.Int32(),
+    "participating_agencies": pl.Float64(),
+    "total_agencies": pl.Float64(),
+    "participation_percent": pl.Float64(),
+}
+
+UOF_QUESTIONS_SCHEMA: dict[str, pl.DataType] = {
+    "year": pl.Int32(),
+    "category": pl.String(),  # quest: report | contact | force | means
     "label": pl.String(),
     "value": pl.Float64(),
 }
@@ -293,6 +309,37 @@ def lesdc_to_frame(resp: LesdcResponse, *, year: int, chart_type: str) -> pl.Dat
                 }
             )
     return pl.DataFrame(rows, schema=LESDC_SCHEMA)
+
+
+def uof_participation_to_frame(records: list[UofParticipation]) -> pl.DataFrame:
+    """Use-of-Force national participation, one row per year."""
+    rows: list[dict[str, object]] = []
+    for r in records:
+        if r.data_year is None:
+            continue
+        rows.append(
+            {
+                "year": int(r.data_year),
+                "participating_agencies": r.participating_agencies,
+                "total_agencies": r.total_agencies,
+                "participation_percent": r.participation_percent,
+            }
+        )
+    return pl.DataFrame(rows, schema=UOF_PARTICIPATION_SCHEMA)
+
+
+def uof_questions_to_frame(items: list[UofQuestionItem], *, year: int) -> pl.DataFrame:
+    """Use-of-Force report items to tidy long rows (year, category=quest, label, value)."""
+    rows: list[dict[str, object]] = []
+    for it in items:
+        if not it.quest or not it.item:
+            continue
+        try:
+            value = float(it.value)
+        except (TypeError, ValueError):
+            continue
+        rows.append({"year": year, "category": it.quest, "label": it.item, "value": value})
+    return pl.DataFrame(rows, schema=UOF_QUESTIONS_SCHEMA)
 
 
 def pe_to_frame(resp: ChartResponse, *, level: str, area: str) -> pl.DataFrame:

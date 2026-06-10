@@ -1,0 +1,362 @@
+[
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "report",
+    "item": "Serious bodily injury of a person due to law enforcement use of force",
+    "value": "55.5",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Response to unlawful or suspicious activity",
+    "value": "54.9",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "report",
+    "item": "Death of a person due to law enforcement use of force",
+    "value": "31",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "report",
+    "item": "Discharge of a firearm by law enforcement at or in the direction of a person that did not otherwise result in death or serious bodily injury",
+    "value": "14.1",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Traffic stop",
+    "value": "12.1",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "All Other Values",
+    "value": "12",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Intentionally spitting or bleeding on an officer",
+    "value": "12",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Pending further investigation",
+    "value": "11",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Throwing an article or object at an officer",
+    "value": "11",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Directing a vehicle at an officer or another",
+    "value": "10",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Blunt instrument/flashlight",
+    "value": "10",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Baton",
+    "value": "9",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Making verbal threats",
+    "value": "9",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Other",
+    "value": "8.2",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Warrant service",
+    "value": "8",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Unknown and is unlikely to ever be known",
+    "value": "8",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Using another weapon (such as chemical agent, edged weapons, electronic control weapon, or blunt object) against an officer or another",
+    "value": "8",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Chemical agent/Pepper or OC (oleoresin capsicum) spray",
+    "value": "7",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Barricading self",
+    "value": "7",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Medical, mental health, or welfare assistance",
+    "value": "6.1",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Impact projectile",
+    "value": "6",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Using hands/fist/feet against an officer or another",
+    "value": "6",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Routine patrol other than traffic stop",
+    "value": "5.1",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Other",
+    "value": "5",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Resisted being handcuffed or arrested",
+    "value": "5",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Canine",
+    "value": "4",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Using a firearm against an officer or another",
+    "value": "4",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Displaying a weapon at an officer or another",
+    "value": "3",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Electronic control weapon (Taser\u00ae)",
+    "value": "3",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Follow up investigation",
+    "value": "2.8",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Attempted to escape or flee from custody",
+    "value": "2",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Unknown and is unlikely to ever be known",
+    "value": "2",
+    "percent_rank_count": "P"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Hands-fists-feet",
+    "value": "2",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "means",
+    "item": "Failing to comply to verbal commands or other types of passive resistance",
+    "value": "1",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "force",
+    "item": "Firearm",
+    "value": "1",
+    "percent_rank_count": "R"
+  },
+  {
+    "data_year": 2022,
+    "quarter": 4,
+    "grp": "A",
+    "spec": "National",
+    "quest": "contact",
+    "item": "Service of a court order",
+    "value": "0.5",
+    "percent_rank_count": "P"
+  }
+]

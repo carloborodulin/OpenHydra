@@ -209,6 +209,32 @@ def test_lesdc_extracts_S_and_AS_sections(sample: Callable[[str], Any]) -> None:
 
 
 @respx.mock
+def test_uof_participation_unwraps_record(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/participation/national/uof/nationalByYear").mock(
+        return_value=Response(200, json=sample("uof_participation_national_2022"))
+    )
+    with _client() as c:
+        r = c.uof_participation_national(2022)
+
+    assert route.called
+    assert r.data_year == 2022
+    assert r.participation_percent == 75
+
+
+@respx.mock
+def test_uof_questions_returns_items(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/uof/questions/A/2022/4").mock(
+        return_value=Response(200, json=sample("uof_questions_A_2022"))
+    )
+    with _client() as c:
+        items = c.uof_questions(2022)
+
+    assert route.called
+    assert len(items) == 36
+    assert {"report", "force", "contact", "means"} <= {i.quest for i in items}
+
+
+@respx.mock
 def test_pe_agency_uses_state_and_ori_path() -> None:
     route = respx.get(f"{BASE}/pe/NY/NY0303000").mock(
         return_value=Response(200, json={"rates": {}, "actuals": {}})

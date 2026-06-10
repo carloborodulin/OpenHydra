@@ -116,3 +116,21 @@ models:
       - name: value
         tests:
           - not_null
+
+  - name: fct_uof_participation
+    description: Use-of-Force national participation summary, one row per year.
+    columns:
+      - name: year
+        tests:
+          - not_null
+          - unique
+
+  - name: fct_uof_questions
+    description: Use-of-Force report items by year and quest category.
+    columns:
+      - name: category
+        tests:
+          - not_null
+      - name: value
+        tests:
+          - not_null

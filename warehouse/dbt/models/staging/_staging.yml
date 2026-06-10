@@ -44,3 +44,9 @@ models:
 
   - name: stg_lesdc
     description: LE suicide data collection by year, chart type, S/AS section (long format).
+
+  - name: stg_uof_participation
+    description: Use-of-Force national participation summary, one row per year.
+
+  - name: stg_uof_questions
+    description: Use-of-Force report items by year & quest category (long format).
