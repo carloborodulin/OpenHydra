@@ -77,9 +77,7 @@ def pull(
         if "arrests" in doms:
             f = ex.pull_arrests(st, aoffs, from_, to)
             n = len(aoffs)
-            typer.echo(
-                f"arrests    -> {f.height} rows ({n} offenses, {len(st)} states + national)"
-            )
+            typer.echo(f"arrests    -> {f.height} rows ({n} offenses, {len(st)} states + national)")
         if "pe" in doms:
             f = ex.pull_pe(st, from_, to)
             typer.echo(f"pe         -> {f.height} rows")
