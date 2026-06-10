@@ -70,6 +70,10 @@ export const api = {
   agencies: (state?: string) => get<AgencyFeature[]>(`/api/agencies?${qs({ state })}`),
   policeEmployment: (level = "national", area = "US") =>
     get<PoliceEmploymentRow[]>(`/api/police-employment?${qs({ level, area })}`),
+  // Hate crime breakdowns share the ArrestRow {category, label, value} shape;
+  // `category` is the dimension (bias_category, offender_race, victim_type, …).
+  hateCrime: (category?: string, level = "national", area = "US") =>
+    get<ArrestRow[]>(`/api/hate-crime?${qs({ level, area, category })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>
@@ -80,4 +84,6 @@ export const api = {
     ),
   agencyPoliceEmployment: (ori: string) =>
     get<PoliceEmploymentRow[]>(`/api/agency/${encodeURIComponent(ori)}/police-employment`),
+  agencyHateCrime: (ori: string, category?: string) =>
+    get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/hate-crime?${qs({ category })}`),
 };

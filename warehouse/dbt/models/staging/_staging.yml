@@ -29,3 +29,6 @@ models:
 
   - name: stg_police_employment
     description: Law-enforcement employment by year (long format).
+
+  - name: stg_hate_crime
+    description: Hate crime incident/offense breakdowns by dimension (long format).

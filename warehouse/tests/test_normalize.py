@@ -5,7 +5,13 @@ from datetime import date
 from typing import Any
 
 import polars as pl
-from cdeclient.models import Agency, ArrestTotalsResponse, ChartResponse, SummarizedResponse
+from cdeclient.models import (
+    Agency,
+    ArrestTotalsResponse,
+    ChartResponse,
+    HateCrimeResponse,
+    SummarizedResponse,
+)
 from pydantic import TypeAdapter
 
 from openhydra_etl import normalize
@@ -49,6 +55,17 @@ def test_arrests_to_frame(sample: Callable[[str], Any]) -> None:
     assert df.height > 0
     assert "Arrestee Sex" in set(df["category"].unique())
     assert set(df["offense"].unique()) == {"violent-crime"}
+
+
+def test_hate_crime_to_frame(sample: Callable[[str], Any]) -> None:
+    resp = HateCrimeResponse.model_validate(sample("hate_crime_national_totals"))
+    df = normalize.hate_crime_to_frame(resp, level="national", area="US")
+    assert df.columns == list(normalize.HATE_CRIME_SCHEMA)
+    assert df.height > 0
+    cats = set(df["category"].unique())
+    assert "bias_category" in cats  # from incident_section
+    assert "offender_race" in cats  # from bias_section
+    assert df["value"].null_count() == 0
 
 
 def test_pe_to_frame(sample: Callable[[str], Any]) -> None:

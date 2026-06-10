@@ -21,6 +21,20 @@ export const useArrests = (
     queryFn: () => api.arrests(category, offense, level, area),
   });
 
+// Hate crime breakdowns. `category` undefined => all dimensions at once.
+export const useHateCrime = (category: string | undefined, level = "national", area = "US") =>
+  useQuery({
+    queryKey: ["hate-crime", category, level, area],
+    queryFn: () => api.hateCrime(category, level, area),
+  });
+
+export const useAgencyHateCrime = (ori: string | undefined, category?: string) =>
+  useQuery({
+    queryKey: ["agency-hate-crime", ori, category],
+    queryFn: () => api.agencyHateCrime(ori as string, category),
+    enabled: Boolean(ori),
+  });
+
 // `state` undefined => all agencies (national view).
 export const useAgencies = (state?: string) =>
   useQuery({ queryKey: ["agencies", state ?? "all"], queryFn: () => api.agencies(state) });

@@ -42,3 +42,4 @@ uv run mypy
 | `agencies` | ORI | `ori, agency_name, agency_type, county, state_abbr, state_name, latitude, longitude, is_nibrs, nibrs_start_date` |
 | `arrests` | level × area × breakdown × label | `level, area, category, label, value` |
 | `pe` | level × area × section × metric × year | `level, area, section(rate/actual), metric, year, value` |
+| `hate_crime` | level × area × dimension × label | `level, area, category, label, value` |

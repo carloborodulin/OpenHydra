@@ -43,3 +43,18 @@ models:
       - name: metric
         tests:
           - not_null
+
+  - name: fct_hate_crime
+    description: Hate crime incident/offense breakdowns by dimension, per level/area.
+    columns:
+      - name: level
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["national", "state", "agency"]
+      - name: category
+        tests:
+          - not_null
+      - name: value
+        tests:
+          - not_null

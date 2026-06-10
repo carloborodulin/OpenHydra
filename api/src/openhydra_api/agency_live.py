@@ -86,16 +86,14 @@ def offenses_to_rows(resp: SummarizedResponse) -> list[dict[str, Any]]:
     return rows
 
 
-def arrests_to_rows(
-    resp: ArrestTotalsResponse, category: str | None = None
+def breakdowns_to_rows(
+    breakdowns: dict[str, Any], category: str | None = None
 ) -> list[dict[str, Any]]:
-    """Flatten demographic breakdowns to ArrestRow shape (optionally one category).
-
-    Mirrors openhydra_etl.normalize.arrests_to_frame + the API's
-    ``order by category, value desc``.
-    """
+    """Flatten {dimension: {label: count}} breakdowns to ArrestRow shape, optionally
+    restricted to one dimension. Shared by arrests and hate crime; mirrors the
+    API's ``order by category, value desc``."""
     rows: list[dict[str, Any]] = []
-    for cat, mapping in resp.breakdowns.items():
+    for cat, mapping in breakdowns.items():
         if category and cat != category:
             continue
         if not isinstance(mapping, dict):
@@ -105,6 +103,16 @@ def arrests_to_rows(
                 rows.append({"category": cat, "label": str(label), "value": float(value)})
     rows.sort(key=lambda r: (r["category"], -(r["value"] or 0.0)))
     return rows
+
+
+def arrests_to_rows(
+    resp: ArrestTotalsResponse, category: str | None = None
+) -> list[dict[str, Any]]:
+    """Flatten demographic breakdowns to ArrestRow shape (optionally one category).
+
+    Mirrors openhydra_etl.normalize.arrests_to_frame.
+    """
+    return breakdowns_to_rows(resp.breakdowns, category)
 
 
 def pe_to_rows(resp: ChartResponse) -> list[dict[str, Any]]:

@@ -8,7 +8,12 @@ from typing import Any
 
 import pytest
 from cdeclient import CdeError
-from cdeclient.models import ArrestTotalsResponse, ChartResponse, SummarizedResponse
+from cdeclient.models import (
+    ArrestTotalsResponse,
+    ChartResponse,
+    HateCrimeResponse,
+    SummarizedResponse,
+)
 from fastapi.testclient import TestClient
 
 from openhydra_api import agency_live, cde
@@ -30,11 +35,13 @@ class FakeCde:
         summarized: Any = None,
         arrests: Any = None,
         pe: Any = None,
+        hate_crime: Any = None,
     ) -> None:
         self._summarized = summarized
         self._arrests = arrests
         self._pe = pe
-        self.calls = {"summarized": 0, "arrests": 0, "pe": 0}
+        self._hate_crime = hate_crime
+        self.calls = {"summarized": 0, "arrests": 0, "pe": 0, "hate_crime": 0}
 
     def summarized_agency(self, ori: str, offense: str, from_: str, to: str) -> Any:
         self.calls["summarized"] += 1
@@ -49,6 +56,10 @@ class FakeCde:
     def police_employment_agency(self, state: str, ori: str, from_: str, to: str) -> Any:
         self.calls["pe"] += 1
         return _resolve(self._pe)
+
+    def hate_crime_agency(self, ori: str, from_: str, to: str) -> Any:
+        self.calls["hate_crime"] += 1
+        return _resolve(self._hate_crime)
 
 
 def _resolve(value: Any) -> Any:
@@ -124,6 +135,18 @@ def test_agency_arrests_category_filter_and_slug_mapping(make_client) -> None:
     assert rows and {row["category"] for row in rows} == {"Arrestee Race"}
     # ordered by value desc within the category
     assert rows == sorted(rows, key=lambda x: -x["value"])
+
+
+# -- hate crime -------------------------------------------------------------
+def test_agency_hate_crime_breakdowns(make_client) -> None:
+    fake = FakeCde(hate_crime=HateCrimeResponse.model_validate(_sample("hate_crime_agency")))
+    r = make_client(fake).get(
+        "/api/agency/NY0303000/hate-crime", params={"category": "bias_category"}
+    )
+    assert r.status_code == 200
+    rows = r.json()
+    assert rows and {row["category"] for row in rows} == {"bias_category"}
+    assert rows == sorted(rows, key=lambda x: -x["value"])  # value desc within dimension
 
 
 # -- police employment ------------------------------------------------------

@@ -102,3 +102,37 @@ class ArrestTotalsResponse(_Envelope):
     def breakdowns(self) -> dict[str, Any]:
         extra = self.__pydantic_extra__ or {}
         return {key: value for key, value in extra.items() if isinstance(value, dict)}
+
+
+class HateCrimeResponse(BaseModel):
+    """/hate-crime/* (type=totals, and the state/agency variants).
+
+    Two sections of dimensional breakdowns: ``bias_section`` (victim_type,
+    offense_type, location_type, offender_race, offender_ethnicity,
+    judicial_district) and ``incident_section`` (bias, bias_category). Each
+    dimension maps a label to a count; access them merged — one entry per
+    dimension — via :attr:`breakdowns`, the same shape as
+    :attr:`ArrestTotalsResponse.breakdowns`.
+
+    (The ``type=counts`` variant returns the top-level rates/actuals shape and is
+    parsed with :class:`ChartResponse` instead.)
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    bias_section: dict[str, Any] = Field(default_factory=dict)
+    incident_section: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("bias_section", "incident_section", mode="before")
+    @classmethod
+    def _null_to_empty(cls, value: Any) -> Any:
+        return {} if value is None else value
+
+    @property
+    def breakdowns(self) -> dict[str, Any]:
+        merged: dict[str, Any] = {}
+        for section in (self.bias_section, self.incident_section):
+            for dimension, mapping in section.items():
+                if isinstance(mapping, dict):
+                    merged[dimension] = mapping
+        return merged

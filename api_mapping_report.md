@@ -57,7 +57,7 @@ graph TD
 | **Summarized** | ✅ Yes | ✅ Yes (`fct_offenses_monthly`) | ✅ Yes (`/api/offenses/monthly`) | ✅ Yes (Trend / Clearance charts) |
 | **Arrest** | ✅ Yes | ✅ Yes (`fct_arrests`) | ✅ Yes (`/api/arrests`) | ⚠️ Partial (Race chart only) |
 | **LE Employees** | ✅ Yes | ✅ Yes (`fct_police_employment`) | ✅ Yes (`/api/police-employment`) | ✅ Yes (Employment chart) |
-| **Hate Crime** | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Hate Crime** | ✅ Yes | ✅ Yes (`fct_hate_crime`) | ✅ Yes (`/api/hate-crime` + live agency proxy) | ✅ Yes (Hate Crime view) |
 | **Exp. Homicide** | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Exp. Property** | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Use Of Force** | ❌ No | ❌ No | ❌ No | ❌ No |

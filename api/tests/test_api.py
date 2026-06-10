@@ -68,3 +68,11 @@ def test_police_employment(client: TestClient) -> None:
     r = client.get("/api/police-employment")
     assert r.status_code == 200
     assert r.json()[0]["metric"] == "Male Officers"
+
+
+def test_hate_crime(client: TestClient) -> None:
+    r = client.get("/api/hate-crime", params={"category": "bias_category"})
+    assert r.status_code == 200
+    rows = r.json()
+    assert {row["label"] for row in rows} == {"Race/Ethnicity/Ancestry", "Religion"}
+    assert rows[0]["value"] == 20875.0  # ordered by value desc

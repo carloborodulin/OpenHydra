@@ -176,6 +176,24 @@ def police_employment(
     )
 
 
+@app.get("/api/hate-crime", response_model=list[ArrestRow])
+def hate_crime(
+    conn: Conn,
+    level: str = "national",
+    area: str = "US",
+    category: str | None = None,
+) -> list[dict[str, Any]]:
+    # Same tidy (category, label, value) shape as arrests; `category` is the
+    # breakdown dimension (bias_category, offender_race, victim_type, …).
+    sql = "select category, label, value from fct_hate_crime where level = ? and area = ?"
+    params: list[Any] = [level, area]
+    if category:
+        sql += " and category = ?"
+        params.append(category)
+    sql += " order by category, value desc"
+    return _dicts(conn, sql, params)
+
+
 # -- agency drill-down (live, proxied from the CDE API) --------------------
 # The warehouse only holds national + state rows. Per-agency data for ~19,619
 # agencies can't be pre-materialized, so these routes fetch live via cdeclient
@@ -230,6 +248,22 @@ def agency_police_employment(ori: str, client: Cde) -> list[dict[str, Any]]:
         return agency_live.pe_to_rows(resp)
 
     return agency_live.cached(agency_live.cache_key("pe", ori), produce)
+
+
+@app.get("/api/agency/{ori}/hate-crime", response_model=list[ArrestRow])
+def agency_hate_crime(
+    ori: str,
+    client: Cde,
+    category: str | None = None,
+) -> list[dict[str, Any]]:
+    def produce() -> list[dict[str, Any]]:
+        try:
+            resp = client.hate_crime_agency(ori, LIVE_FROM, LIVE_TO)
+        except LIVE_ERRORS:
+            return []
+        return agency_live.breakdowns_to_rows(resp.breakdowns, category)
+
+    return agency_live.cached(agency_live.cache_key("hate-crime", ori, category), produce)
 
 
 # In production the built frontend is mounted at the root (path set via env in

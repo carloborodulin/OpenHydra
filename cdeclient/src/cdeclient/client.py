@@ -23,6 +23,7 @@ from .models import (
     Agency,
     ArrestTotalsResponse,
     ChartResponse,
+    HateCrimeResponse,
     SummarizedResponse,
 )
 
@@ -209,6 +210,24 @@ class CdeClient:
         if atype == ArrestType.COUNTS.value:
             return ChartResponse.model_validate(data)
         return ArrestTotalsResponse.model_validate(data)
+
+    # -- hate crime --------------------------------------------------------
+    # type=totals returns the dimensional-breakdown shape (bias_section +
+    # incident_section). The state endpoint takes type; the agency endpoint
+    # doesn't (it returns the same totals shape regardless).
+    def hate_crime_national(self, from_: str | date, to: str | date) -> HateCrimeResponse:
+        data = self._get_json("hate-crime/national", {**self._range(from_, to), "type": "totals"})
+        return HateCrimeResponse.model_validate(data)
+
+    def hate_crime_state(self, state: str, from_: str | date, to: str | date) -> HateCrimeResponse:
+        data = self._get_json(
+            f"hate-crime/state/{state.upper()}", {**self._range(from_, to), "type": "totals"}
+        )
+        return HateCrimeResponse.model_validate(data)
+
+    def hate_crime_agency(self, ori: str, from_: str | date, to: str | date) -> HateCrimeResponse:
+        data = self._get_json(f"hate-crime/agency/{ori}", self._range(from_, to))
+        return HateCrimeResponse.model_validate(data)
 
     # -- police employment (yearly) ---------------------------------------
     # Use the canonical spec paths (`/pe`, `/pe/{state}`). The `/pe/national`

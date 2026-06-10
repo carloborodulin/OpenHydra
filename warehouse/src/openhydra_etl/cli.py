@@ -78,6 +78,9 @@ def pull(
             f = ex.pull_arrests(st, aoffs, from_, to)
             n = len(aoffs)
             typer.echo(f"arrests    -> {f.height} rows ({n} offenses, {len(st)} states + national)")
+        if "hate-crime" in doms:
+            f = ex.pull_hate_crime(st, from_, to)
+            typer.echo(f"hate-crime -> {f.height} rows ({len(st)} states + national)")
         if "pe" in doms:
             f = ex.pull_pe(st, from_, to)
             typer.echo(f"pe         -> {f.height} rows")

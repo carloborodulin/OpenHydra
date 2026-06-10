@@ -115,6 +115,26 @@ class Extractor:
         self._write("arrests", frame)
         return frame
 
+    def pull_hate_crime(
+        self, states: list[str], from_: str, to: str, *, include_national: bool = True
+    ) -> pl.DataFrame:
+        frames: list[pl.DataFrame] = []
+        if include_national:
+            frames.append(
+                normalize.hate_crime_to_frame(
+                    self.client.hate_crime_national(from_, to), level="national", area="US"
+                )
+            )
+        for st in states:
+            frames.append(
+                normalize.hate_crime_to_frame(
+                    self.client.hate_crime_state(st, from_, to), level="state", area=st
+                )
+            )
+        frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.HATE_CRIME_SCHEMA)
+        self._write("hate_crime", frame)
+        return frame
+
     def pull_pe(
         self, states: list[str], from_: str, to: str, *, include_national: bool = True
     ) -> pl.DataFrame:

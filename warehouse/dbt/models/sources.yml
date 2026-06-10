@@ -12,3 +12,4 @@ sources:
       - name: agencies
       - name: arrests
       - name: pe
+      - name: hate_crime

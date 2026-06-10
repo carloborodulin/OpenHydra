@@ -51,6 +51,15 @@ def client(tmp_path) -> Iterator[TestClient]:
         );
         insert into fct_police_employment values
             ('national','US','actual','Male Officers', 2020, 5000.0);
+
+        create table fct_hate_crime(
+            level varchar, area varchar,
+            category varchar, label varchar, value double
+        );
+        insert into fct_hate_crime values
+            ('national','US','bias_category','Race/Ethnicity/Ancestry', 20875.0),
+            ('national','US','bias_category','Religion', 5708.0),
+            ('national','US','offender_race','White', 15430.0);
         """
     )
     con.close()

@@ -18,6 +18,7 @@ from .models import (
     ArrestTotalsResponse,
     CdeProperties,
     ChartResponse,
+    HateCrimeResponse,
     Offenses,
     SummarizedResponse,
 )
@@ -36,6 +37,7 @@ __all__ = [
     "CdeProperties",
     "CdeServerError",
     "ChartResponse",
+    "HateCrimeResponse",
     "Offense",
     "Offenses",
     "Settings",

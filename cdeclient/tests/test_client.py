@@ -119,6 +119,35 @@ def test_arrests_agency_builds_path(sample: Callable[[str], Any]) -> None:
 
 
 @respx.mock
+def test_hate_crime_national_parses_breakdowns(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/hate-crime/national").mock(
+        return_value=Response(200, json=sample("hate_crime_national_totals"))
+    )
+    with _client() as c:
+        r = c.hate_crime_national("01-2020", "12-2022")
+
+    assert route.called
+    assert route.calls.last.request.url.params["type"] == "totals"
+    bd = r.breakdowns  # bias_section + incident_section merged: {dimension: {label: count}}
+    assert "bias_category" in bd  # from incident_section
+    assert "offender_race" in bd  # from bias_section
+    assert bd["bias_category"]["Religion"] > 0
+
+
+@respx.mock
+def test_hate_crime_agency_omits_type(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/hate-crime/agency/NY0303000").mock(
+        return_value=Response(200, json=sample("hate_crime_agency"))
+    )
+    with _client() as c:
+        r = c.hate_crime_agency("NY0303000", "01-2020", "12-2022")
+
+    assert route.called
+    assert "type" not in route.calls.last.request.url.params
+    assert "bias_category" in r.breakdowns
+
+
+@respx.mock
 def test_pe_agency_uses_state_and_ori_path() -> None:
     route = respx.get(f"{BASE}/pe/NY/NY0303000").mock(
         return_value=Response(200, json={"rates": {}, "actuals": {}})
