@@ -59,7 +59,7 @@ graph TD
 | **LE Employees** | ✅ Yes | ✅ Yes (`fct_police_employment`) | ✅ Yes (`/api/police-employment`) | ✅ Yes (Employment chart) |
 | **Hate Crime** | ✅ Yes | ✅ Yes (`fct_hate_crime`) | ✅ Yes (`/api/hate-crime` + live agency proxy) | ✅ Yes (Hate Crime view) |
 | **Exp. Homicide** | ✅ Yes | ✅ Yes (`fct_shr`) | ✅ Yes (`/api/shr` + live agency proxy) | ✅ Yes (Homicide view) |
-| **Exp. Property** | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Exp. Property** | ✅ Yes | ✅ Yes (`fct_property`) | ✅ Yes (`/api/property` + live agency proxy) | ✅ Yes (Property view) |
 | **Use Of Force** | ❌ No | ❌ No | ❌ No | ❌ No |
 | **LESDC** | ❌ No | ❌ No | ❌ No | ❌ No |
 | **NIBRS Incidents** | ❌ No | ❌ No | ❌ No | ❌ No |

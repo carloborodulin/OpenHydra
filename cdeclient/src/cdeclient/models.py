@@ -176,3 +176,36 @@ class ShrResponse(BaseModel):
                 if isinstance(mapping, dict):
                     merged[f"{name}_{dimension}"] = mapping
         return merged
+
+
+class PropertyResponse(BaseModel):
+    """/supplemental/* type=totals — expanded property (stolen/recovered values
+    and offense analysis).
+
+    Sections ``offense_analysis`` (location/monetary counts & average values) and
+    ``stolen_and_recovered`` (stolen_value, recovered_value). Each sub-dimension
+    maps a label to a value; some are null for a given offense. Dimension names
+    are unique across the two sections, so :attr:`breakdowns` keys on the
+    dimension directly (e.g. ``stolen_value``, ``location_counts``).
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    offense_analysis: dict[str, Any] = Field(default_factory=dict)
+    stolen_and_recovered: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("offense_analysis", "stolen_and_recovered", mode="before")
+    @classmethod
+    def _null_to_empty(cls, value: Any) -> Any:
+        return {} if value is None else value
+
+    @property
+    def breakdowns(self) -> dict[str, Any]:
+        merged: dict[str, Any] = {}
+        for section in (self.offense_analysis, self.stolen_and_recovered):
+            if not isinstance(section, dict):
+                continue
+            for dimension, mapping in section.items():
+                if isinstance(mapping, dict):
+                    merged[dimension] = mapping
+        return merged

@@ -212,6 +212,28 @@ def shr(
     return _dicts(conn, sql, params)
 
 
+@app.get("/api/property", response_model=list[ArrestRow])
+def expanded_property(
+    conn: Conn,
+    level: str = "national",
+    area: str = "US",
+    offense: str | None = None,
+    category: str | None = None,
+) -> list[dict[str, Any]]:
+    # Expanded property (supplemental); `offense` is NB/NL/NMVT/NROB, `category`
+    # the value/count dimension (stolen_value, recovered_value, location_counts…).
+    sql = "select category, label, value from fct_property where level = ? and area = ?"
+    params: list[Any] = [level, area]
+    if offense:
+        sql += " and offense = ?"
+        params.append(offense)
+    if category:
+        sql += " and category = ?"
+        params.append(category)
+    sql += " order by category, value desc"
+    return _dicts(conn, sql, params)
+
+
 # -- agency drill-down (live, proxied from the CDE API) --------------------
 # The warehouse only holds national + state rows. Per-agency data for ~19,619
 # agencies can't be pre-materialized, so these routes fetch live via cdeclient
@@ -298,6 +320,23 @@ def agency_shr(
         return agency_live.breakdowns_to_rows(resp.breakdowns, category)
 
     return agency_live.cached(agency_live.cache_key("shr", ori, category), produce)
+
+
+@app.get("/api/agency/{ori}/property", response_model=list[ArrestRow])
+def agency_property(
+    ori: str,
+    client: Cde,
+    offense: str = "NB",
+    category: str | None = None,
+) -> list[dict[str, Any]]:
+    def produce() -> list[dict[str, Any]]:
+        try:
+            resp = client.property_agency(ori, offense, LIVE_FROM, LIVE_TO)
+        except LIVE_ERRORS:
+            return []
+        return agency_live.breakdowns_to_rows(resp.breakdowns, category)
+
+    return agency_live.cached(agency_live.cache_key("property", ori, offense, category), produce)
 
 
 # In production the built frontend is mounted at the root (path set via env in

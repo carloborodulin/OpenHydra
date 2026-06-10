@@ -7,6 +7,7 @@ from .config import Settings
 from .constants import (
     ARREST_OFFENSE_CODES,
     ARREST_OFFENSES,
+    EXPANDED_PROPERTY_OFFENSES,
     STATES,
     ArrestOffenseInfo,
     ArrestType,
@@ -20,6 +21,7 @@ from .models import (
     ChartResponse,
     HateCrimeResponse,
     Offenses,
+    PropertyResponse,
     ShrResponse,
     SummarizedResponse,
 )
@@ -27,6 +29,7 @@ from .models import (
 __all__ = [
     "ARREST_OFFENSES",
     "ARREST_OFFENSE_CODES",
+    "EXPANDED_PROPERTY_OFFENSES",
     "STATES",
     "Agency",
     "ArrestOffenseInfo",
@@ -40,6 +43,7 @@ __all__ = [
     "ChartResponse",
     "HateCrimeResponse",
     "Offense",
+    "PropertyResponse",
     "ShrResponse",
     "Offenses",
     "Settings",

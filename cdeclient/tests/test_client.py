@@ -163,6 +163,21 @@ def test_shr_national_parses_sectioned_breakdowns(sample: Callable[[str], Any]) 
 
 
 @respx.mock
+def test_property_national_parses_value_breakdowns(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/supplemental/national/NB").mock(
+        return_value=Response(200, json=sample("supplemental_national_NB_totals"))
+    )
+    with _client() as c:
+        r = c.property_national("NB", "01-2020", "12-2022")
+
+    assert route.called
+    assert route.calls.last.request.url.params["type"] == "totals"
+    bd = r.breakdowns
+    assert "stolen_value" in bd and "recovered_value" in bd
+    assert bd["stolen_value"]["Firearms"] > 0
+
+
+@respx.mock
 def test_pe_agency_uses_state_and_ori_path() -> None:
     route = respx.get(f"{BASE}/pe/NY/NY0303000").mock(
         return_value=Response(200, json={"rates": {}, "actuals": {}})

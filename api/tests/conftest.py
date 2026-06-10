@@ -69,6 +69,15 @@ def client(tmp_path) -> Iterator[TestClient]:
             ('national','US','offense_weapons','Handgun', 23873.0),
             ('national','US','offense_weapons','Firearm', 16498.0),
             ('national','US','victim_race','Black or African American', 31402.0);
+
+        create table fct_property(
+            level varchar, area varchar, offense varchar,
+            category varchar, label varchar, value double
+        );
+        insert into fct_property values
+            ('national','US','NB','stolen_value','Miscellaneous', 1465971185687.0),
+            ('national','US','NB','stolen_value','Firearms', 14479512996.0),
+            ('national','US','NL','stolen_value','Currency, Notes, etc.', 500.0);
         """
     )
     con.close()

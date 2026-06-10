@@ -35,3 +35,6 @@ models:
 
   - name: stg_shr
     description: Supplementary Homicide Report breakdowns by section_dimension (long format).
+
+  - name: stg_property
+    description: Expanded property value/count breakdowns by offense & dimension (long format).

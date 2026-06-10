@@ -11,9 +11,17 @@ export interface Dimension {
   label: string; // human-friendly panel title
 }
 
+// snake_case / kebab-case -> Title Case (for derived dimension labels).
+const prettify = (key: string): string =>
+  key
+    .split(/[_-]/)
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(" ");
+
 // Shared layout for any "dimensional breakdown" domain (hate crime, SHR,
 // expanded property, NIBRS): one fetch of all dimensions, grouped client-side
-// into a grid of horizontal-bar panels.
+// into a grid of horizontal-bar panels. Pass `dimensions` for a curated set +
+// labels, or omit it to render every dimension present in the data.
 export function BreakdownView({
   region,
   query,
@@ -21,7 +29,7 @@ export function BreakdownView({
 }: {
   region: string;
   query: UseQueryResult<ArrestRow[]>;
-  dimensions: Dimension[];
+  dimensions?: Dimension[];
 }) {
   const byCategory = useMemo(() => {
     const m = new Map<string, ArrestRow[]>();
@@ -32,14 +40,30 @@ export function BreakdownView({
     }
     return m;
   }, [query.data]);
+
+  const dims = useMemo<Dimension[]>(
+    () => dimensions ?? [...byCategory.keys()].sort().map((k) => ({ key: k, label: prettify(k) })),
+    [dimensions, byCategory],
+  );
   const regionLabel = regionName(region);
+
+  // No dimensions yet (loading / no data) — show a single placeholder.
+  if (!dims.length) {
+    return (
+      <main className="flex min-h-0 flex-1 p-3">
+        <div className="panel brackets enter flex-1">
+          <Empty state={query} />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main
       className="grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-auto p-3"
       style={{ gridAutoRows: "minmax(240px, 1fr)" }}
     >
-      {dimensions.map((d) => {
+      {dims.map((d) => {
         const data = byCategory.get(d.key) ?? [];
         return (
           <Panel key={d.key} title={`${d.label} · ${regionLabel}`} className="col-span-4">

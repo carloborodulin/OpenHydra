@@ -10,6 +10,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    PropertyResponse,
     ShrResponse,
     SummarizedResponse,
 )
@@ -78,6 +79,15 @@ def test_shr_to_frame(sample: Callable[[str], Any]) -> None:
     # composite section_dimension categories disambiguate victim vs offender
     assert {"victim_age", "offender_age", "offense_weapons"} <= cats
     assert df["value"].null_count() == 0
+
+
+def test_property_to_frame(sample: Callable[[str], Any]) -> None:
+    resp = PropertyResponse.model_validate(sample("supplemental_national_NB_totals"))
+    df = normalize.property_to_frame(resp, level="national", area="US", offense="NB")
+    assert df.columns == list(normalize.PROPERTY_SCHEMA)
+    assert df.height > 0
+    assert set(df["offense"].unique()) == {"NB"}
+    assert {"stolen_value", "recovered_value"} <= set(df["category"].unique())
 
 
 def test_pe_to_frame(sample: Callable[[str], Any]) -> None:

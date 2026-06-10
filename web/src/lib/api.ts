@@ -78,6 +78,9 @@ export const api = {
   // offense_weapons, offender_race, …).
   shr: (category?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/shr?${qs({ level, area, category })}`),
+  // Expanded property; `offense` is NB/NL/NMVT/NROB.
+  property: (offense: string, category?: string, level = "national", area = "US") =>
+    get<ArrestRow[]>(`/api/property?${qs({ level, area, offense, category })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>
@@ -92,4 +95,6 @@ export const api = {
     get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/hate-crime?${qs({ category })}`),
   agencyShr: (ori: string, category?: string) =>
     get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/shr?${qs({ category })}`),
+  agencyProperty: (ori: string, offense: string, category?: string) =>
+    get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/property?${qs({ offense, category })}`),
 };

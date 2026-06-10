@@ -1,0 +1,60 @@
+{
+  "cde_properties": {
+    "max_data_date": {
+      "UCR": "05/2026"
+    },
+    "last_refresh_date": {
+      "UCR": "05/15/2026"
+    }
+  },
+  "offense_analysis": {
+    "location_counts": {
+      "Residence - Day": 16808,
+      "Residence - Night": 16181,
+      "Non-Residence - Day": 9543,
+      "Residence - Unknown": 5080,
+      "Non-Residence - Night": 18822,
+      "Non-Residence - Unknown": 2624,
+      "Burglary - Not Specified": null
+    },
+    "monetary_counts": null,
+    "location_average_value": {
+      "Residence - Day": 7736390,
+      "Residence - Night": 6181720,
+      "Non-Residence - Day": 7760245,
+      "Residence - Unknown": 1859,
+      "Non-Residence - Night": 3349453,
+      "Non-Residence - Unknown": 1557,
+      "Burglary - Not Specified": null
+    },
+    "monetary_average_value": null
+  },
+  "stolen_and_recovered": {
+    "stolen_value": {
+      "Firearms": 14009024057,
+      "Livestock": 1000525938,
+      "Miscellaneous": 1445341717808,
+      "Household Goods": 140021605520,
+      "Consumable Goods": 233187017929,
+      "Office Equipment": 53015215583,
+      "Clothing and Furs": 214039320262,
+      "Currency, Notes, etc.": 256414505278,
+      "Jewelry and Precious Metals": 39055428836,
+      "Locally Stolen Motor Vehicles": 157599055091,
+      "Televisions, Radios, Stereos, etc.": 33007413992
+    },
+    "recovered_value": {
+      "Firearms": 2000094333,
+      "Livestock": 33559,
+      "Miscellaneous": 74017366525,
+      "Household Goods": 5000423209,
+      "Consumable Goods": 14001150694,
+      "Office Equipment": 3000621286,
+      "Clothing and Furs": 16001498137,
+      "Currency, Notes, etc.": 12006505491,
+      "Jewelry and Precious Metals": 3001062575,
+      "Locally Stolen Motor Vehicles": 26131308743,
+      "Televisions, Radios, Stereos, etc.": 6000253468
+    }
+  }
+}

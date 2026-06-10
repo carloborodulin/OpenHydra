@@ -12,6 +12,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    PropertyResponse,
     ShrResponse,
     SummarizedResponse,
 )
@@ -38,13 +39,22 @@ class FakeCde:
         pe: Any = None,
         hate_crime: Any = None,
         shr: Any = None,
+        property_: Any = None,
     ) -> None:
         self._summarized = summarized
         self._arrests = arrests
         self._pe = pe
         self._hate_crime = hate_crime
         self._shr = shr
-        self.calls = {"summarized": 0, "arrests": 0, "pe": 0, "hate_crime": 0, "shr": 0}
+        self._property = property_
+        self.calls = {
+            "summarized": 0,
+            "arrests": 0,
+            "pe": 0,
+            "hate_crime": 0,
+            "shr": 0,
+            "property": 0,
+        }
 
     def summarized_agency(self, ori: str, offense: str, from_: str, to: str) -> Any:
         self.calls["summarized"] += 1
@@ -67,6 +77,10 @@ class FakeCde:
     def shr_agency(self, ori: str, from_: str, to: str) -> Any:
         self.calls["shr"] += 1
         return _resolve(self._shr)
+
+    def property_agency(self, ori: str, offense: str, from_: str, to: str) -> Any:
+        self.calls["property"] += 1
+        return _resolve(self._property)
 
 
 def _resolve(value: Any) -> Any:
@@ -162,6 +176,19 @@ def test_agency_shr_breakdowns(make_client) -> None:
     assert r.status_code == 200
     rows = r.json()
     assert rows and {row["category"] for row in rows} == {"offense_weapons"}
+    assert rows == sorted(rows, key=lambda x: -x["value"])
+
+
+def test_agency_property_breakdowns(make_client) -> None:
+    fake = FakeCde(
+        property_=PropertyResponse.model_validate(_sample("supplemental_agency_NB_totals"))
+    )
+    r = make_client(fake).get(
+        "/api/agency/NY0303000/property", params={"offense": "NB", "category": "stolen_value"}
+    )
+    assert r.status_code == 200
+    rows = r.json()
+    assert rows and {row["category"] for row in rows} == {"stolen_value"}
     assert rows == sorted(rows, key=lambda x: -x["value"])
 
 

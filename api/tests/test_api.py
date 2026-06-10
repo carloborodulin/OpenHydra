@@ -84,3 +84,14 @@ def test_shr(client: TestClient) -> None:
     rows = r.json()
     assert {row["label"] for row in rows} == {"Handgun", "Firearm"}
     assert rows[0]["value"] == 23873.0  # Handgun, value desc
+
+
+def test_property_offense_filter(client: TestClient) -> None:
+    r = client.get("/api/property", params={"offense": "NB", "category": "stolen_value"})
+    assert r.status_code == 200
+    rows = r.json()
+    assert {row["label"] for row in rows} == {"Miscellaneous", "Firearms"}
+    assert rows[0]["label"] == "Miscellaneous"  # largest stolen value, desc
+    # NL has different data — the offense filter isolates it
+    nl = client.get("/api/property", params={"offense": "NL", "category": "stolen_value"})
+    assert {row["label"] for row in nl.json()} == {"Currency, Notes, etc."}

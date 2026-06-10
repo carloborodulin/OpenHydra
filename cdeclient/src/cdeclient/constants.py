@@ -193,6 +193,17 @@ def arrest_code(offense: str | None) -> str:
     return "all"
 
 
+# /supplemental (expanded property) offense codes -> display name. These are the
+# four property crimes the supplemental endpoints accept (the API's
+# `expanded_property_offenses` enum).
+EXPANDED_PROPERTY_OFFENSES: dict[str, str] = {
+    "NB": "Burglary",
+    "NL": "Larceny",
+    "NMVT": "Motor Vehicle Theft",
+    "NROB": "Robbery",
+}
+
+
 # 50 states + DC, plus three additional CDE reporting areas the API's `states`
 # enum also accepts: FS (federal agencies), GM (Guam), VI (U.S. Virgin Islands).
 # 54 total. The API uses USPS-style two-letter abbreviations.

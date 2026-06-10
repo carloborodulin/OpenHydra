@@ -7,7 +7,7 @@ from pathlib import Path
 
 import polars as pl
 from cdeclient import CdeClient
-from cdeclient.constants import ARREST_OFFENSES, Offense, arrest_code
+from cdeclient.constants import ARREST_OFFENSES, EXPANDED_PROPERTY_OFFENSES, Offense, arrest_code
 
 from . import normalize
 from .config import RAW_DIR
@@ -151,6 +151,35 @@ class Extractor:
             )
         frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.SHR_SCHEMA)
         self._write("shr", frame)
+        return frame
+
+    def pull_property(
+        self, states: list[str], from_: str, to: str, *, include_national: bool = True
+    ) -> pl.DataFrame:
+        offenses = list(EXPANDED_PROPERTY_OFFENSES)
+        frames: list[pl.DataFrame] = []
+        if include_national:
+            for off in offenses:
+                frames.append(
+                    normalize.property_to_frame(
+                        self.client.property_national(off, from_, to),
+                        level="national",
+                        area="US",
+                        offense=off,
+                    )
+                )
+        for st in states:
+            for off in offenses:
+                frames.append(
+                    normalize.property_to_frame(
+                        self.client.property_state(st, off, from_, to),
+                        level="state",
+                        area=st,
+                        offense=off,
+                    )
+                )
+        frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.PROPERTY_SCHEMA)
+        self._write("property", frame)
         return frame
 
     def pull_pe(

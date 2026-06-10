@@ -15,6 +15,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    PropertyResponse,
     ShrResponse,
     SummarizedResponse,
 )
@@ -69,6 +70,15 @@ SHR_SCHEMA: dict[str, pl.DataType] = {
     "level": pl.String(),
     "area": pl.String(),
     "category": pl.String(),  # section_dimension (e.g. victim_age, offense_weapons)
+    "label": pl.String(),
+    "value": pl.Float64(),
+}
+
+PROPERTY_SCHEMA: dict[str, pl.DataType] = {
+    "level": pl.String(),
+    "area": pl.String(),
+    "offense": pl.String(),  # NB | NL | NMVT | NROB
+    "category": pl.String(),  # dimension (stolen_value, recovered_value, location_counts, …)
     "label": pl.String(),
     "value": pl.Float64(),
 }
@@ -171,10 +181,17 @@ def arrests_to_frame(
 
 
 def _breakdowns_to_frame(
-    resp: _HasBreakdowns, schema: dict[str, pl.DataType], *, level: str, area: str
+    resp: _HasBreakdowns,
+    schema: dict[str, pl.DataType],
+    *,
+    level: str,
+    area: str,
+    extra: dict[str, object] | None = None,
 ) -> pl.DataFrame:
     """Flatten any ``{dimension: {label: count}}`` breakdowns into tidy long rows
-    (level, area, category, label, value). Shared by hate crime and SHR."""
+    (level, area, [extra columns], category, label, value). Shared by hate crime,
+    SHR, and expanded property (which passes ``extra={"offense": ...}``)."""
+    base = {"level": level, "area": area, **(extra or {})}
     rows: list[dict[str, object]] = []
     for category, mapping in resp.breakdowns.items():
         if not isinstance(mapping, dict):
@@ -182,13 +199,7 @@ def _breakdowns_to_frame(
         for label, value in mapping.items():
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 rows.append(
-                    {
-                        "level": level,
-                        "area": area,
-                        "category": category,
-                        "label": str(label),
-                        "value": float(value),
-                    }
+                    {**base, "category": category, "label": str(label), "value": float(value)}
                 )
     return pl.DataFrame(rows, schema=schema)
 
@@ -203,6 +214,16 @@ def shr_to_frame(resp: ShrResponse, *, level: str, area: str) -> pl.DataFrame:
     """Flatten the SHR victim/offense/offender dimensions to tidy long rows; the
     category is ``<section>_<dimension>`` (e.g. victim_age, offense_weapons)."""
     return _breakdowns_to_frame(resp, SHR_SCHEMA, level=level, area=area)
+
+
+def property_to_frame(
+    resp: PropertyResponse, *, level: str, area: str, offense: str
+) -> pl.DataFrame:
+    """Flatten expanded-property value/count dimensions to tidy long rows, keyed
+    on the property offense (NB/NL/NMVT/NROB)."""
+    return _breakdowns_to_frame(
+        resp, PROPERTY_SCHEMA, level=level, area=area, extra={"offense": offense}
+    )
 
 
 def pe_to_frame(resp: ChartResponse, *, level: str, area: str) -> pl.DataFrame:

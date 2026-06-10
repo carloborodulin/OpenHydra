@@ -73,3 +73,18 @@ models:
       - name: value
         tests:
           - not_null
+
+  - name: fct_property
+    description: Expanded property (stolen/recovered values, offense analysis) by offense & dimension.
+    columns:
+      - name: offense
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["NB", "NL", "NMVT", "NROB"]
+      - name: category
+        tests:
+          - not_null
+      - name: value
+        tests:
+          - not_null

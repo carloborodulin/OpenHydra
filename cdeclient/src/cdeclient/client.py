@@ -24,6 +24,7 @@ from .models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    PropertyResponse,
     ShrResponse,
     SummarizedResponse,
 )
@@ -246,6 +247,33 @@ class CdeClient:
     def shr_agency(self, ori: str, from_: str | date, to: str | date) -> ShrResponse:
         data = self._get_json(f"shr/agency/{ori}", {**self._range(from_, to), "type": "totals"})
         return ShrResponse.model_validate(data)
+
+    # -- expanded property / supplemental ----------------------------------
+    # offense is one of EXPANDED_PROPERTY_OFFENSES (NB, NL, NMVT, NROB).
+    def property_national(
+        self, offense: str, from_: str | date, to: str | date
+    ) -> PropertyResponse:
+        data = self._get_json(
+            f"supplemental/national/{offense}", {**self._range(from_, to), "type": "totals"}
+        )
+        return PropertyResponse.model_validate(data)
+
+    def property_state(
+        self, state: str, offense: str, from_: str | date, to: str | date
+    ) -> PropertyResponse:
+        data = self._get_json(
+            f"supplemental/state/{state.upper()}/{offense}",
+            {**self._range(from_, to), "type": "totals"},
+        )
+        return PropertyResponse.model_validate(data)
+
+    def property_agency(
+        self, ori: str, offense: str, from_: str | date, to: str | date
+    ) -> PropertyResponse:
+        data = self._get_json(
+            f"supplemental/agency/{ori}/{offense}", {**self._range(from_, to), "type": "totals"}
+        )
+        return PropertyResponse.model_validate(data)
 
     # -- police employment (yearly) ---------------------------------------
     # Use the canonical spec paths (`/pe`, `/pe/{state}`). The `/pe/national`

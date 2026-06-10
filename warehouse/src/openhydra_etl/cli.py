@@ -84,6 +84,9 @@ def pull(
         if "shr" in doms:
             f = ex.pull_shr(st, from_, to)
             typer.echo(f"shr        -> {f.height} rows ({len(st)} states + national)")
+        if "property" in doms:
+            f = ex.pull_property(st, from_, to)
+            typer.echo(f"property   -> {f.height} rows ({len(st)} states + national)")
         if "pe" in doms:
             f = ex.pull_pe(st, from_, to)
             typer.echo(f"pe         -> {f.height} rows")

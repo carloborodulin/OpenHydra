@@ -49,6 +49,26 @@ export const useAgencyShr = (ori: string | undefined, category?: string) =>
     enabled: Boolean(ori),
   });
 
+// Expanded property. `offense` is NB/NL/NMVT/NROB; `category` undefined => all dims.
+export const useProperty = (
+  offense: string,
+  category: string | undefined,
+  level = "national",
+  area = "US",
+) =>
+  useQuery({
+    queryKey: ["property", offense, category, level, area],
+    queryFn: () => api.property(offense, category, level, area),
+    enabled: Boolean(offense),
+  });
+
+export const useAgencyProperty = (ori: string | undefined, offense: string, category?: string) =>
+  useQuery({
+    queryKey: ["agency-property", ori, offense, category],
+    queryFn: () => api.agencyProperty(ori as string, offense, category),
+    enabled: Boolean(ori),
+  });
+
 // `state` undefined => all agencies (national view).
 export const useAgencies = (state?: string) =>
   useQuery({ queryKey: ["agencies", state ?? "all"], queryFn: () => api.agencies(state) });
