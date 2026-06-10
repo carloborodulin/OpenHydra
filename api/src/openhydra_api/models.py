@@ -7,10 +7,19 @@ from datetime import date
 from pydantic import BaseModel
 
 
+class ArrestOffense(BaseModel):
+    slug: str
+    code: str
+    name: str
+    category: str
+
+
 class Meta(BaseModel):
     offenses: list[str]
     states: list[str]
     levels: list[str]
+    arrest_offenses: list[ArrestOffense] = []
+    arrest_categories: list[str] = []
 
 
 class OffenseMonthly(BaseModel):

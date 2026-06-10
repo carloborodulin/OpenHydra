@@ -127,9 +127,18 @@ class CdeClient:
 
     # -- agencies ----------------------------------------------------------
     def agencies_by_state(self, state: str) -> dict[str, list[Agency]]:
-        """Agencies in a state, grouped by county."""
+        """Agencies in a state, grouped by county.
+
+        Most areas return ``{county: [agency, ...]}``. A few (notably Guam, GM)
+        instead return a metadata envelope (``{"cde_agencies_query": {...}}``)
+        with no agency list — keep only the county→list entries so those areas
+        yield an empty mapping rather than raising a ``ValidationError``.
+        """
         data = self._get_json(f"agency/byStateAbbr/{state.upper()}")
-        return _AGENCIES_ADAPTER.validate_python(data)
+        if not isinstance(data, dict):
+            return {}
+        counties = {key: value for key, value in data.items() if isinstance(value, list)}
+        return _AGENCIES_ADAPTER.validate_python(counties)
 
     # -- summarized --------------------------------------------------------
     def summarized_national(

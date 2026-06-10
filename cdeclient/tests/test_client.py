@@ -7,7 +7,7 @@ import respx
 from httpx import Response
 
 from cdeclient.client import CdeClient
-from cdeclient.constants import ARREST_OFFENSE_CODES, Offense
+from cdeclient.constants import ARREST_OFFENSE_CODES, ARREST_OFFENSES, Offense, arrest_code
 
 BASE = "https://api.test/crime/fbi/cde"
 
@@ -35,6 +35,20 @@ def test_agencies_builds_url_and_injects_key(sample: Callable[[str], Any]) -> No
     assert route.calls.last.request.url.params["API_KEY"] == "test-key"
     counties = list(out)
     assert out[counties[0]][0].ori
+
+
+@respx.mock
+def test_agencies_guam_metadata_envelope_yields_empty(sample: Callable[[str], Any]) -> None:
+    # Guam (GM) returns a metadata envelope ({"cde_agencies_query": {...}}) with no
+    # county→agency lists; it must parse to an empty mapping, not raise.
+    route = respx.get(f"{BASE}/agency/byStateAbbr/GM").mock(
+        return_value=Response(200, json=sample("agency_by_state_GM"))
+    )
+    with _client() as c:
+        out = c.agencies_by_state("GM")
+
+    assert route.called
+    assert out == {}
 
 
 @respx.mock
@@ -143,3 +157,22 @@ def test_arrest_offense_codes_cover_all_offenses() -> None:
     assert set(ARREST_OFFENSE_CODES) == set(Offense)
     assert ARREST_OFFENSE_CODES[Offense.HOMICIDE] == "11"
     assert ARREST_OFFENSE_CODES[Offense.VIOLENT_CRIME] == "all"
+
+
+def test_arrest_offenses_taxonomy_is_complete() -> None:
+    # All 48 arrest_offense codes from the API enum are mapped, each unique.
+    assert len(ARREST_OFFENSES) == 48
+    assert len({info.code for info in ARREST_OFFENSES.values()}) == 48
+    # The single-code Part I slugs align with the summarized Offense slugs.
+    assert ARREST_OFFENSES["homicide"].code == "11"
+    assert ARREST_OFFENSES["drug-abuse-violations"].category == "Drug/Narcotic Offenses"
+
+
+def test_arrest_code_resolves_slugs_and_codes() -> None:
+    assert arrest_code("homicide") == "11"  # arrest slug (also a summarized slug)
+    assert arrest_code("drug-abuse-violations") == "150"  # arrest-only slug
+    assert arrest_code("violent-crime") == "all"  # summarized aggregate -> all
+    assert arrest_code("150") == "150"  # raw code passes through
+    assert arrest_code("nonsense") == "all"  # unknown -> all
+    assert arrest_code(None) == "all"
+    assert arrest_code("") == "all"

@@ -7,12 +7,14 @@ from pathlib import Path
 
 import polars as pl
 from cdeclient import CdeClient
-from cdeclient.constants import ARREST_OFFENSE_CODES, Offense
+from cdeclient.constants import ARREST_OFFENSES, Offense, arrest_code
 
 from . import normalize
 from .config import RAW_DIR
 
 ALL_OFFENSES: list[str] = [o.value for o in Offense]
+# All 48 arrest offense slugs (the full `arrest_offense` taxonomy).
+ALL_ARREST_OFFENSES: list[str] = list(ARREST_OFFENSES)
 
 
 def _year(month: str | date) -> str:
@@ -80,10 +82,11 @@ class Extractor:
         include_national: bool = True,
     ) -> pl.DataFrame:
         # Arrests take a numeric offense code, a different taxonomy from the
-        # summarized slugs. Map slug -> code; the two aggregate slugs share the
-        # "all" code, so fetch each unique code once per area then emit a frame
-        # per slug (keyed on the summarized slug the rest of the app uses).
-        codes: dict[str, str] = {off: ARREST_OFFENSE_CODES.get(off, "all") for off in offenses}
+        # offense slugs. Resolve slug -> code (arrest slug, summarized slug, or a
+        # raw code); offenses sharing a code (e.g. the aggregates -> "all") are
+        # fetched once per area, then a frame is emitted per slug (keyed on the
+        # slug the rest of the app uses).
+        codes: dict[str, str] = {off: arrest_code(off) for off in offenses}
 
         def _per_area(fetch, level: str, area: str) -> list[pl.DataFrame]:  # type: ignore[no-untyped-def]
             by_code: dict[str, object] = {}

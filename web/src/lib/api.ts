@@ -1,7 +1,18 @@
+export interface ArrestOffense {
+  slug: string;
+  code: string;
+  name: string;
+  category: string;
+}
+
 export interface Meta {
   offenses: string[];
   states: string[];
   levels: string[];
+  // The full 48-code arrest taxonomy and the demographic categories present in
+  // the warehouse (e.g. "Arrestee Race", "Arrestee Sex", "Male Arrests By Age").
+  arrest_offenses: ArrestOffense[];
+  arrest_categories: string[];
 }
 
 export interface OffenseMonthly {

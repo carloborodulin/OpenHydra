@@ -8,7 +8,7 @@ from typing import Annotated, Any
 
 import duckdb
 from cdeclient import CdeClient, CdeError
-from cdeclient.constants import ARREST_OFFENSE_CODES
+from cdeclient.constants import ARREST_OFFENSES, arrest_code
 from cdeclient.models import ArrestTotalsResponse
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,7 +18,14 @@ from pydantic import ValidationError
 from . import agency_live
 from .cde import get_cde_client
 from .db import get_conn
-from .models import AgencyFeature, ArrestRow, Meta, OffenseMonthly, PoliceEmploymentRow
+from .models import (
+    AgencyFeature,
+    ArrestOffense,
+    ArrestRow,
+    Meta,
+    OffenseMonthly,
+    PoliceEmploymentRow,
+)
 
 # Request-scoped read-only DuckDB connection (FastAPI Annotated dependency).
 Conn = Annotated[duckdb.DuckDBPyConnection, Depends(get_conn)]
@@ -78,7 +85,24 @@ def meta(conn: Conn) -> Meta:
             "select distinct area from fct_offenses_monthly where level = 'state' order by 1"
         ).fetchall()
     ]
-    return Meta(offenses=offenses, states=states, levels=["national", "state", "agency"])
+    # The arrest demographic categories actually present in the warehouse
+    # (e.g. "Arrestee Race", "Arrestee Sex", "Male Arrests By Age", …) so the
+    # frontend can build a category selector instead of hardcoding one.
+    arrest_categories = [
+        r[0]
+        for r in conn.execute("select distinct category from fct_arrests order by 1").fetchall()
+    ]
+    arrest_offenses = [
+        ArrestOffense(slug=slug, code=info.code, name=info.name, category=info.category)
+        for slug, info in ARREST_OFFENSES.items()
+    ]
+    return Meta(
+        offenses=offenses,
+        states=states,
+        levels=["national", "state", "agency"],
+        arrest_offenses=arrest_offenses,
+        arrest_categories=arrest_categories,
+    )
 
 
 @app.get("/api/offenses/monthly", response_model=list[OffenseMonthly])
@@ -178,9 +202,9 @@ def agency_arrests(
     category: str | None = None,
     offense: str | None = None,
 ) -> list[dict[str, Any]]:
-    # Arrests use a numeric offense code, not the summarized slug (same map the
-    # ETL uses); the two aggregate slugs fall back to "all".
-    code = ARREST_OFFENSE_CODES.get(offense, "all") if offense else "all"
+    # Arrests use a numeric offense code, not a slug (same resolver the ETL uses):
+    # an arrest slug, a summarized slug, or a raw code all resolve; unknown -> "all".
+    code = arrest_code(offense)
 
     def produce() -> list[dict[str, Any]]:
         try:

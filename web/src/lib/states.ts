@@ -52,6 +52,10 @@ export const STATE_NAMES: Record<string, string> = {
   WV: "West Virginia",
   WI: "Wisconsin",
   WY: "Wyoming",
+  // Federal & territorial reporting areas the CDE API also exposes.
+  FS: "Federal Agencies",
+  GM: "Guam",
+  VI: "U.S. Virgin Islands",
 };
 
 export const regionName = (abbr: string): string => STATE_NAMES[abbr] ?? abbr;

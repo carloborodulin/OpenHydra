@@ -17,6 +17,11 @@ def test_meta(client: TestClient) -> None:
     assert "homicide" in body["offenses"]
     assert "NY" in body["states"]
     assert body["levels"] == ["national", "state", "agency"]
+    # Full 48-code arrest taxonomy is advertised, plus the categories present.
+    assert len(body["arrest_offenses"]) == 48
+    drugs = next(o for o in body["arrest_offenses"] if o["slug"] == "drug-abuse-violations")
+    assert drugs["code"] == "150"
+    assert "Arrestee Sex" in body["arrest_categories"]
 
 
 def test_offenses_monthly(client: TestClient) -> None:
