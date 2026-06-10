@@ -76,3 +76,11 @@ def test_hate_crime(client: TestClient) -> None:
     rows = r.json()
     assert {row["label"] for row in rows} == {"Race/Ethnicity/Ancestry", "Religion"}
     assert rows[0]["value"] == 20875.0  # ordered by value desc
+
+
+def test_shr(client: TestClient) -> None:
+    r = client.get("/api/shr", params={"category": "offense_weapons"})
+    assert r.status_code == 200
+    rows = r.json()
+    assert {row["label"] for row in rows} == {"Handgun", "Firearm"}
+    assert rows[0]["value"] == 23873.0  # Handgun, value desc

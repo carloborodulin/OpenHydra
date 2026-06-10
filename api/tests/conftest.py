@@ -60,6 +60,15 @@ def client(tmp_path) -> Iterator[TestClient]:
             ('national','US','bias_category','Race/Ethnicity/Ancestry', 20875.0),
             ('national','US','bias_category','Religion', 5708.0),
             ('national','US','offender_race','White', 15430.0);
+
+        create table fct_shr(
+            level varchar, area varchar,
+            category varchar, label varchar, value double
+        );
+        insert into fct_shr values
+            ('national','US','offense_weapons','Handgun', 23873.0),
+            ('national','US','offense_weapons','Firearm', 16498.0),
+            ('national','US','victim_race','Black or African American', 31402.0);
         """
     )
     con.close()

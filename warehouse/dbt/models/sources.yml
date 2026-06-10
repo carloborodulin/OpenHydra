@@ -13,3 +13,4 @@ sources:
       - name: arrests
       - name: pe
       - name: hate_crime
+      - name: shr

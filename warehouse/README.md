@@ -43,3 +43,4 @@ uv run mypy
 | `arrests` | level × area × breakdown × label | `level, area, category, label, value` |
 | `pe` | level × area × section × metric × year | `level, area, section(rate/actual), metric, year, value` |
 | `hate_crime` | level × area × dimension × label | `level, area, category, label, value` |
+| `shr` | level × area × section_dimension × label | `level, area, category, label, value` |

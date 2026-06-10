@@ -148,6 +148,21 @@ def test_hate_crime_agency_omits_type(sample: Callable[[str], Any]) -> None:
 
 
 @respx.mock
+def test_shr_national_parses_sectioned_breakdowns(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/shr/national").mock(
+        return_value=Response(200, json=sample("shr_national_totals"))
+    )
+    with _client() as c:
+        r = c.shr_national("01-2020", "12-2022")
+
+    assert route.called
+    assert route.calls.last.request.url.params["type"] == "totals"
+    bd = r.breakdowns  # composite "<section>_<dimension>" keys
+    assert "victim_age" in bd and "offender_age" in bd  # disambiguated
+    assert bd["offense_weapons"]["Handgun"] > 0
+
+
+@respx.mock
 def test_pe_agency_uses_state_and_ori_path() -> None:
     route = respx.get(f"{BASE}/pe/NY/NY0303000").mock(
         return_value=Response(200, json={"rates": {}, "actuals": {}})

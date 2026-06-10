@@ -1,0 +1,170 @@
+{
+  "victim": {
+    "age": {
+      "0-9": 1694,
+      "10-19": 6755,
+      "20-29": 16845,
+      "30-39": 13389,
+      "40-49": 7743,
+      "50-59": 4924,
+      "60-69": 2909,
+      "70-79": 1157,
+      "80-89": 434,
+      "Unknown": 490,
+      "90-Older": 106
+    },
+    "sex": {
+      "Male": 44304,
+      "Female": 11961,
+      "Unknown": 181,
+      "Not Specified": 0
+    },
+    "race": {
+      "Asian": 717,
+      "White": 22390,
+      "Unknown": 1118,
+      "Multiple": 0,
+      "Not Specified": 0,
+      "Black or African American": 31402,
+      "American Indian or Alaska Native": 695,
+      "Native Hawaiian or Other Pacific Islander": 124,
+      "Asian, Native Hawaiian, or Other Pacific Islander": 0
+    },
+    "ethnicity": {
+      "Unknown": 5490,
+      "Multiple": 0,
+      "Not Specified": 6602,
+      "Hispanic or Latino": 8406,
+      "Not Hispanic or Latino": 35948
+    }
+  },
+  "offense": {
+    "weapons": {
+      "Other": 3775,
+      "Rifle": 1535,
+      "Poison": 52,
+      "Firearm": 16498,
+      "Handgun": 23873,
+      "Shotgun": 588,
+      "Drowning": 7,
+      "Explosives": 6,
+      "Asphyxiation": 255,
+      "Blunt Object": 1136,
+      "Other Firearm": 853,
+      "Personal Weapons": 2082,
+      "Motor Vehicle/Vessel": 0,
+      "Fire/Incendiary Device": 311,
+      "Knife/Cutting Instrument": 4800,
+      "Pushed or Thrown Out Window": 3,
+      "Drugs/Narcotics/Sleeping Pills": 591,
+      "Strangulation - Include Hanging": 81
+    },
+    "circumstance": {
+      "Rape": 55,
+      "Arson": 326,
+      "Other": 8379,
+      "Larceny": 157,
+      "Robbery": 1267,
+      "Abortion": 4,
+      "Burglary": 302,
+      "Gambling": 7,
+      "Sniper Attack": 2,
+      "Other Arguments": 13767,
+      "Domestic Violence": 149,
+      "Gangland Killings": 979,
+      "Narcotic Drug Laws": 1680,
+      "Other Sex Offenses": 20,
+      "Motor Vehicle Theft": 207,
+      "Other - not specified": 1221,
+      "Institutional Killings": 189,
+      "Juvenile Gang Killings": 773,
+      "All Suspected Felony Type": 128,
+      "Child Killed by Babysitter": 25,
+      "Argument of Money or Property": 203,
+      "Brawl Due to Influence of Alcohol": 44,
+      "Brawl Due to Influence of Narcotics": 69,
+      "Prostitution and Commercialized Vice": 14,
+      "Human Trafficking/Commersical Sex Acts": 0,
+      "Human Trafficking/Involuntary Servitude": 0,
+      "All instances where the facts provided do not permit determination of circumstances": 26479
+    },
+    "relationship": {
+      "Son": 899,
+      "Wife": 1282,
+      "Father": 588,
+      "Friend": 1989,
+      "In-Law": 218,
+      "Mother": 642,
+      "Sister": 158,
+      "Brother": 472,
+      "Ex-Wife": 137,
+      "Husband": 320,
+      "Stepson": 101,
+      "Unknown": 37998,
+      "Daughter": 615,
+      "Employee": 29,
+      "Employer": 28,
+      "Neighbor": 503,
+      "Stranger": 8908,
+      "Boyfriend": 755,
+      "Ex-Husband": 46,
+      "Girlfriend": 1871,
+      "Stepfather": 153,
+      "Stepmother": 20,
+      "Acquaintance": 10052,
+      "Other Family": 1272,
+      "Stepdaugther": 55,
+      "Common-Law Wife": 90,
+      "Common-Law Husband": 29,
+      "Homosexual Relationship": 26,
+      "Other - known to victim": 5646
+    }
+  },
+  "offender": {
+    "age": {
+      "0-9": 56,
+      "10-19": 9806,
+      "20-29": 19253,
+      "30-39": 11302,
+      "40-49": 5469,
+      "50-59": 3134,
+      "60-69": 1152,
+      "70-79": 387,
+      "80-89": 152,
+      "Unknown": 11037,
+      "90-Older": 93
+    },
+    "sex": {
+      "Male": 46057,
+      "Female": 6509,
+      "Unknown": 9235,
+      "Not Specified": 7363
+    },
+    "race": {
+      "Asian": 502,
+      "White": 20037,
+      "Unknown": 10475,
+      "Multiple": 0,
+      "Not Specified": 7363,
+      "Black or African American": 29967,
+      "American Indian or Alaska Native": 647,
+      "Native Hawaiian or Other Pacific Islander": 173,
+      "Asian, Native Hawaiian, or Other Pacific Islander": 0
+    },
+    "ethnicity": {
+      "Unknown": 16303,
+      "Multiple": 0,
+      "Not Specified": 16181,
+      "Hispanic or Latino": 7254,
+      "Not Hispanic or Latino": 29426
+    }
+  },
+  "cde_properties": {
+    "max_data_date": {
+      "UCR": "05/2026"
+    },
+    "last_refresh_date": {
+      "UCR": "05/15/2026"
+    }
+  }
+}

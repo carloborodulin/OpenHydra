@@ -12,6 +12,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    ShrResponse,
     SummarizedResponse,
 )
 from fastapi.testclient import TestClient
@@ -36,12 +37,14 @@ class FakeCde:
         arrests: Any = None,
         pe: Any = None,
         hate_crime: Any = None,
+        shr: Any = None,
     ) -> None:
         self._summarized = summarized
         self._arrests = arrests
         self._pe = pe
         self._hate_crime = hate_crime
-        self.calls = {"summarized": 0, "arrests": 0, "pe": 0, "hate_crime": 0}
+        self._shr = shr
+        self.calls = {"summarized": 0, "arrests": 0, "pe": 0, "hate_crime": 0, "shr": 0}
 
     def summarized_agency(self, ori: str, offense: str, from_: str, to: str) -> Any:
         self.calls["summarized"] += 1
@@ -60,6 +63,10 @@ class FakeCde:
     def hate_crime_agency(self, ori: str, from_: str, to: str) -> Any:
         self.calls["hate_crime"] += 1
         return _resolve(self._hate_crime)
+
+    def shr_agency(self, ori: str, from_: str, to: str) -> Any:
+        self.calls["shr"] += 1
+        return _resolve(self._shr)
 
 
 def _resolve(value: Any) -> Any:
@@ -147,6 +154,15 @@ def test_agency_hate_crime_breakdowns(make_client) -> None:
     rows = r.json()
     assert rows and {row["category"] for row in rows} == {"bias_category"}
     assert rows == sorted(rows, key=lambda x: -x["value"])  # value desc within dimension
+
+
+def test_agency_shr_breakdowns(make_client) -> None:
+    fake = FakeCde(shr=ShrResponse.model_validate(_sample("shr_agency_totals")))
+    r = make_client(fake).get("/api/agency/NY0303000/shr", params={"category": "offense_weapons"})
+    assert r.status_code == 200
+    rows = r.json()
+    assert rows and {row["category"] for row in rows} == {"offense_weapons"}
+    assert rows == sorted(rows, key=lambda x: -x["value"])
 
 
 # -- police employment ------------------------------------------------------

@@ -20,6 +20,7 @@ from .models import (
     ChartResponse,
     HateCrimeResponse,
     Offenses,
+    ShrResponse,
     SummarizedResponse,
 )
 
@@ -39,6 +40,7 @@ __all__ = [
     "ChartResponse",
     "HateCrimeResponse",
     "Offense",
+    "ShrResponse",
     "Offenses",
     "Settings",
     "SummarizedResponse",

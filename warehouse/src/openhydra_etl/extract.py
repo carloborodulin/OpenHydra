@@ -135,6 +135,24 @@ class Extractor:
         self._write("hate_crime", frame)
         return frame
 
+    def pull_shr(
+        self, states: list[str], from_: str, to: str, *, include_national: bool = True
+    ) -> pl.DataFrame:
+        frames: list[pl.DataFrame] = []
+        if include_national:
+            frames.append(
+                normalize.shr_to_frame(
+                    self.client.shr_national(from_, to), level="national", area="US"
+                )
+            )
+        for st in states:
+            frames.append(
+                normalize.shr_to_frame(self.client.shr_state(st, from_, to), level="state", area=st)
+            )
+        frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.SHR_SCHEMA)
+        self._write("shr", frame)
+        return frame
+
     def pull_pe(
         self, states: list[str], from_: str, to: str, *, include_national: bool = True
     ) -> pl.DataFrame:

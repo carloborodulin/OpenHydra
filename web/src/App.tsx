@@ -4,13 +4,15 @@ import { Nav, type NavItem } from "./components/Nav";
 import { TopBar } from "./components/TopBar";
 import { useMeta } from "./lib/queries";
 import { HateCrimeView } from "./views/HateCrimeView";
+import { HomicideView } from "./views/HomicideView";
 import { OverviewView } from "./views/OverviewView";
 
-// Top-level views. Each domain group (Homicide, Use of Force, …) adds an entry
+// Top-level views. Each domain group (Use of Force, LESDC, …) adds an entry
 // here and a branch in the render switch below.
 const VIEWS: NavItem[] = [
   { id: "overview", label: "Overview" },
   { id: "hate-crime", label: "Hate Crime" },
+  { id: "homicide", label: "Homicide" },
 ];
 
 export default function App() {
@@ -41,6 +43,7 @@ export default function App() {
       </div>
       {view === "overview" && <OverviewView offense={active} region={region} />}
       {view === "hate-crime" && <HateCrimeView region={region} />}
+      {view === "homicide" && <HomicideView region={region} />}
     </div>
   );
 }

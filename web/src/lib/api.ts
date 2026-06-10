@@ -74,6 +74,10 @@ export const api = {
   // `category` is the dimension (bias_category, offender_race, victim_type, …).
   hateCrime: (category?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/hate-crime?${qs({ level, area, category })}`),
+  // Expanded homicide (SHR); `category` is section_dimension (victim_age,
+  // offense_weapons, offender_race, …).
+  shr: (category?: string, level = "national", area = "US") =>
+    get<ArrestRow[]>(`/api/shr?${qs({ level, area, category })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>
@@ -86,4 +90,6 @@ export const api = {
     get<PoliceEmploymentRow[]>(`/api/agency/${encodeURIComponent(ori)}/police-employment`),
   agencyHateCrime: (ori: string, category?: string) =>
     get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/hate-crime?${qs({ category })}`),
+  agencyShr: (ori: string, category?: string) =>
+    get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/shr?${qs({ category })}`),
 };

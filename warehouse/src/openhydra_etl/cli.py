@@ -81,6 +81,9 @@ def pull(
         if "hate-crime" in doms:
             f = ex.pull_hate_crime(st, from_, to)
             typer.echo(f"hate-crime -> {f.height} rows ({len(st)} states + national)")
+        if "shr" in doms:
+            f = ex.pull_shr(st, from_, to)
+            typer.echo(f"shr        -> {f.height} rows ({len(st)} states + national)")
         if "pe" in doms:
             f = ex.pull_pe(st, from_, to)
             typer.echo(f"pe         -> {f.height} rows")

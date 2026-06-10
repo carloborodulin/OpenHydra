@@ -1,0 +1,170 @@
+{
+  "victim": {
+    "age": {
+      "0-9": 49,
+      "10-19": 181,
+      "20-29": 597,
+      "30-39": 460,
+      "40-49": 247,
+      "50-59": 147,
+      "60-69": 108,
+      "70-79": 41,
+      "80-89": 12,
+      "Unknown": 5,
+      "90-Older": 8
+    },
+    "sex": {
+      "Male": 1521,
+      "Female": 332,
+      "Unknown": 2,
+      "Not Specified": 0
+    },
+    "race": {
+      "Asian": 41,
+      "White": 566,
+      "Unknown": 29,
+      "Multiple": 0,
+      "Not Specified": 0,
+      "Black or African American": 1217,
+      "American Indian or Alaska Native": 2,
+      "Native Hawaiian or Other Pacific Islander": 0,
+      "Asian, Native Hawaiian, or Other Pacific Islander": 0
+    },
+    "ethnicity": {
+      "Unknown": 413,
+      "Multiple": 0,
+      "Not Specified": 0,
+      "Hispanic or Latino": 369,
+      "Not Hispanic or Latino": 1073
+    }
+  },
+  "offense": {
+    "weapons": {
+      "Other": 89,
+      "Rifle": 25,
+      "Poison": 1,
+      "Firearm": 381,
+      "Handgun": 777,
+      "Shotgun": 18,
+      "Drowning": 0,
+      "Explosives": 0,
+      "Asphyxiation": 22,
+      "Blunt Object": 43,
+      "Other Firearm": 0,
+      "Personal Weapons": 119,
+      "Motor Vehicle/Vessel": 0,
+      "Fire/Incendiary Device": 14,
+      "Knife/Cutting Instrument": 348,
+      "Pushed or Thrown Out Window": 0,
+      "Drugs/Narcotics/Sleeping Pills": 14,
+      "Strangulation - Include Hanging": 4
+    },
+    "circumstance": {
+      "Rape": 0,
+      "Arson": 5,
+      "Other": 358,
+      "Larceny": 2,
+      "Robbery": 62,
+      "Abortion": 0,
+      "Burglary": 10,
+      "Gambling": 0,
+      "Sniper Attack": 0,
+      "Other Arguments": 504,
+      "Domestic Violence": 7,
+      "Gangland Killings": 171,
+      "Narcotic Drug Laws": 127,
+      "Other Sex Offenses": 5,
+      "Motor Vehicle Theft": 1,
+      "Other - not specified": 14,
+      "Institutional Killings": 1,
+      "Juvenile Gang Killings": 3,
+      "All Suspected Felony Type": 0,
+      "Child Killed by Babysitter": 3,
+      "Argument of Money or Property": 5,
+      "Brawl Due to Influence of Alcohol": 4,
+      "Brawl Due to Influence of Narcotics": 1,
+      "Prostitution and Commercialized Vice": 0,
+      "Human Trafficking/Commersical Sex Acts": 0,
+      "Human Trafficking/Involuntary Servitude": 0,
+      "All instances where the facts provided do not permit determination of circumstances": 572
+    },
+    "relationship": {
+      "Son": 26,
+      "Wife": 27,
+      "Father": 15,
+      "Friend": 201,
+      "In-Law": 3,
+      "Mother": 21,
+      "Sister": 5,
+      "Brother": 9,
+      "Ex-Wife": 10,
+      "Husband": 4,
+      "Stepson": 1,
+      "Unknown": 1510,
+      "Daughter": 10,
+      "Employee": 0,
+      "Employer": 2,
+      "Neighbor": 8,
+      "Stranger": 174,
+      "Boyfriend": 16,
+      "Ex-Husband": 1,
+      "Girlfriend": 64,
+      "Stepfather": 1,
+      "Stepmother": 1,
+      "Acquaintance": 88,
+      "Other Family": 25,
+      "Stepdaugther": 0,
+      "Common-Law Wife": 0,
+      "Common-Law Husband": 0,
+      "Homosexual Relationship": 7,
+      "Other - known to victim": 83
+    }
+  },
+  "offender": {
+    "age": {
+      "0-9": 0,
+      "10-19": 202,
+      "20-29": 548,
+      "30-39": 346,
+      "40-49": 196,
+      "50-59": 184,
+      "60-69": 36,
+      "70-79": 8,
+      "80-89": 5,
+      "Unknown": 533,
+      "90-Older": 37
+    },
+    "sex": {
+      "Male": 1368,
+      "Female": 147,
+      "Unknown": 580,
+      "Not Specified": 93
+    },
+    "race": {
+      "Asian": 27,
+      "White": 456,
+      "Unknown": 603,
+      "Multiple": 0,
+      "Not Specified": 93,
+      "Black or African American": 1005,
+      "American Indian or Alaska Native": 4,
+      "Native Hawaiian or Other Pacific Islander": 0,
+      "Asian, Native Hawaiian, or Other Pacific Islander": 0
+    },
+    "ethnicity": {
+      "Unknown": 941,
+      "Multiple": 0,
+      "Not Specified": 93,
+      "Hispanic or Latino": 299,
+      "Not Hispanic or Latino": 855
+    }
+  },
+  "cde_properties": {
+    "max_data_date": {
+      "UCR": "05/2026"
+    },
+    "last_refresh_date": {
+      "UCR": "05/15/2026"
+    }
+  }
+}

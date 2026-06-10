@@ -136,3 +136,43 @@ class HateCrimeResponse(BaseModel):
                 if isinstance(mapping, dict):
                     merged[dimension] = mapping
         return merged
+
+
+class ShrResponse(BaseModel):
+    """/shr/* type=totals — Supplementary Homicide Report breakdowns.
+
+    Three sections — ``victim`` and ``offender`` (each: age, sex, race,
+    ethnicity) and ``offense`` (weapons, circumstance, relationship). Exposed via
+    :attr:`breakdowns` as ``{"<section>_<dimension>": {label: count}}`` (e.g.
+    ``victim_age``, ``offender_race``, ``offense_weapons``) so victim/offender
+    dimensions of the same name don't collide.
+
+    (The ``type=counts`` variant returns the rates/actuals shape — parse it with
+    :class:`ChartResponse`.)
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    victim: dict[str, Any] = Field(default_factory=dict)
+    offense: dict[str, Any] = Field(default_factory=dict)
+    offender: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("victim", "offense", "offender", mode="before")
+    @classmethod
+    def _null_to_empty(cls, value: Any) -> Any:
+        return {} if value is None else value
+
+    @property
+    def breakdowns(self) -> dict[str, Any]:
+        merged: dict[str, Any] = {}
+        for name, section in (
+            ("victim", self.victim),
+            ("offense", self.offense),
+            ("offender", self.offender),
+        ):
+            if not isinstance(section, dict):
+                continue
+            for dimension, mapping in section.items():
+                if isinstance(mapping, dict):
+                    merged[f"{name}_{dimension}"] = mapping
+        return merged

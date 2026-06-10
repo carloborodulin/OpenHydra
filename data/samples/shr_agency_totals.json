@@ -1,0 +1,170 @@
+{
+  "victim": {
+    "age": {
+      "0-9": 26,
+      "10-19": 74,
+      "20-29": 296,
+      "30-39": 226,
+      "40-49": 133,
+      "50-59": 72,
+      "60-69": 54,
+      "70-79": 18,
+      "80-89": 3,
+      "Unknown": 1,
+      "90-Older": 3
+    },
+    "sex": {
+      "Male": 765,
+      "Female": 141,
+      "Unknown": 0,
+      "Not Specified": 0
+    },
+    "race": {
+      "Asian": 36,
+      "White": 240,
+      "Unknown": 3,
+      "Multiple": 0,
+      "Not Specified": 0,
+      "Black or African American": 627,
+      "American Indian or Alaska Native": 0,
+      "Native Hawaiian or Other Pacific Islander": 0,
+      "Asian, Native Hawaiian, or Other Pacific Islander": 0
+    },
+    "ethnicity": {
+      "Unknown": 344,
+      "Multiple": 0,
+      "Not Specified": 0,
+      "Hispanic or Latino": 235,
+      "Not Hispanic or Latino": 327
+    }
+  },
+  "offense": {
+    "weapons": {
+      "Other": 16,
+      "Rifle": 0,
+      "Poison": 0,
+      "Firearm": 0,
+      "Handgun": 558,
+      "Shotgun": 0,
+      "Drowning": 0,
+      "Explosives": 0,
+      "Asphyxiation": 18,
+      "Blunt Object": 22,
+      "Other Firearm": 0,
+      "Personal Weapons": 73,
+      "Motor Vehicle/Vessel": 0,
+      "Fire/Incendiary Device": 9,
+      "Knife/Cutting Instrument": 200,
+      "Pushed or Thrown Out Window": 0,
+      "Drugs/Narcotics/Sleeping Pills": 9,
+      "Strangulation - Include Hanging": 1
+    },
+    "circumstance": {
+      "Rape": 0,
+      "Arson": 0,
+      "Other": 165,
+      "Larceny": 0,
+      "Robbery": 49,
+      "Abortion": 0,
+      "Burglary": 0,
+      "Gambling": 0,
+      "Sniper Attack": 0,
+      "Other Arguments": 290,
+      "Domestic Violence": 0,
+      "Gangland Killings": 153,
+      "Narcotic Drug Laws": 97,
+      "Other Sex Offenses": 5,
+      "Motor Vehicle Theft": 0,
+      "Other - not specified": 3,
+      "Institutional Killings": 0,
+      "Juvenile Gang Killings": 0,
+      "All Suspected Felony Type": 0,
+      "Child Killed by Babysitter": 0,
+      "Argument of Money or Property": 0,
+      "Brawl Due to Influence of Alcohol": 0,
+      "Brawl Due to Influence of Narcotics": 0,
+      "Prostitution and Commercialized Vice": 0,
+      "Human Trafficking/Commersical Sex Acts": 0,
+      "Human Trafficking/Involuntary Servitude": 0,
+      "All instances where the facts provided do not permit determination of circumstances": 144
+    },
+    "relationship": {
+      "Son": 20,
+      "Wife": 9,
+      "Father": 6,
+      "Friend": 177,
+      "In-Law": 2,
+      "Mother": 10,
+      "Sister": 1,
+      "Brother": 4,
+      "Ex-Wife": 0,
+      "Husband": 1,
+      "Stepson": 0,
+      "Unknown": 672,
+      "Daughter": 5,
+      "Employee": 0,
+      "Employer": 0,
+      "Neighbor": 0,
+      "Stranger": 98,
+      "Boyfriend": 7,
+      "Ex-Husband": 0,
+      "Girlfriend": 35,
+      "Stepfather": 0,
+      "Stepmother": 0,
+      "Acquaintance": 0,
+      "Other Family": 15,
+      "Stepdaugther": 0,
+      "Common-Law Wife": 0,
+      "Common-Law Husband": 0,
+      "Homosexual Relationship": 6,
+      "Other - known to victim": 4
+    }
+  },
+  "offender": {
+    "age": {
+      "0-9": 0,
+      "10-19": 119,
+      "20-29": 273,
+      "30-39": 174,
+      "40-49": 114,
+      "50-59": 50,
+      "60-69": 14,
+      "70-79": 4,
+      "80-89": 2,
+      "Unknown": 284,
+      "90-Older": 0
+    },
+    "sex": {
+      "Male": 689,
+      "Female": 62,
+      "Unknown": 283,
+      "Not Specified": 0
+    },
+    "race": {
+      "Asian": 25,
+      "White": 188,
+      "Unknown": 285,
+      "Multiple": 0,
+      "Not Specified": 0,
+      "Black or African American": 536,
+      "American Indian or Alaska Native": 0,
+      "Native Hawaiian or Other Pacific Islander": 0,
+      "Asian, Native Hawaiian, or Other Pacific Islander": 0
+    },
+    "ethnicity": {
+      "Unknown": 537,
+      "Multiple": 0,
+      "Not Specified": 0,
+      "Hispanic or Latino": 212,
+      "Not Hispanic or Latino": 285
+    }
+  },
+  "cde_properties": {
+    "max_data_date": {
+      "UCR": "05/2026"
+    },
+    "last_refresh_date": {
+      "UCR": "05/15/2026"
+    }
+  }
+}

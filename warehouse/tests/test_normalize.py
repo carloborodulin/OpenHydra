@@ -10,6 +10,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    ShrResponse,
     SummarizedResponse,
 )
 from pydantic import TypeAdapter
@@ -65,6 +66,17 @@ def test_hate_crime_to_frame(sample: Callable[[str], Any]) -> None:
     cats = set(df["category"].unique())
     assert "bias_category" in cats  # from incident_section
     assert "offender_race" in cats  # from bias_section
+    assert df["value"].null_count() == 0
+
+
+def test_shr_to_frame(sample: Callable[[str], Any]) -> None:
+    resp = ShrResponse.model_validate(sample("shr_national_totals"))
+    df = normalize.shr_to_frame(resp, level="national", area="US")
+    assert df.columns == list(normalize.SHR_SCHEMA)
+    assert df.height > 0
+    cats = set(df["category"].unique())
+    # composite section_dimension categories disambiguate victim vs offender
+    assert {"victim_age", "offender_age", "offense_weapons"} <= cats
     assert df["value"].null_count() == 0
 
 

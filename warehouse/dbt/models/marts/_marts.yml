@@ -58,3 +58,18 @@ models:
       - name: value
         tests:
           - not_null
+
+  - name: fct_shr
+    description: Supplementary Homicide Report breakdowns (victim/offense/offender), per level/area.
+    columns:
+      - name: level
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["national", "state", "agency"]
+      - name: category
+        tests:
+          - not_null
+      - name: value
+        tests:
+          - not_null

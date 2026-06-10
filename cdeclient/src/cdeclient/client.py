@@ -24,6 +24,7 @@ from .models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    ShrResponse,
     SummarizedResponse,
 )
 
@@ -228,6 +229,23 @@ class CdeClient:
     def hate_crime_agency(self, ori: str, from_: str | date, to: str | date) -> HateCrimeResponse:
         data = self._get_json(f"hate-crime/agency/{ori}", self._range(from_, to))
         return HateCrimeResponse.model_validate(data)
+
+    # -- expanded homicide / SHR -------------------------------------------
+    # All three levels take type=totals (the breakdown shape). type=counts would
+    # return the ChartResponse time series.
+    def shr_national(self, from_: str | date, to: str | date) -> ShrResponse:
+        data = self._get_json("shr/national", {**self._range(from_, to), "type": "totals"})
+        return ShrResponse.model_validate(data)
+
+    def shr_state(self, state: str, from_: str | date, to: str | date) -> ShrResponse:
+        data = self._get_json(
+            f"shr/state/{state.upper()}", {**self._range(from_, to), "type": "totals"}
+        )
+        return ShrResponse.model_validate(data)
+
+    def shr_agency(self, ori: str, from_: str | date, to: str | date) -> ShrResponse:
+        data = self._get_json(f"shr/agency/{ori}", {**self._range(from_, to), "type": "totals"})
+        return ShrResponse.model_validate(data)
 
     # -- police employment (yearly) ---------------------------------------
     # Use the canonical spec paths (`/pe`, `/pe/{state}`). The `/pe/national`

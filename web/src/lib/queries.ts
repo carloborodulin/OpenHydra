@@ -35,6 +35,20 @@ export const useAgencyHateCrime = (ori: string | undefined, category?: string) =
     enabled: Boolean(ori),
   });
 
+// Expanded homicide (SHR). `category` undefined => all section_dimensions.
+export const useShr = (category: string | undefined, level = "national", area = "US") =>
+  useQuery({
+    queryKey: ["shr", category, level, area],
+    queryFn: () => api.shr(category, level, area),
+  });
+
+export const useAgencyShr = (ori: string | undefined, category?: string) =>
+  useQuery({
+    queryKey: ["agency-shr", ori, category],
+    queryFn: () => api.agencyShr(ori as string, category),
+    enabled: Boolean(ori),
+  });
+
 // `state` undefined => all agencies (national view).
 export const useAgencies = (state?: string) =>
   useQuery({ queryKey: ["agencies", state ?? "all"], queryFn: () => api.agencies(state) });

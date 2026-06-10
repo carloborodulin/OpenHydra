@@ -7,6 +7,7 @@ fixtures with no network.
 from __future__ import annotations
 
 from datetime import date
+from typing import Protocol
 
 import polars as pl
 from cdeclient.models import (
@@ -14,8 +15,15 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    ShrResponse,
     SummarizedResponse,
 )
+
+
+class _HasBreakdowns(Protocol):
+    @property
+    def breakdowns(self) -> dict[str, object]: ...
+
 
 SUMMARIZED_SCHEMA: dict[str, pl.DataType] = {
     "level": pl.String(),
@@ -55,6 +63,14 @@ HATE_CRIME_SCHEMA: dict[str, pl.DataType] = {
     "category": pl.String(),  # dimension (e.g. bias_category, offender_race, victim_type)
     "label": pl.String(),  # e.g. Religion, Anti-Jewish, White
     "value": pl.Float64(),  # incident/offense count
+}
+
+SHR_SCHEMA: dict[str, pl.DataType] = {
+    "level": pl.String(),
+    "area": pl.String(),
+    "category": pl.String(),  # section_dimension (e.g. victim_age, offense_weapons)
+    "label": pl.String(),
+    "value": pl.Float64(),
 }
 
 PE_SCHEMA: dict[str, pl.DataType] = {
@@ -154,13 +170,11 @@ def arrests_to_frame(
     return pl.DataFrame(rows, schema=ARRESTS_SCHEMA)
 
 
-def hate_crime_to_frame(resp: HateCrimeResponse, *, level: str, area: str) -> pl.DataFrame:
-    """Flatten the bias_section + incident_section dimensions to tidy long rows.
-
-    Same (category, label, value) shape as :func:`arrests_to_frame`, minus the
-    offense column (hate crime has no offense dimension — the breakdown dimension
-    is the category).
-    """
+def _breakdowns_to_frame(
+    resp: _HasBreakdowns, schema: dict[str, pl.DataType], *, level: str, area: str
+) -> pl.DataFrame:
+    """Flatten any ``{dimension: {label: count}}`` breakdowns into tidy long rows
+    (level, area, category, label, value). Shared by hate crime and SHR."""
     rows: list[dict[str, object]] = []
     for category, mapping in resp.breakdowns.items():
         if not isinstance(mapping, dict):
@@ -176,7 +190,19 @@ def hate_crime_to_frame(resp: HateCrimeResponse, *, level: str, area: str) -> pl
                         "value": float(value),
                     }
                 )
-    return pl.DataFrame(rows, schema=HATE_CRIME_SCHEMA)
+    return pl.DataFrame(rows, schema=schema)
+
+
+def hate_crime_to_frame(resp: HateCrimeResponse, *, level: str, area: str) -> pl.DataFrame:
+    """Flatten bias_section + incident_section dimensions to tidy long rows
+    (same (category, label, value) shape as arrests, minus the offense column)."""
+    return _breakdowns_to_frame(resp, HATE_CRIME_SCHEMA, level=level, area=area)
+
+
+def shr_to_frame(resp: ShrResponse, *, level: str, area: str) -> pl.DataFrame:
+    """Flatten the SHR victim/offense/offender dimensions to tidy long rows; the
+    category is ``<section>_<dimension>`` (e.g. victim_age, offense_weapons)."""
+    return _breakdowns_to_frame(resp, SHR_SCHEMA, level=level, area=area)
 
 
 def pe_to_frame(resp: ChartResponse, *, level: str, area: str) -> pl.DataFrame:
