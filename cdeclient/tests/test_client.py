@@ -193,6 +193,22 @@ def test_nibrs_national_parses_sectioned_breakdowns(sample: Callable[[str], Any]
 
 
 @respx.mock
+def test_lesdc_extracts_S_and_AS_sections(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/lesdc").mock(
+        return_value=Response(200, json=sample("lesdc_manner_2022"))
+    )
+    with _client() as c:
+        r = c.lesdc("manner", 2022)
+
+    assert route.called
+    params = route.calls.last.request.url.params
+    assert params["chartType"] == "manner"
+    assert params["year"] == "2022"
+    # The single-element list wrapper is unwrapped to the S/AS sections.
+    assert set(r.sections) == {"S", "AS"}
+
+
+@respx.mock
 def test_pe_agency_uses_state_and_ori_path() -> None:
     route = respx.get(f"{BASE}/pe/NY/NY0303000").mock(
         return_value=Response(200, json={"rates": {}, "actuals": {}})

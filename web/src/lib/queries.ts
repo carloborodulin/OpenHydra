@@ -89,6 +89,14 @@ export const useAgencyNibrs = (ori: string | undefined, offense: string, categor
     enabled: Boolean(ori),
   });
 
+// LESDC — national only, by year + chart type.
+export const useLesdc = (chartType: string, year: number, section?: string) =>
+  useQuery({
+    queryKey: ["lesdc", chartType, year, section],
+    queryFn: () => api.lesdc(chartType, year, section),
+    enabled: Boolean(chartType),
+  });
+
 // `state` undefined => all agencies (national view).
 export const useAgencies = (state?: string) =>
   useQuery({ queryKey: ["agencies", state ?? "all"], queryFn: () => api.agencies(state) });

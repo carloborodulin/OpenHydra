@@ -61,7 +61,7 @@ graph TD
 | **Exp. Homicide** | ✅ Yes | ✅ Yes (`fct_shr`) | ✅ Yes (`/api/shr` + live agency proxy) | ✅ Yes (Homicide view) |
 | **Exp. Property** | ✅ Yes | ✅ Yes (`fct_property`) | ✅ Yes (`/api/property` + live agency proxy) | ✅ Yes (Property view) |
 | **Use Of Force** | ❌ No | ❌ No | ❌ No | ❌ No |
-| **LESDC** | ❌ No | ❌ No | ❌ No | ❌ No |
+| **LESDC** | ✅ Yes | ✅ Yes (`fct_lesdc`) | ✅ Yes (`/api/lesdc`, national only) | ✅ Yes (LESDC view) |
 | **NIBRS Incidents** | ✅ Yes | ✅ Yes (`fct_nibrs`, curated offenses) | ✅ Yes (`/api/nibrs` + live agency proxy) | ✅ Yes (NIBRS view) |
 | **NIBRS Estimations**| ❌ No | ❌ No | ❌ No | ❌ No |
 

@@ -208,6 +208,28 @@ EXPANDED_PROPERTY_OFFENSES: dict[str, str] = {
 # enum) used for the warehouse + UI selector — the common Group A crimes. The
 # client/endpoints accept any of the 72 codes (so live agency drill-down can
 # reach the long tail); only these are pre-materialized nationally/by-state.
+# LESDC (Law Enforcement Suicide Data Collection) chart types — the API's
+# `lesdc_charts` enum — mapped to display labels. LESDC is national-only.
+LESDC_CHART_TYPES: dict[str, str] = {
+    "totals": "Totals",
+    "demographics": "Demographics",
+    "race": "Race / Ethnicity",
+    "manner": "Manner of Death",
+    "location": "Location",
+    "employment": "Employment Status",
+    "occupation": "Occupation",
+    "military": "Military Service",
+    "duty": "Duty Status",
+    "experience": "Years of Service",
+    "exp": "Exposure",
+    "expfollowing": "Exposure (Following)",
+    "suffered": "Suffered",
+    "prior": "Prior Indicators",
+    "investigation": "Investigation",
+    "wellness": "Agency Wellness Programs",
+}
+
+
 NIBRS_OFFENSES: dict[str, str] = {
     "09A": "Murder & Nonnegligent Manslaughter",
     "11A": "Rape",

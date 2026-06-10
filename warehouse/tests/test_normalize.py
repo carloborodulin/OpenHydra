@@ -10,6 +10,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    LesdcResponse,
     NibrsResponse,
     PropertyResponse,
     ShrResponse,
@@ -98,6 +99,24 @@ def test_nibrs_to_frame(sample: Callable[[str], Any]) -> None:
     assert df.height > 0
     assert set(df["offense"].unique()) == {"13A"}
     assert {"victim_location", "offense_weapons"} <= set(df["category"].unique())
+
+
+def test_lesdc_to_frame_mapping_shape(sample: Callable[[str], Any]) -> None:
+    # manner: section value is a list of one {label: count} map.
+    resp = LesdcResponse.from_payload(sample("lesdc_manner_2022"))
+    df = normalize.lesdc_to_frame(resp, year=2022, chart_type="manner")
+    assert df.columns == list(normalize.LESDC_SCHEMA)
+    assert df.height > 0
+    assert set(df["section"].unique()) <= {"S", "AS"}
+    assert "Firearm" in set(df["label"])
+
+
+def test_lesdc_to_frame_record_shape(sample: Callable[[str], Any]) -> None:
+    # demographics: list of {count, description} records — labels are descriptions.
+    resp = LesdcResponse.from_payload(sample("lesdc_demographics_2022"))
+    df = normalize.lesdc_to_frame(resp, year=2022, chart_type="demographics")
+    assert df.height > 0
+    assert "Female" in set(df["label"])
 
 
 def test_pe_to_frame(sample: Callable[[str], Any]) -> None:

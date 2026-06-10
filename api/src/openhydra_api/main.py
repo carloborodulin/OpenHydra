@@ -22,6 +22,7 @@ from .models import (
     AgencyFeature,
     ArrestOffense,
     ArrestRow,
+    LesdcRow,
     Meta,
     OffenseMonthly,
     PoliceEmploymentRow,
@@ -253,6 +254,24 @@ def nibrs(
         sql += " and category = ?"
         params.append(category)
     sql += " order by category, value desc"
+    return _dicts(conn, sql, params)
+
+
+@app.get("/api/lesdc", response_model=list[LesdcRow])
+def lesdc(
+    conn: Conn,
+    chart_type: str = "manner",
+    year: int = 2023,
+    section: str | None = None,
+) -> list[dict[str, Any]]:
+    # LE suicide data collection — national only, by year + chart type, split
+    # into S (suicide) / AS (attempted suicide) sections.
+    sql = "select section, label, value from fct_lesdc where year = ? and chart_type = ?"
+    params: list[Any] = [year, chart_type]
+    if section:
+        sql += " and section = ?"
+        params.append(section)
+    sql += " order by section, value desc"
     return _dicts(conn, sql, params)
 
 

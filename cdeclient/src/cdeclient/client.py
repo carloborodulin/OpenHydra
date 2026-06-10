@@ -24,6 +24,7 @@ from .models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    LesdcResponse,
     NibrsResponse,
     PropertyResponse,
     ShrResponse,
@@ -300,6 +301,11 @@ class CdeClient:
             f"nibrs/agency/{ori}/{offense}", {**self._range(from_, to), "type": "totals"}
         )
         return NibrsResponse.model_validate(data)
+
+    # -- LESDC (LE suicide data collection; national only, by chart type) ---
+    def lesdc(self, chart_type: str, year: str | int) -> LesdcResponse:
+        data = self._get_json("lesdc", {"chartType": chart_type, "year": str(year)})
+        return LesdcResponse.from_payload(data)
 
     # -- police employment (yearly) ---------------------------------------
     # Use the canonical spec paths (`/pe`, `/pe/{state}`). The `/pe/national`

@@ -1,0 +1,38 @@
+[
+  {
+    "lesdc_chart": {
+      "S": [
+        {
+          "Other": 1,
+          "Alcohol": 0,
+          "Firearm": 42,
+          "Hanging": 4,
+          "Suffocation": 0,
+          "Knife/cutting instrument": 0,
+          "Overdose of illicit drugs": 0,
+          "Jumping from high elevation": 1,
+          "Overdose of prescription drugs": 1,
+          "Purposely committing an act resulting in death": 1,
+          "Asphyxiation (i.e., ligature or carbon monoxide)": 0,
+          "Death caused by what would otherwise be deemed accidental": 0
+        }
+      ],
+      "AS": [
+        {
+          "Other": 2,
+          "Alcohol": 0,
+          "Firearm": 2,
+          "Hanging": 0,
+          "Suffocation": 0,
+          "Knife/cutting instrument": 1,
+          "Overdose of illicit drugs": 0,
+          "Jumping from high elevation": 0,
+          "Overdose of prescription drugs": 4,
+          "Purposely committing an act resulting in death": 0,
+          "Asphyxiation (i.e., ligature or carbon monoxide)": 0,
+          "Death caused by what would otherwise be deemed accidental": 0
+        }
+      ]
+    }
+  }
+]

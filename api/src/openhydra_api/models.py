@@ -54,3 +54,9 @@ class PoliceEmploymentRow(BaseModel):
     metric: str
     year: int
     value: float | None = None
+
+
+class LesdcRow(BaseModel):
+    section: str  # S (suicide) | AS (attempted suicide)
+    label: str
+    value: float | None = None

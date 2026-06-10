@@ -1,0 +1,50 @@
+[
+  {
+    "lesdc_chart": {
+      "S": [
+        {
+          "ag_trauma_prg_no": 20,
+          "ag_trauma_prg_unk": 0,
+          "ag_trauma_prg_yes": 30,
+          "ag_peer_support_no": 3,
+          "ag_le_resiliency_no": 25,
+          "ag_peer_support_unk": 0,
+          "ag_peer_support_yes": 47,
+          "ag_le_resiliency_unk": 5,
+          "ag_le_resiliency_yes": 16,
+          "ag_ment_hlth_cnsl_no": 1,
+          "ag_resiliency_prg_no": 7,
+          "ag_ment_hlth_cnsl_unk": 0,
+          "ag_ment_hlth_cnsl_yes": 49,
+          "ag_resiliency_prg_unk": 0,
+          "ag_resiliency_prg_yes": 43,
+          "ag_training_trauma_no": 2,
+          "ag_training_trauma_unk": 0,
+          "ag_training_trauma_yes": 48
+        }
+      ],
+      "AS": [
+        {
+          "ag_trauma_prg_no": 3,
+          "ag_trauma_prg_unk": 0,
+          "ag_trauma_prg_yes": 6,
+          "ag_peer_support_no": 0,
+          "ag_le_resiliency_no": 6,
+          "ag_peer_support_unk": 0,
+          "ag_peer_support_yes": 9,
+          "ag_le_resiliency_unk": 0,
+          "ag_le_resiliency_yes": 3,
+          "ag_ment_hlth_cnsl_no": 0,
+          "ag_resiliency_prg_no": 1,
+          "ag_ment_hlth_cnsl_unk": 0,
+          "ag_ment_hlth_cnsl_yes": 9,
+          "ag_resiliency_prg_unk": 0,
+          "ag_resiliency_prg_yes": 8,
+          "ag_training_trauma_no": 0,
+          "ag_training_trauma_unk": 0,
+          "ag_training_trauma_yes": 9
+        }
+      ]
+    }
+  }
+]

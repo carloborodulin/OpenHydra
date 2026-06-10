@@ -1,0 +1,34 @@
+[
+  {
+    "lesdc_chart": {
+      "S": [
+        {
+          "count": 1,
+          "incident_duty_occurred": "On"
+        },
+        {
+          "count": 18,
+          "incident_duty_occurred": "Not Applicable"
+        },
+        {
+          "count": 31,
+          "incident_duty_occurred": "Off"
+        }
+      ],
+      "AS": [
+        {
+          "count": 0,
+          "incident_duty_occurred": "Not Applicable"
+        },
+        {
+          "count": 0,
+          "incident_duty_occurred": "On"
+        },
+        {
+          "count": 9,
+          "incident_duty_occurred": "Off"
+        }
+      ]
+    }
+  }
+]

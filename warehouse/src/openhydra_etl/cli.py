@@ -90,6 +90,9 @@ def pull(
         if "nibrs" in doms:
             f = ex.pull_nibrs(st, from_, to)
             typer.echo(f"nibrs      -> {f.height} rows ({len(st)} states + national)")
+        if "lesdc" in doms:
+            f = ex.pull_lesdc()  # national-only, year-keyed (ignores --states/--from/--to)
+            typer.echo(f"lesdc      -> {f.height} rows")
         if "pe" in doms:
             f = ex.pull_pe(st, from_, to)
             typer.echo(f"pe         -> {f.height} rows")

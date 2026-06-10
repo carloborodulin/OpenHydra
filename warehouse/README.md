@@ -46,3 +46,4 @@ uv run mypy
 | `shr` | level × area × section_dimension × label | `level, area, category, label, value` |
 | `property` | level × area × offense × dimension × label | `level, area, offense, category, label, value` |
 | `nibrs` | level × area × offense × section_dimension × label | `level, area, offense, category, label, value` |
+| `lesdc` | year × chart_type × section × label (national) | `year, chart_type, section, label, value` |

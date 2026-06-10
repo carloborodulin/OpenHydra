@@ -103,3 +103,11 @@ def test_nibrs(client: TestClient) -> None:
     rows = r.json()
     assert {row["label"] for row in rows} == {"Handgun", "Firearm"}
     assert rows[0]["value"] == 414248.0  # Handgun, value desc
+
+
+def test_lesdc(client: TestClient) -> None:
+    r = client.get("/api/lesdc", params={"year": 2022, "chart_type": "manner", "section": "S"})
+    assert r.status_code == 200
+    rows = r.json()
+    assert {row["label"] for row in rows} == {"Firearm", "Hanging"}
+    assert rows[0]["value"] == 42.0  # Firearm, value desc

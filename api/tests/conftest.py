@@ -87,6 +87,14 @@ def client(tmp_path) -> Iterator[TestClient]:
             ('national','US','13A','offense_weapons','Handgun', 414248.0),
             ('national','US','13A','offense_weapons','Firearm', 257269.0),
             ('national','US','220','victim_location','Residence', 100.0);
+
+        create table fct_lesdc(
+            year integer, chart_type varchar, section varchar, label varchar, value double
+        );
+        insert into fct_lesdc values
+            (2022,'manner','S','Firearm', 42.0),
+            (2022,'manner','S','Hanging', 4.0),
+            (2022,'manner','AS','Overdose of prescription drugs', 4.0);
         """
     )
     con.close()

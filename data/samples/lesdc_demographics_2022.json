@@ -1,0 +1,26 @@
+[
+  {
+    "lesdc_chart": {
+      "S": [
+        {
+          "count": 4,
+          "description": "Female"
+        },
+        {
+          "count": 46,
+          "description": "Male"
+        }
+      ],
+      "AS": [
+        {
+          "count": 4,
+          "description": "Female"
+        },
+        {
+          "count": 5,
+          "description": "Male"
+        }
+      ]
+    }
+  }
+]

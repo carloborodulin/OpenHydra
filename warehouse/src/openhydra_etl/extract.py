@@ -10,6 +10,7 @@ from cdeclient import CdeClient
 from cdeclient.constants import (
     ARREST_OFFENSES,
     EXPANDED_PROPERTY_OFFENSES,
+    LESDC_CHART_TYPES,
     NIBRS_OFFENSES,
     Offense,
     arrest_code,
@@ -21,6 +22,8 @@ from .config import RAW_DIR
 ALL_OFFENSES: list[str] = [o.value for o in Offense]
 # All 48 arrest offense slugs (the full `arrest_offense` taxonomy).
 ALL_ARREST_OFFENSES: list[str] = list(ARREST_OFFENSES)
+# LESDC has data for these years only (national, year-keyed).
+LESDC_YEARS: list[str] = ["2022", "2023"]
 
 
 def _year(month: str | date) -> str:
@@ -215,6 +218,21 @@ class Extractor:
                 )
         frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.NIBRS_SCHEMA)
         self._write("nibrs", frame)
+        return frame
+
+    def pull_lesdc(
+        self, years: list[str] | None = None, chart_types: list[str] | None = None
+    ) -> pl.DataFrame:
+        # LESDC is national-only and keyed by year + chart type (no state/agency).
+        years = years or LESDC_YEARS
+        charts = chart_types or list(LESDC_CHART_TYPES)
+        frames: list[pl.DataFrame] = []
+        for yr in years:
+            for ct in charts:
+                resp = self.client.lesdc(ct, yr)
+                frames.append(normalize.lesdc_to_frame(resp, year=int(yr), chart_type=ct))
+        frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.LESDC_SCHEMA)
+        self._write("lesdc", frame)
         return frame
 
     def pull_pe(

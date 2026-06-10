@@ -187,6 +187,29 @@ class NibrsResponse(_VictimOffenderBreakdowns):
     relationship, offense related_offenses)."""
 
 
+class LesdcResponse(BaseModel):
+    """/lesdc?chartType=&year= — one chart's data for a year (national only).
+
+    The API wraps it as a single-element list whose one (chart-specific) key maps
+    to ``{"S": ..., "AS": ...}`` — Suicide and Attempted-Suicide sections. This
+    model normalizes to :attr:`sections`. Section values are chart-shaped (a
+    ``{label: count}`` map, or a list of ``{count, description}`` records, or a
+    totals record), so flatten them in the warehouse normalizer.
+    """
+
+    sections: dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def from_payload(cls, payload: Any) -> LesdcResponse:
+        sections: dict[str, Any] = {}
+        if isinstance(payload, list) and payload and isinstance(payload[0], dict):
+            for value in payload[0].values():
+                if isinstance(value, dict):
+                    sections = value
+                    break
+        return cls(sections=sections)
+
+
 class PropertyResponse(BaseModel):
     """/supplemental/* type=totals — expanded property (stolen/recovered values
     and offense analysis).

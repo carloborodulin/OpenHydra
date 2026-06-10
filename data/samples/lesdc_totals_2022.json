@@ -1,0 +1,20 @@
+[
+  {
+    "lesdc_chart": {
+      "S": [
+        {
+          "suicide_count": 50,
+          "total_agencies": 25,
+          "attempted_suicide_count": 9
+        }
+      ],
+      "AS": [
+        {
+          "suicide_count": 50,
+          "total_agencies": 25,
+          "attempted_suicide_count": 9
+        }
+      ]
+    }
+  }
+]

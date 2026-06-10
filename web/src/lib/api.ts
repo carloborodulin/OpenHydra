@@ -49,6 +49,12 @@ export interface PoliceEmploymentRow {
   value: number | null;
 }
 
+export interface LesdcRow {
+  section: string; // "S" (suicide) | "AS" (attempted suicide)
+  label: string;
+  value: number | null;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${path}`);
@@ -84,6 +90,9 @@ export const api = {
   // NIBRS incidents; `offense` is a NIBRS code (e.g. 13A).
   nibrs: (offense: string, category?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/nibrs?${qs({ level, area, offense, category })}`),
+  // LESDC (LE suicide data collection); national only, by year + chart type.
+  lesdc: (chartType: string, year: number, section?: string) =>
+    get<LesdcRow[]>(`/api/lesdc?${qs({ chart_type: chartType, year: String(year), section })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>

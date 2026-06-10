@@ -41,3 +41,6 @@ models:
 
   - name: stg_nibrs
     description: NIBRS incident breakdowns by offense & section_dimension (long format).
+
+  - name: stg_lesdc
+    description: LE suicide data collection by year, chart type, S/AS section (long format).

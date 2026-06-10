@@ -15,6 +15,7 @@ from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
     HateCrimeResponse,
+    LesdcResponse,
     NibrsResponse,
     PropertyResponse,
     ShrResponse,
@@ -89,6 +90,14 @@ NIBRS_SCHEMA: dict[str, pl.DataType] = {
     "area": pl.String(),
     "offense": pl.String(),  # NIBRS offense code (e.g. 13A)
     "category": pl.String(),  # section_dimension (victim_age, offense_weapons, …)
+    "label": pl.String(),
+    "value": pl.Float64(),
+}
+
+LESDC_SCHEMA: dict[str, pl.DataType] = {
+    "year": pl.Int32(),
+    "chart_type": pl.String(),
+    "section": pl.String(),  # S (suicide) | AS (attempted suicide)
     "label": pl.String(),
     "value": pl.Float64(),
 }
@@ -242,6 +251,48 @@ def nibrs_to_frame(resp: NibrsResponse, *, level: str, area: str, offense: str) 
     return _breakdowns_to_frame(
         resp, NIBRS_SCHEMA, level=level, area=area, extra={"offense": offense}
     )
+
+
+def _lesdc_section_rows(value: object) -> list[tuple[str, float]]:
+    """Flatten one LESDC chart section (S/AS) to (label, value) pairs. The value
+    is either a ``{label: count}`` map, a list of ``{count, <desc>}`` records, or
+    a list/dict of metric maps (totals/manner/wellness)."""
+    out: list[tuple[str, float]] = []
+    items = value if isinstance(value, list) else [value]
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        count = item.get("count")
+        if isinstance(count, (int, float)) and not isinstance(count, bool):
+            # Record form: {"count": N, "<description field>": "Label"}.
+            desc = next(
+                (v for k, v in item.items() if k != "count" and isinstance(v, str)), "count"
+            )
+            out.append((str(desc), float(count)))
+        else:
+            # Mapping form: {label: count, ...}.
+            for key, val in item.items():
+                if isinstance(val, (int, float)) and not isinstance(val, bool):
+                    out.append((str(key), float(val)))
+    return out
+
+
+def lesdc_to_frame(resp: LesdcResponse, *, year: int, chart_type: str) -> pl.DataFrame:
+    """Flatten a LESDC chart's S/AS sections to tidy long rows
+    (year, chart_type, section, label, value)."""
+    rows: list[dict[str, object]] = []
+    for section, value in resp.sections.items():
+        for label, val in _lesdc_section_rows(value):
+            rows.append(
+                {
+                    "year": year,
+                    "chart_type": chart_type,
+                    "section": section,
+                    "label": label,
+                    "value": val,
+                }
+            )
+    return pl.DataFrame(rows, schema=LESDC_SCHEMA)
 
 
 def pe_to_frame(resp: ChartResponse, *, level: str, area: str) -> pl.DataFrame:

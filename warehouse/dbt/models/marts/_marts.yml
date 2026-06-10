@@ -101,3 +101,18 @@ models:
       - name: value
         tests:
           - not_null
+
+  - name: fct_lesdc
+    description: LE suicide data collection by year, chart type, and S/AS section.
+    columns:
+      - name: chart_type
+        tests:
+          - not_null
+      - name: section
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["S", "AS"]
+      - name: value
+        tests:
+          - not_null
