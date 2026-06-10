@@ -59,9 +59,10 @@ def pull(
         aoffs = [a.lower() for a in _split(arrest_offenses)] or offs
     doms = [d.lower() for d in _split(domains)]
 
-    # Generous retries: a bulk pull makes many calls and the gateway throws
-    # intermittent 503 spells; ride through them rather than aborting mid-run.
-    with CdeClient(max_attempts=8, base_wait=1.0, max_wait=30.0) as client:
+    # Generous retries + a longer read timeout: a bulk pull makes many calls and
+    # the gateway throws intermittent 503 spells and slow responses (notably the
+    # modeled NIBRS estimations); ride through them rather than aborting mid-run.
+    with CdeClient(timeout=60.0, max_attempts=8, base_wait=1.0, max_wait=30.0) as client:
         ex = Extractor(client)
         if "summarized" in doms:
             f = ex.pull_summarized(offs, st, from_, to)
@@ -96,6 +97,9 @@ def pull(
         if "uof" in doms:
             pf, qf = ex.pull_uof()  # national-only, year-keyed
             typer.echo(f"uof        -> {pf.height} participation, {qf.height} question rows")
+        if "nibrs-estimation" in doms:
+            f = ex.pull_nibrs_estimation()  # national + regions, curated offenses
+            typer.echo(f"nibrs-est  -> {f.height} rows")
         if "pe" in doms:
             f = ex.pull_pe(st, from_, to)
             typer.echo(f"pe         -> {f.height} rows")

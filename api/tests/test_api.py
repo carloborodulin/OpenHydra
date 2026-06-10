@@ -127,3 +127,18 @@ def test_uof_questions(client: TestClient) -> None:
     rows = r.json()
     assert {row["label"] for row in rows} == {"Baton", "Canine"}
     assert rows[0]["value"] == 9.0  # Baton, value desc
+
+
+def test_nibrs_estimation(client: TestClient) -> None:
+    r = client.get(
+        "/api/nibrs-estimation", params={"offense": "55", "category": "Victim_Victim race"}
+    )
+    assert r.status_code == 200
+    rows = r.json()
+    assert {row["label"] for row in rows} == {"White", "Black or African American"}
+    assert rows[0]["value"] == 12345.0  # White, value desc
+    # region geography isolates a different estimate
+    mw = client.get(
+        "/api/nibrs-estimation", params={"level": "region", "area": "Midwest", "offense": "55"}
+    )
+    assert mw.json()[0]["value"] == 3000.0

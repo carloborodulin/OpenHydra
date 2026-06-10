@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import sys
 from datetime import date
 from pathlib import Path
 
+import httpx
 import polars as pl
-from cdeclient import CdeClient
+from cdeclient import CdeClient, CdeError
 from cdeclient.constants import (
     ARREST_OFFENSES,
     EXPANDED_PROPERTY_OFFENSES,
     LESDC_CHART_TYPES,
+    NIBRS_ESTIMATION_OFFENSES,
+    NIBRS_ESTIMATION_REGIONS,
     NIBRS_OFFENSES,
     Offense,
     arrest_code,
@@ -26,6 +30,8 @@ ALL_ARREST_OFFENSES: list[str] = list(ARREST_OFFENSES)
 LESDC_YEARS: list[str] = ["2022", "2023"]
 # Use-of-Force collection years (national, year-keyed).
 UOF_YEARS: list[str] = ["2019", "2020", "2021", "2022", "2023"]
+# NIBRS estimations latest data year (lookup reports 2021 + 2022).
+NIBRS_ESTIMATION_YEAR: str = "2022"
 
 
 def _year(month: str | date) -> str:
@@ -235,6 +241,38 @@ class Extractor:
                 frames.append(normalize.lesdc_to_frame(resp, year=int(yr), chart_type=ct))
         frame = pl.concat(frames) if frames else pl.DataFrame(schema=normalize.LESDC_SCHEMA)
         self._write("lesdc", frame)
+        return frame
+
+    def pull_nibrs_estimation(self, year: str = NIBRS_ESTIMATION_YEAR) -> pl.DataFrame:
+        # National + the four regions, for a curated offense set (no state/agency-
+        # type/size facets). Estimates only; confidence bounds are dropped. The
+        # modeled-estimation endpoint is slow and occasionally times out, so skip
+        # (and report) any combo that fails rather than aborting the whole pull.
+        # geo = (level, area, region_code|None)
+        geos: list[tuple[str, str, str | None]] = [("national", "US", None)]
+        geos += [("region", name, code) for code, name in NIBRS_ESTIMATION_REGIONS.items()]
+        frames: list[pl.DataFrame] = []
+        skipped: list[str] = []
+        for off in NIBRS_ESTIMATION_OFFENSES:
+            for level, area, code in geos:
+                try:
+                    resp = (
+                        self.client.nibrs_estimation_national(off, year)
+                        if code is None
+                        else self.client.nibrs_estimation_region(code, off, year)
+                    )
+                except (CdeError, httpx.HTTPError):
+                    skipped.append(f"{area}/{off}")
+                    continue
+                frames.append(
+                    normalize.nibrs_estimation_to_frame(resp, level=level, area=area, offense=off)
+                )
+        if skipped:
+            print(f"  nibrs-estimation: skipped {len(skipped)} combos: {skipped}", file=sys.stderr)
+        frame = (
+            pl.concat(frames) if frames else pl.DataFrame(schema=normalize.NIBRS_ESTIMATION_SCHEMA)
+        )
+        self._write("nibrs_estimation", frame)
         return frame
 
     def pull_uof(self, years: list[str] | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:

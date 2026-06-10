@@ -11,6 +11,7 @@ from cdeclient.models import (
     ChartResponse,
     HateCrimeResponse,
     LesdcResponse,
+    NibrsEstimationResponse,
     NibrsResponse,
     PropertyResponse,
     ShrResponse,
@@ -137,6 +138,17 @@ def test_uof_questions_to_frame(sample: Callable[[str], Any]) -> None:
     assert df.height > 0
     assert {"report", "force", "contact", "means"} <= set(df["category"].unique())
     # numeric-string values are coerced to floats
+    assert df["value"].null_count() == 0
+
+
+def test_nibrs_estimation_to_frame(sample: Callable[[str], Any]) -> None:
+    resp = NibrsEstimationResponse.from_payload(sample("nibrs_estimation_national_55_2022"))
+    df = normalize.nibrs_estimation_to_frame(resp, level="national", area="US", offense="55")
+    assert df.columns == list(normalize.NIBRS_ESTIMATION_SCHEMA)
+    assert df.height > 0
+    assert set(df["offense"].unique()) == {"55"}
+    cats = set(df["category"].unique())
+    assert {"Victim_Victim race", "Offense_Location type"} <= cats
     assert df["value"].null_count() == 0
 
 

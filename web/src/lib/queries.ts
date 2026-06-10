@@ -107,6 +107,19 @@ export const useUofQuestions = (year: number, category?: string) =>
     queryFn: () => api.uofQuestions(year, category),
   });
 
+// NIBRS estimations — national / region, numeric offense code.
+export const useNibrsEstimation = (
+  level: string,
+  area: string,
+  offense: string,
+  category?: string,
+) =>
+  useQuery({
+    queryKey: ["nibrs-estimation", level, area, offense, category],
+    queryFn: () => api.nibrsEstimation(level, area, offense, category),
+    enabled: Boolean(offense),
+  });
+
 // `state` undefined => all agencies (national view).
 export const useAgencies = (state?: string) =>
   useQuery({ queryKey: ["agencies", state ?? "all"], queryFn: () => api.agencies(state) });

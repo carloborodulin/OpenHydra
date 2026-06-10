@@ -134,3 +134,18 @@ models:
       - name: value
         tests:
           - not_null
+
+  - name: fct_nibrs_estimation
+    description: NIBRS estimated counts by geography (national/region), offense & dimension.
+    columns:
+      - name: level
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["national", "region"]
+      - name: offense
+        tests:
+          - not_null
+      - name: value
+        tests:
+          - not_null

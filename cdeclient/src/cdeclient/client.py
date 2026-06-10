@@ -25,6 +25,7 @@ from .models import (
     ChartResponse,
     HateCrimeResponse,
     LesdcResponse,
+    NibrsEstimationResponse,
     NibrsResponse,
     PropertyResponse,
     ShrResponse,
@@ -321,6 +322,22 @@ class CdeClient:
         if not isinstance(data, list):
             return []
         return [UofQuestionItem.model_validate(x) for x in data if isinstance(x, dict)]
+
+    # -- NIBRS estimations (modeled counts w/ confidence intervals) --------
+    # offense is a numeric nibrs_estimations code; see /nibrs-estimation/lookup/all.
+    def nibrs_estimation_lookup(self) -> Any:
+        """Raw lookup payload: code maps for states, offenses, regions, etc."""
+        return self._get_json("nibrs-estimation/lookup/all")
+
+    def nibrs_estimation_national(self, offense: str, year: str | int) -> NibrsEstimationResponse:
+        data = self._get_json(f"nibrs-estimation/national/{offense}", {"year": str(year)})
+        return NibrsEstimationResponse.from_payload(data)
+
+    def nibrs_estimation_region(
+        self, region: str, offense: str, year: str | int
+    ) -> NibrsEstimationResponse:
+        data = self._get_json(f"nibrs-estimation/region/{region}/{offense}", {"year": str(year)})
+        return NibrsEstimationResponse.from_payload(data)
 
     # -- LESDC (LE suicide data collection; national only, by chart type) ---
     def lesdc(self, chart_type: str, year: str | int) -> LesdcResponse:

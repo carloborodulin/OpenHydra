@@ -6,6 +6,7 @@ import { useMeta } from "./lib/queries";
 import { HateCrimeView } from "./views/HateCrimeView";
 import { HomicideView } from "./views/HomicideView";
 import { LesdcView } from "./views/LesdcView";
+import { NibrsEstimationView } from "./views/NibrsEstimationView";
 import { NibrsView } from "./views/NibrsView";
 import { OverviewView } from "./views/OverviewView";
 import { PropertyView } from "./views/PropertyView";
@@ -19,12 +20,13 @@ const VIEWS: NavItem[] = [
   { id: "homicide", label: "Homicide" },
   { id: "property", label: "Property" },
   { id: "nibrs", label: "NIBRS" },
+  { id: "nibrs-estimation", label: "NIBRS Est." },
   { id: "use-of-force", label: "Use of Force" },
   { id: "lesdc", label: "LESDC" },
 ];
 
 // Views with their own controls / no geography don't use the shared region bar.
-const NO_REGION_VIEWS = new Set(["lesdc", "use-of-force"]);
+const NO_REGION_VIEWS = new Set(["lesdc", "use-of-force", "nibrs-estimation"]);
 
 export default function App() {
   const meta = useMeta();
@@ -61,6 +63,7 @@ export default function App() {
       {view === "homicide" && <HomicideView region={region} />}
       {view === "property" && <PropertyView region={region} />}
       {view === "nibrs" && <NibrsView region={region} />}
+      {view === "nibrs-estimation" && <NibrsEstimationView />}
       {view === "use-of-force" && <UseOfForceView />}
       {view === "lesdc" && <LesdcView />}
     </div>

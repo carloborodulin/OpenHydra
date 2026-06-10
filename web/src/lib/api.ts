@@ -104,6 +104,9 @@ export const api = {
   uofParticipation: () => get<UofParticipationRow[]>("/api/uof/participation"),
   uofQuestions: (year: number, category?: string) =>
     get<ArrestRow[]>(`/api/uof/questions?${qs({ year: String(year), category })}`),
+  // NIBRS estimations; national / region, numeric offense code.
+  nibrsEstimation: (level: string, area: string, offense: string, category?: string) =>
+    get<ArrestRow[]>(`/api/nibrs-estimation?${qs({ level, area, offense, category })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>

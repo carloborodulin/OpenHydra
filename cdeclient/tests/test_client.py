@@ -235,6 +235,23 @@ def test_uof_questions_returns_items(sample: Callable[[str], Any]) -> None:
 
 
 @respx.mock
+def test_nibrs_estimation_national_flattens_sections(sample: Callable[[str], Any]) -> None:
+    route = respx.get(f"{BASE}/nibrs-estimation/national/55").mock(
+        return_value=Response(200, json=sample("nibrs_estimation_national_55_2022"))
+    )
+    with _client() as c:
+        r = c.nibrs_estimation_national("55", 2022)
+
+    assert route.called
+    assert route.calls.last.request.url.params["year"] == "2022"
+    bd = r.breakdowns  # {"<section>_<dimension>": {label: estimate}}, bounds dropped
+    assert "Victim_Victim race" in bd
+    assert "Offense_Location type" in bd
+    # confidence-bound keys must not leak into the labels
+    assert "lower_bound" not in bd["Victim_Victim race"]
+
+
+@respx.mock
 def test_pe_agency_uses_state_and_ori_path() -> None:
     route = respx.get(f"{BASE}/pe/NY/NY0303000").mock(
         return_value=Response(200, json={"rates": {}, "actuals": {}})

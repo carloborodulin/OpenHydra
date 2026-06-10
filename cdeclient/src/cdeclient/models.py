@@ -241,6 +241,49 @@ class UofQuestionItem(BaseModel):
     value: Any = None
 
 
+class NibrsEstimationResponse(BaseModel):
+    """/nibrs-estimation/* — modeled (estimated) counts with confidence intervals.
+
+    Wrapped as a single-element list of ``{data: {section: {dimension: [records]}}}``
+    (sections: Arrest, Incident, Offense, Victim). Each record has one bucket key
+    (the label) plus ``lower_bound``/``upper_bound``. :attr:`breakdowns` flattens
+    to ``{"<section>_<dimension>": {label: estimate}}`` (dropping the bounds), the
+    same shape the other breakdown groups use.
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    data: dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def from_payload(cls, payload: Any) -> NibrsEstimationResponse:
+        record = payload[0] if isinstance(payload, list) and payload else (payload or {})
+        data = record.get("data") if isinstance(record, dict) else None
+        return cls(data=data if isinstance(data, dict) else {})
+
+    @property
+    def breakdowns(self) -> dict[str, Any]:
+        merged: dict[str, Any] = {}
+        for section, dims in self.data.items():
+            if not isinstance(dims, dict):
+                continue
+            for dimension, records in dims.items():
+                if not isinstance(records, list):
+                    continue
+                mapping: dict[str, float] = {}
+                for rec in records:
+                    if not isinstance(rec, dict):
+                        continue
+                    for key, val in rec.items():
+                        if key in ("lower_bound", "upper_bound"):
+                            continue
+                        if isinstance(val, (int, float)) and not isinstance(val, bool):
+                            mapping[str(key)] = float(val)
+                if mapping:
+                    merged[f"{section}_{dimension}"] = mapping
+        return merged
+
+
 class PropertyResponse(BaseModel):
     """/supplemental/* type=totals — expanded property (stolen/recovered values
     and offense analysis).

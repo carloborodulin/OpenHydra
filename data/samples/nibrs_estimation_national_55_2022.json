@@ -1,0 +1,452 @@
+[
+  {
+    "data": {
+      "Arrest": {
+        "Arrestee age": [
+          {
+            "65+": 6153,
+            "lower_bound": 5383.83012767187,
+            "upper_bound": 6923.10884769701
+          },
+          {
+            "15": 4454,
+            "lower_bound": 4164.04192226992,
+            "upper_bound": 4745.15989323099
+          },
+          {
+            "25-34": 96317,
+            "lower_bound": 87872.1485761524,
+            "upper_bound": 104762.249057962
+          },
+          {
+            "16": 5082,
+            "lower_bound": 4784.03052646232,
+            "upper_bound": 5381.24667501383
+          },
+          {
+            "18-24": 55887,
+            "lower_bound": 50756.5447151235,
+            "upper_bound": 61018.8274895133
+          },
+          {
+            "17": 5278,
+            "lower_bound": 5040.86882230034,
+            "upper_bound": 5515.75252307666
+          },
+          {
+            "5-14": 7933,
+            "lower_bound": 7066.09411142504,
+            "upper_bound": 8801.40168151295
+          },
+          {
+            "35-64": 122552,
+            "lower_bound": 112917.432518002,
+            "upper_bound": 132187.664391752
+          }
+        ],
+        "Arrestee armed": [
+          {
+            "No": 240935,
+            "lower_bound": 218392.15664025,
+            "upper_bound": 263477.931246839
+          },
+          {
+            "Yes": 62725,
+            "lower_bound": 59086.8124715466,
+            "upper_bound": 66363.5015205296
+          }
+        ],
+        "Arrestee armed with": [
+          {
+            "Firearm": 28014,
+            "lower_bound": 21563.8516126512,
+            "upper_bound": 34465.6013347705
+          },
+          {
+            "Club/blackjack/brass knuckles": 7334,
+            "lower_bound": 6511.34895439502,
+            "upper_bound": 8157.54792233307
+          },
+          {
+            "Lethal cutting instrument": 28301,
+            "lower_bound": 26354.9564935864,
+            "upper_bound": 30248.0728511736
+          }
+        ],
+        "Arrestee race": [
+          {
+            "Asian": 4397,
+            "lower_bound": 4100.19728800388,
+            "upper_bound": 4694.64677369712
+          },
+          {
+            "Native Hawaiian or Other Pacific Islander": 999,
+            "lower_bound": 649.721915334352,
+            "upper_bound": 1348.62580668964
+          },
+          {
+            "Black": 122487,
+            "lower_bound": 118367.461462248,
+            "upper_bound": 126607.205172271
+          },
+          {
+            "White": 169367,
+            "lower_bound": 151754.866038951,
+            "upper_bound": 186979.447514187
+          },
+          {
+            "American Indian or Alaska Native": 6409,
+            "lower_bound": 2819.36125623873,
+            "upper_bound": 9998.86865154516
+          }
+        ],
+        "Arrestee sex": [
+          {
+            "Female": 70756,
+            "lower_bound": 66494.0765598636,
+            "upper_bound": 75018.947809519
+          },
+          {
+            "Male": 232903,
+            "lower_bound": 211586.707361168,
+            "upper_bound": 254220.670148615
+          }
+        ]
+      },
+      "Incident": {
+        "Clearance Status": [
+          {
+            "Exceptional clearance": 36358,
+            "lower_bound": 31413.8942902441,
+            "upper_bound": 41302.8381430573
+          },
+          {
+            "Cleared through arrest": 298047,
+            "lower_bound": 291851.638439173,
+            "upper_bound": 304242.615744633
+          },
+          {
+            "Not cleared": 422196,
+            "lower_bound": 411377.643509251,
+            "upper_bound": 433015.359613213
+          }
+        ],
+        "Offender Count by Incident": [
+          {
+            "Unknown offenders": 87811,
+            "lower_bound": 83403.6866168917,
+            "upper_bound": 92219.885794881
+          },
+          {
+            "1 offender": 578859,
+            "lower_bound": 565711.337928531,
+            "upper_bound": 592008.203405577
+          },
+          {
+            "2+ offenders": 89930,
+            "lower_bound": 87487.2790273458,
+            "upper_bound": 92373.5969663461
+          }
+        ],
+        "Offense Count by Incident": [
+          {
+            "3+ offenses": 33734,
+            "lower_bound": 29230.7048320854,
+            "upper_bound": 38238.5236901438
+          },
+          {
+            "1 offense": 579960,
+            "lower_bound": 554600.380673348,
+            "upper_bound": 605320.732039365
+          },
+          {
+            "2 offenses": 142906,
+            "lower_bound": 131202.606936661,
+            "upper_bound": 154611.041567969
+          }
+        ],
+        "Time of Day Count by Incident": [
+          {
+            "4-8am": 52480,
+            "lower_bound": 51681.4472700529,
+            "upper_bound": 53278.6079828698
+          },
+          {
+            "8am-noon": 88549,
+            "lower_bound": 87245.8008069912,
+            "upper_bound": 89853.9666238374
+          },
+          {
+            "Noon-4pm": 122820,
+            "lower_bound": 120802.20564212,
+            "upper_bound": 124839.338817501
+          },
+          {
+            "8pm-midnight": 165054,
+            "lower_bound": 162769.748945586,
+            "upper_bound": 167339.451518766
+          },
+          {
+            "Unknown": 2283,
+            "lower_bound": 1889.70219621085,
+            "upper_bound": 2678.00427575209
+          },
+          {
+            "Midnight-4am": 133670,
+            "lower_bound": 122943.275186619,
+            "upper_bound": 144397.361154386
+          },
+          {
+            "4-8pm": 152868,
+            "lower_bound": 150831.742118599,
+            "upper_bound": 154904.927196804
+          }
+        ],
+        "Type of Exceptional Clearance": [
+          {
+            "In custody of other jurisdiction": 541,
+            "lower_bound": 451.157628831765,
+            "upper_bound": 632.233830381461
+          },
+          {
+            "Prosecution declined": 16032,
+            "lower_bound": 13972.8740094654,
+            "upper_bound": 18091.8985638129
+          },
+          {
+            "Death of offender": 828,
+            "lower_bound": 662.082921806965,
+            "upper_bound": 994.304625822229
+          },
+          {
+            "Victim refused to cooperate": 17898,
+            "lower_bound": 12042.7643197393,
+            "upper_bound": 23753.4886343764
+          },
+          {
+            "Juvenile/no custody": 1057,
+            "lower_bound": 933.054824282592,
+            "upper_bound": 1182.87307478236
+          }
+        ],
+        "Victim Count by Incident": [
+          {
+            "1 victim": 543578,
+            "lower_bound": 520653.467381606,
+            "upper_bound": 566503.762870841
+          },
+          {
+            "2+ victims": 213023,
+            "lower_bound": 199718.678891657,
+            "upper_bound": 226328.080595468
+          }
+        ]
+      },
+      "Offense": {
+        "Location type": [
+          {
+            "Transportation hub/outdoor public locations": 287225,
+            "lower_bound": 275167.058667594,
+            "upper_bound": 299284.397010255
+          },
+          {
+            "Schools, daycares, and universities": 15357,
+            "lower_bound": 14643.7257074397,
+            "upper_bound": 16071.0515414949
+          },
+          {
+            "Shelter-mission/homeless": 1415,
+            "lower_bound": 727.206336647006,
+            "upper_bound": 2104.45146227144
+          },
+          {
+            "Retail/financial/other commercial establishment": 58812,
+            "lower_bound": 57410.3477161715,
+            "upper_bound": 60215.3433927474
+          },
+          {
+            "Residence/hotel": 516686,
+            "lower_bound": 489680.403077274,
+            "upper_bound": 543693.409962639
+          },
+          {
+            "Jail/prison": 9682,
+            "lower_bound": 8587.50923283902,
+            "upper_bound": 10777.0342773324
+          },
+          {
+            "Government/public buildings": 3278,
+            "lower_bound": 3043.42651489353,
+            "upper_bound": 3514.06600839058
+          },
+          {
+            "Restaurant/bar/sports or entertainment venue": 29243,
+            "lower_bound": 27315.9807407625,
+            "upper_bound": 31170.4635529634
+          },
+          {
+            "Religious buildings": 1126,
+            "lower_bound": 1051.78477283784,
+            "upper_bound": 1200.77353332203
+          },
+          {
+            "Other/unknown location": 26363,
+            "lower_bound": 24975.7539977508,
+            "upper_bound": 27751.3305114458
+          }
+        ],
+        "Offense Count - Total": [
+          {
+            "Count - Total": 949192,
+            "lower_bound": 932861.51180867,
+            "upper_bound": 965524.006208402
+          }
+        ],
+        "Type of Weapon Involved": [
+          {
+            "Other non-personal weapons": 147080,
+            "lower_bound": 135123.904564869,
+            "upper_bound": 159037.436892201
+          },
+          {
+            "Firearms": 380941,
+            "lower_bound": 341952.666720343,
+            "upper_bound": 419929.499752256
+          },
+          {
+            "Blunt instruments": 89411,
+            "lower_bound": 78278.103617252,
+            "upper_bound": 100543.96654563
+          },
+          {
+            "Personal weapons": 195158,
+            "lower_bound": 184799.993246619,
+            "upper_bound": 205516.110577574
+          },
+          {
+            "Knives and other cutting instruments": 149244,
+            "lower_bound": 130955.297916619,
+            "upper_bound": 167534.642474951
+          }
+        ],
+        "Weapon involved": [
+          {
+            "Yes": 925665,
+            "lower_bound": 911988.620229773,
+            "upper_bound": 939342.820981665
+          },
+          {
+            "No": 23527,
+            "lower_bound": 19856.9899268666,
+            "upper_bound": 27197.0868787666
+          },
+          {
+            "Unknown": 19430,
+            "lower_bound": 18344.8869528743,
+            "upper_bound": 20516.7722650423
+          }
+        ]
+      },
+      "Victim": {
+        "Injury": [
+          {
+            "No": 489622,
+            "lower_bound": 436685.878974085,
+            "upper_bound": 542558.476458741
+          },
+          {
+            "Yes": 459570,
+            "lower_bound": 403446.661536735,
+            "upper_bound": 515694.501047511
+          }
+        ],
+        "Victim age": [
+          {
+            "18-24": 166402,
+            "lower_bound": 146865.425234956,
+            "upper_bound": 185938.980032345
+          },
+          {
+            "25-34": 252447,
+            "lower_bound": 223457.980562899,
+            "upper_bound": 281436.675456203
+          },
+          {
+            "65+": 33508,
+            "lower_bound": 28739.6614363696,
+            "upper_bound": 38276.8775350669
+          },
+          {
+            "35-64": 370559,
+            "lower_bound": 329486.066019278,
+            "upper_bound": 411632.723947258
+          },
+          {
+            "15": 14227,
+            "lower_bound": 13012.33302293,
+            "upper_bound": 15443.3677560546
+          },
+          {
+            "17": 18526,
+            "lower_bound": 16545.6861954451,
+            "upper_bound": 20508.3066432113
+          },
+          {
+            "Under 5": 19615,
+            "lower_bound": 16081.5319001604,
+            "upper_bound": 23149.4603740898
+          },
+          {
+            "16": 16171,
+            "lower_bound": 15108.297709362,
+            "upper_bound": 17235.3055016705
+          },
+          {
+            "5-14": 57733,
+            "lower_bound": 51007.850363089,
+            "upper_bound": 64458.9883266837
+          }
+        ],
+        "Victim race": [
+          {
+            "Native Hawaiian or Other Pacific Islander": 2681,
+            "lower_bound": 1184.98501450265,
+            "upper_bound": 4177.93745720216
+          },
+          {
+            "Asian": 14220,
+            "lower_bound": 11463.9038490548,
+            "upper_bound": 16977.9643933214
+          },
+          {
+            "American Indian or Alaska Native": 14053,
+            "lower_bound": 8201.79745264954,
+            "upper_bound": 19906.1350523747
+          },
+          {
+            "Black": 387610,
+            "lower_bound": 365050.546623099,
+            "upper_bound": 410169.54017934
+          },
+          {
+            "White": 530626,
+            "lower_bound": 454835.466181853,
+            "upper_bound": 606417.241813674
+          }
+        ],
+        "Victim sex": [
+          {
+            "Male": 515361,
+            "lower_bound": 456920.81312558,
+            "upper_bound": 573802.030647085
+          },
+          {
+            "Female": 433831,
+            "lower_bound": 383567.638337391,
+            "upper_bound": 484095.035907016
+          }
+        ]
+      }
+    }
+  }
+]

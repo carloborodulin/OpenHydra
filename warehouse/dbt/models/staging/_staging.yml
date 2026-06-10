@@ -50,3 +50,6 @@ models:
 
   - name: stg_uof_questions
     description: Use-of-Force report items by year & quest category (long format).
+
+  - name: stg_nibrs_estimation
+    description: NIBRS estimated counts by geography, offense & section_dimension (long format).

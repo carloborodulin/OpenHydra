@@ -246,6 +246,33 @@ NIBRS_OFFENSES: dict[str, str] = {
 }
 
 
+# NIBRS Estimations regions (the API's `regions` enum) -> display name.
+NIBRS_ESTIMATION_REGIONS: dict[str, str] = {
+    "M": "Midwest",
+    "N": "Northeast",
+    "S": "South",
+    "W": "West",
+}
+
+# A curated subset of the NIBRS-estimation offense codes (the numeric
+# `nibrs_estimations_offenses`; full code->name map is at /nibrs-estimation/
+# lookup/all under "Indicators"). The client accepts any code.
+NIBRS_ESTIMATION_OFFENSES: dict[str, str] = {
+    "133": "Violent Crime",
+    "116": "Property Crime",
+    "55": "Aggravated Assault",
+    "124": "Simple Assault",
+    "106": "Murder & Non-negligent Manslaughter",
+    "118": "Rape",
+    "121": "Robbery",
+    "61": "Burglary / B&E",
+    "102": "Larceny / Theft",
+    "105": "Motor Vehicle Theft",
+    "71": "Drug / Narcotic Offenses",
+    "68": "Destruction / Vandalism",
+}
+
+
 # 50 states + DC, plus three additional CDE reporting areas the API's `states`
 # enum also accepts: FS (federal agencies), GM (Guam), VI (U.S. Virgin Islands).
 # 54 total. The API uses USPS-style two-letter abbreviations.

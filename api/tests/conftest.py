@@ -111,6 +111,15 @@ def client(tmp_path) -> Iterator[TestClient]:
             (2022,'force','Baton', 9.0),
             (2022,'force','Canine', 4.0),
             (2022,'report','Death of a person due to law enforcement use of force', 31.0);
+
+        create table fct_nibrs_estimation(
+            level varchar, area varchar, offense varchar,
+            category varchar, label varchar, value double
+        );
+        insert into fct_nibrs_estimation values
+            ('national','US','55','Victim_Victim race','White', 12345.0),
+            ('national','US','55','Victim_Victim race','Black or African American', 6789.0),
+            ('region','Midwest','55','Victim_Victim race','White', 3000.0);
         """
     )
     con.close()

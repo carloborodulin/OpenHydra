@@ -303,6 +303,28 @@ def uof_questions(
     return _dicts(conn, sql, params)
 
 
+@app.get("/api/nibrs-estimation", response_model=list[ArrestRow])
+def nibrs_estimation(
+    conn: Conn,
+    level: str = "national",
+    area: str = "US",
+    offense: str | None = None,
+    category: str | None = None,
+) -> list[dict[str, Any]]:
+    # Modeled (estimated) NIBRS counts; level is national|region, `offense` a
+    # numeric estimation code, `category` the section_dimension.
+    sql = "select category, label, value from fct_nibrs_estimation where level = ? and area = ?"
+    params: list[Any] = [level, area]
+    if offense:
+        sql += " and offense = ?"
+        params.append(offense)
+    if category:
+        sql += " and category = ?"
+        params.append(category)
+    sql += " order by category, value desc"
+    return _dicts(conn, sql, params)
+
+
 # -- agency drill-down (live, proxied from the CDE API) --------------------
 # The warehouse only holds national + state rows. Per-agency data for ~19,619
 # agencies can't be pre-materialized, so these routes fetch live via cdeclient

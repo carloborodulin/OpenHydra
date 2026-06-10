@@ -49,3 +49,4 @@ uv run mypy
 | `lesdc` | year × chart_type × section × label (national) | `year, chart_type, section, label, value` |
 | `uof_participation` | year (national) | `year, participating_agencies, total_agencies, participation_percent` |
 | `uof_questions` | year × quest × item (national) | `year, category, label, value` |
+| `nibrs_estimation` | level × area × offense × section_dimension × label (national+region) | `level, area, offense, category, label, value` |

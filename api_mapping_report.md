@@ -30,23 +30,25 @@ Below is the complete inventory of these groups and their endpoints, as document
 
 The OpenHydra codebase has varying degrees of implementation for the 11 API groups:
 
+> **Status update:** all 11 endpoint groups are now implemented end-to-end
+> (client → ETL → dbt → API → web). The gap analysis below is retained as the
+> original baseline; the matrix and per-group sections reflect the current state.
+
 ```mermaid
 graph TD
     API[FBI CDE API - 11 Groups] --> Implemented[Implemented in OpenHydra]
-    API --> Omitted[Omitted / Unsurfaced]
 
     Implemented --> Group1[Agency]
     Implemented --> Group2[Arrest]
     Implemented --> Group3[Summarized]
     Implemented --> Group4[Law Enforcement Employees /pe]
-
-    Omitted --> Group5[Hate Crime]
-    Omitted --> Group6[Expanded Homicide / SHR]
-    Omitted --> Group7[Expanded Property / Supplemental]
-    Omitted --> Group8[Use Of Force]
-    Omitted --> Group9[LESDC]
-    Omitted --> Group10[NIBRS Incidents]
-    Omitted --> Group11[NIBRS Estimations]
+    Implemented --> Group5[Hate Crime]
+    Implemented --> Group6[Expanded Homicide / SHR]
+    Implemented --> Group7[Expanded Property / Supplemental]
+    Implemented --> Group8[Use Of Force]
+    Implemented --> Group9[LESDC]
+    Implemented --> Group10[NIBRS Incidents]
+    Implemented --> Group11[NIBRS Estimations]
 ```
 
 ### Gap Analysis Across Codebase Layers
@@ -63,7 +65,7 @@ graph TD
 | **Use Of Force** | ✅ Yes | ✅ Yes (`fct_uof_participation`, `fct_uof_questions`) | ✅ Yes (`/api/uof/*`, national) | ✅ Yes (Use of Force view) |
 | **LESDC** | ✅ Yes | ✅ Yes (`fct_lesdc`) | ✅ Yes (`/api/lesdc`, national only) | ✅ Yes (LESDC view) |
 | **NIBRS Incidents** | ✅ Yes | ✅ Yes (`fct_nibrs`, curated offenses) | ✅ Yes (`/api/nibrs` + live agency proxy) | ✅ Yes (NIBRS view) |
-| **NIBRS Estimations**| ❌ No | ❌ No | ❌ No | ❌ No |
+| **NIBRS Estimations**| ✅ Yes | ✅ Yes (`fct_nibrs_estimation`, national+region) | ✅ Yes (`/api/nibrs-estimation`) | ✅ Yes (NIBRS Est. view) |
 
 ---
 

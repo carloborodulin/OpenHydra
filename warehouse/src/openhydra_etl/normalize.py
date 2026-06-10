@@ -16,6 +16,7 @@ from cdeclient.models import (
     ChartResponse,
     HateCrimeResponse,
     LesdcResponse,
+    NibrsEstimationResponse,
     NibrsResponse,
     PropertyResponse,
     ShrResponse,
@@ -102,6 +103,15 @@ LESDC_SCHEMA: dict[str, pl.DataType] = {
     "section": pl.String(),  # S (suicide) | AS (attempted suicide)
     "label": pl.String(),
     "value": pl.Float64(),
+}
+
+NIBRS_ESTIMATION_SCHEMA: dict[str, pl.DataType] = {
+    "level": pl.String(),  # national | region
+    "area": pl.String(),  # US | Midwest | Northeast | South | West
+    "offense": pl.String(),  # numeric NIBRS-estimation offense code
+    "category": pl.String(),  # section_dimension (e.g. Victim_Victim race)
+    "label": pl.String(),
+    "value": pl.Float64(),  # the estimate (confidence bounds dropped)
 }
 
 UOF_PARTICIPATION_SCHEMA: dict[str, pl.DataType] = {
@@ -309,6 +319,16 @@ def lesdc_to_frame(resp: LesdcResponse, *, year: int, chart_type: str) -> pl.Dat
                 }
             )
     return pl.DataFrame(rows, schema=LESDC_SCHEMA)
+
+
+def nibrs_estimation_to_frame(
+    resp: NibrsEstimationResponse, *, level: str, area: str, offense: str
+) -> pl.DataFrame:
+    """Flatten NIBRS-estimation section/dimension estimates to tidy long rows,
+    keyed on the estimation offense code (confidence bounds dropped)."""
+    return _breakdowns_to_frame(
+        resp, NIBRS_ESTIMATION_SCHEMA, level=level, area=area, extra={"offense": offense}
+    )
 
 
 def uof_participation_to_frame(records: list[UofParticipation]) -> pl.DataFrame:
