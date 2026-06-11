@@ -7,6 +7,7 @@
 [![dbt](https://img.shields.io/badge/dbt-FF694B?logo=dbt&logoColor=white)](https://www.getdbt.com/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-FFF000?logo=duckdb&logoColor=black)](https://duckdb.org/)
 [![Deployed on Railway](https://img.shields.io/badge/Railway-000000?logo=railway&logoColor=white)](https://openhydra-production.up.railway.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22d3ee.svg)](LICENSE)
 
 OpenHydra is an end-to-end analytical data platform designed to process, analyze, and visualize crime statistics in the United States. The system consumes data from the Federal Bureau of Investigation (FBI) Crime Data Explorer (CDE) API, representing Uniform Crime Reporting (UCR) public statistics.
 
@@ -224,3 +225,7 @@ The repository is pre-configured for automated deployment on Railway using [rail
 railway up
 ```
 Ensure that the `FBI_CDE_API_KEY` environment variable is defined within the Railway dashboard settings.
+
+## License
+
+Released under the [MIT License](LICENSE). The data itself originates from the FBI Crime Data Explorer (CDE) and is public domain U.S. Government work; this project is an independent, non-affiliated visualization of it.
