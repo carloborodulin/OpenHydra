@@ -29,8 +29,8 @@ def _split(csv: str) -> list[str]:
 
 @app.command()
 def pull(
-    from_: Annotated[str, typer.Option("--from", help="Start month, MM-YYYY.")] = "01-2020",
-    to: Annotated[str, typer.Option("--to", help="End month, MM-YYYY.")] = "12-2022",
+    from_: Annotated[str, typer.Option("--from", help="Start month, MM-YYYY.")] = "01-2015",
+    to: Annotated[str, typer.Option("--to", help="End month, MM-YYYY.")] = "12-2024",
     states: Annotated[
         str, typer.Option("--states", help="Comma states, or 'all'. Blank = national only.")
     ] = "",

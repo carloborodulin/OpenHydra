@@ -36,8 +36,8 @@ Cde = Annotated[CdeClient, Depends(get_cde_client)]
 
 # Window for live agency calls (mirrors the ETL defaults). Most endpoints take
 # MM-YYYY; /pe takes 4-digit years.
-LIVE_FROM, LIVE_TO = "01-2020", "12-2022"
-LIVE_FROM_YEAR, LIVE_TO_YEAR = "2020", "2022"
+LIVE_FROM, LIVE_TO = "01-2015", "12-2024"
+LIVE_FROM_YEAR, LIVE_TO_YEAR = "2015", "2024"
 
 # Live agency calls degrade to empty rows on these: gateway/network hiccups
 # (CdeError) or an unexpected/sparse response shape (ValidationError).
