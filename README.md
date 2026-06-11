@@ -8,156 +8,219 @@
 [![DuckDB](https://img.shields.io/badge/DuckDB-FFF000?logo=duckdb&logoColor=black)](https://duckdb.org/)
 [![Deployed on Railway](https://img.shields.io/badge/Railway-000000?logo=railway&logoColor=white)](https://openhydra-production.up.railway.app)
 
-An end-to-end crime-data analytics platform built on the **FBI Crime Data
-Explorer (CDE) API** — the FBI's public Uniform Crime Reporting (UCR) data for
-the United States. Ingest → store → analyze → serve → visualize.
+OpenHydra is an end-to-end analytical data platform designed to process, analyze, and visualize crime statistics in the United States. The system consumes data from the Federal Bureau of Investigation (FBI) Crime Data Explorer (CDE) API, representing Uniform Crime Reporting (UCR) public statistics.
 
-- **▶ Live demo:** https://openhydra-production.up.railway.app
-- API docs: https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi
-- Get a key: https://api.data.gov/signup/
+* **Live Platform Demonstration:** https://openhydra-production.up.railway.app
+* **Upstream CDE API Documentation:** https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi
+* **CDE API Access Registration:** https://api.data.gov/signup/
 
-![OpenHydra command-center dashboard](docs/dashboard.png)
+![OpenHydra Command-Center Dashboard](docs/dashboard.png)
 
-> **Status: complete & deployed.** All six phases shipped — the `cdeclient`
-> package, the DuckDB/dbt warehouse, analysis notebooks, the FastAPI service, the
-> React/MapLibre command-center dashboard, and a live deployment on Railway
-> (single image: FastAPI serves the API + the built dashboard). The dashboard
-> is filterable by **region** (national + all 50 states + DC) across every
-> panel — offense trends, clearance, **arrests-by-race per offense**, **police
-> employment**, and a geocoded agency map. **Clicking any agency on the map
-> drills into that department** — its offense, clearance, arrests, and
-> employment panels are fetched **live** from the CDE API (cached) since
-> per-agency data for ~19,600 agencies isn't pre-materialized. The API surface
-> below is verified against the live API.
+### System Implementation Status
 
-## Architecture
+The platform has been fully developed, containerized, and deployed. The system architecture coordinates the following components:
+* **Structured API Client ([cdeclient/](file:///Users/carlo/Documents/Development/personal/OpenHydra/cdeclient)):** A robust Python library featuring data validation and automated retry logic.
+* **Data Warehousing & Transformation ([warehouse/](file:///Users/carlo/Documents/Development/personal/OpenHydra/warehouse)):** An analytics database powered by DuckDB, with schema models transformed via dbt.
+* **Analytical Research ([analysis/](file:///Users/carlo/Documents/Development/personal/OpenHydra/analysis)):** Core notebooks summarizing key trends such as demographics, clearance ratios, and staffing metrics.
+* **Backend Services ([api/](file:///Users/carlo/Documents/Development/personal/OpenHydra/api)):** A FastAPI microservice that exposes endpoints for queries and proxies real-time requests.
+* **User Dashboard ([web/](file:///Users/carlo/Documents/Development/personal/OpenHydra/web)):** A responsive React web application utilizing MapLibre GL for geographic agency mapping and Recharts for trend analysis.
+
+The UI supports filtering across national, state-level (all 50 states and Washington D.C.), and individual agency granularities. Selected agencies dynamically retrieve cached, real-time data from the upstream CDE API, avoiding the need to pre-materialize information for approximately 19,600 distinct law enforcement agencies.
+
+## System Architecture
 
 ```
-web/        React + Vite + TS dashboard (MapLibre GL map, Recharts)   ← frontend / dataviz
-   │ REST/JSON
-api/        FastAPI service over the warehouse (no API key in browser) ← backend
-   │ reads
-warehouse/  DuckDB + Parquet, transformed with dbt                     ← data engineering
-analysis/   COVID-spike / clearance-rate / demographics notebooks      ← data science
-   │ ETL writes
-cdeclient/  typed Python client + CLI (retries, pydantic models)       ← SWE / packaging
-   │ HTTP
+web/        React + Vite + TS Dashboard (MapLibre GL Map, Recharts)     (Frontend/Visualization)
+   │ REST/JSON Requests
+api/        FastAPI Backend Service over the Warehouse                   (Application Server)
+   │ Analytical Queries
+warehouse/  DuckDB Database with dbt Transformations                    (Data Engineering)
+analysis/   Jupyter Notebooks (Polars + Plotly)                         (Data Analysis/Research)
+   │ Ingestion (ETL) Data Pipelines
+cdeclient/  Typed Python Client & Command-Line Tool                     (Client Layer)
+   │ HTTP Operations
 FBI Crime Data Explorer API
 ```
 
-## Tech stack
+## Technology Stack
 
-| Layer | Choice |
-|---|---|
-| Tooling | **uv** (env + packaging), **ruff** (lint/format), **mypy**, **pytest** |
-| Client (`cdeclient`) | **httpx** · **pydantic v2** · **tenacity** (retries) · **Typer** (CLI) |
-| Warehouse | **DuckDB** + **Parquet**, transforms via **dbt** (`dbt-duckdb`) |
-| Analysis | **Jupyter** + **Polars** + **Plotly** |
-| Backend | **FastAPI** + **uvicorn** |
-| Frontend | **React** + **Vite** + **TypeScript**, TanStack Query, Tailwind, **Recharts**, **MapLibre GL** |
-| Infra | **Docker Compose**, **GitHub Actions** CI, deploy on **Railway** |
+| Architecture Layer | Core Tools & Frameworks | Description |
+| :--- | :--- | :--- |
+| **Development Tooling** | `uv`, `ruff`, `mypy`, `pytest` | Python package and environment management, code quality tools, static typing, and test execution. |
+| **Client Library (`cdeclient`)** | `httpx`, `pydantic` (v2), `tenacity`, `Typer` | Resilient asynchronous HTTP requests, data validation, execution retry strategy, and CLI functionality. |
+| **Data Warehouse** | `DuckDB`, `dbt` (`dbt-duckdb`) | High-performance analytical query processing, source-to-mart transformations, and schema testing. |
+| **Data Analysis** | `Jupyter`, `Polars`, `Plotly` | Performant dataframe parsing, narrative notebooks, and data plotting. |
+| **Backend API** | `FastAPI`, `Uvicorn` | Asynchronous server gateway serving structured JSON endpoints and auto-generated OpenAPI documentation. |
+| **Frontend Web** | `React`, `Vite`, `TypeScript`, `TanStack Query`, `Tailwind CSS`, `Recharts`, `MapLibre GL` | Interactive dashboards, state caching, mapping overlays, and dynamic charting components. |
+| **Infrastructure & CI** | `Docker Compose`, `GitHub Actions`, `Railway` | Continuous integration workflows, orchestration configurations, and cloud deployment pipelines. |
 
-Python is pinned to **3.12** via uv (the system Python is 3.14 — kept off the
-critical path for wheel stability).
+The environment leverages Python 3.12 (managed via `uv`) to ensure library compatibility and dependency stability.
 
-## Roadmap
+## Repository Structure
 
-- [x] **Phase 0** — API key, git, `explore.sh`, samples, verified API reference
-- [x] **Phase 1** — `cdeclient`: typed client + CLI, retries, 20 tests, strict mypy, CI
-- [x] **Phase 2** — ETL → DuckDB/Parquet warehouse (dbt models, 13 tests)
-- [x] **Phase 3** — analysis notebooks + narrative (Polars + Plotly over the marts)
-- [x] **Phase 4** — FastAPI service over the marts (7 tests, CORS, OpenAPI docs)
-- [x] **Phase 5** — React/Vite/TS command-center dashboard (Recharts + MapLibre GL)
-- [x] **Phase 6** — deployed to Railway (Dockerfile, live demo, screenshot, green CI)
+The code is divided into the following directories and files:
 
-## Setup
+* [cdeclient/](file:///Users/carlo/Documents/Development/personal/OpenHydra/cdeclient) - Contains the typed Python client and command-line application.
+* [warehouse/](file:///Users/carlo/Documents/Development/personal/OpenHydra/warehouse) - Implements the ETL pipeline (`oh-etl`) and the dbt transformation configuration.
+* [analysis/](file:///Users/carlo/Documents/Development/personal/OpenHydra/analysis) - Stores exploratory Jupyter notebooks, analytics plots, and [FINDINGS.md](file:///Users/carlo/Documents/Development/personal/OpenHydra/analysis/FINDINGS.md).
+* [api/](file:///Users/carlo/Documents/Development/personal/OpenHydra/api) - Contains the FastAPI backend application (`oh-api`).
+* [web/](file:///Users/carlo/Documents/Development/personal/OpenHydra/web) - Contains the React dashboard build configurations, assets, and source code.
+* [docs/](file:///Users/carlo/Documents/Development/personal/OpenHydra/docs) - Contains visual assets and auxiliary document reference materials.
+* [data/samples/](file:///Users/carlo/Documents/Development/personal/OpenHydra/data/samples) - Holds cached response payloads for development tests and offline mocks.
+* [Dockerfile](file:///Users/carlo/Documents/Development/personal/OpenHydra/Dockerfile) - Standard multi-stage container build specification.
+* [.env.example](file:///Users/carlo/Documents/Development/personal/OpenHydra/.env.example) - Template for configuring environment variables.
 
-The API key lives in `.env` (git-ignored). Copy the template and add your key:
+## Roadmap & Implementation Milestones
 
-```bash
-cp .env.example .env   # then edit FBI_CDE_API_KEY
-```
+The following development milestones have been successfully met:
 
-## Pull sample data
+* **Phase 0: Groundwork and Exploration**
+  * Configured access keys, repository standards, and environment templates.
+  * Authored helper scripts for initial API verification and cache generation.
+* **Phase 1: Client and SDK Package (`cdeclient`)**
+  * Shipped typed Python SDK covering the required endpoint families.
+  * Implemented validation schemas, CLI commands, and test suites with robust linting.
+* **Phase 2: Warehousing Pipeline (`warehouse`)**
+  * Engineered a long-format Parquet data pipeline.
+  * Structured analytical data modeling through staging and production marts using dbt and DuckDB.
+* **Phase 3: Exploratory Analytics (`analysis`)**
+  * Generated research notebooks analyzing clearance ratios, crime patterns, and staffing dynamics.
+* **Phase 4: Backend Microservice (`api`)**
+  * Built endpoints exposing structured queries over the DuckDB database.
+  * Documented public API schemas using OpenAPI standards.
+* **Phase 5: Frontend Dashboard Application (`web`)**
+  * Engineered a dark-themed monitoring interface.
+  * Integrated interactive mapping, live proxy drill-down queries, and chart visualizations.
+* **Phase 6: DevOps, Testing, and Deployment**
+  * Deployed a production-ready containerized service on Railway.
+  * Implemented testing pipelines via GitHub Actions.
 
-```bash
-./explore.sh
-```
+## FBI CDE API Reference & Integration Details
 
-Hits one endpoint per family and writes JSON into `data/samples/` (plus
-`data/samples/_manifest.tsv`). Retries through the gateway's intermittent `503`s.
+The system integrates directly with the FBI's Crime Data Explorer (CDE) API.
 
-## API reference (verified)
+* **Base URL:** `https://api.usa.gov/crime/fbi/cde`
+* **Authentication:** Requires appending the API key as a query parameter: `?API_KEY=<key>`.
+* **Output Format:** JSON.
+* **Date Parameters:** Most endpoints accept dates in `MM-YYYY` query formats (e.g., `from=01-2020&to=12-2022`). Police Employment (`/pe`) queries require four-digit years (e.g., `from=2018&to=2022`).
 
-- **Base URL:** `https://api.usa.gov/crime/fbi/cde`
-- **Auth:** append `?API_KEY=<key>` (query param) to every request
-- **Returns:** JSON (read-only)
-- **Date params:** most endpoints use **`MM-YYYY`** (e.g. `from=01-2020&to=12-2022`).
-  The Police Employment (`/pe`) endpoints use **4-digit years** (`from=2018&to=2022`).
+### Supported Endpoint Families
 
-### Working endpoint families
+| Endpoint Family | Path Pattern | Data Characteristics & Integration Notes |
+| :--- | :--- | :--- |
+| **Agencies** | `/agency/byStateAbbr/{ST}` | Retrieves localized metadata for reporting agencies. Used to geolocate and render reporting agency pins on the map panel. |
+| **Summarized** | `/summarized/{Scope}/{Offense}` | Retrieves monthly actual crime volumes and clearance counts. Scope can be set to `national`, `state/{ST}`, or `agency/{ori}`. Note: For state-level queries, the API returns a duplicate national comparison series that OpenHydra filters out to avoid collisions. |
+| **Arrests** | `/arrest/{Scope}/{Offense}?type={totals\|counts}` | Resolves arrest statistics. Selecting `totals` yields breakdowns across demographic categories (race, sex, age groups). Note: Requires numeric offense identifier mappings. |
+| **Police Employment** | `/pe?from=YYYY&to=YYYY` | Resolves officer and civilian staffing counts. Note: Standard variants such as `/pe/national` return null payloads. OpenHydra utilizes path-based lookups (`/pe/{ST}/{ori}`) to resolve actual data. |
 
-| Family | Example path | Data shape |
-|---|---|---|
-| **Agencies** | `/agency/byStateAbbr/{ST}` | Object keyed by county → array of agencies. Each: `ori`, `agency_name`, `agency_type_name`, `latitude`, `longitude`, `is_nibrs`, `nibrs_start_date`, `counties`, `state_abbr`. (537 in NY; **19,619 across all 50 states + DC**.) **Geocoded → mapping.** |
-| **Summarized** | `/summarized/{national\|state/{ST}\|agency/{ori}}/{offense}` | `offenses.rates` + `offenses.actuals`, each `{series → {MM-YYYY → value}}` with "…Offenses" and "…Clearances" series; plus `populations` and `cde_properties`. ⚠️ A **state** query also returns a `United States …` **benchmark** series — drop it or it collides with the state's own series. **Time-series / trends.** |
-| **Arrests** | `/arrest/{national\|state/{ST}}/{offense}?type={totals\|counts}` | `type=totals` → demographic breakdowns (`Arrestee Sex`, `Arrestee Race`, `Male/Female Arrests By Age`, `Offense Name/Category/Breakdown`). ⚠️ `offense` is a **numeric code** (e.g. `11`=homicide, `70`=larceny), not the summarized slug — ingested per-offense via a slug→code map. `type=counts` → monthly time series. **Demographics + trends.** |
-| **Police Employment** | `/pe?from=YYYY&to=YYYY` · `/pe/{ST}` · `/pe/{ST}/{ori}` | `rates` (LE employees per 1,000) + `actuals` (Male/Female Officers/Civilians) by year. ⚠️ Use these **canonical** paths — the `/pe/national` and `/pe/state/{ST}` variants answer `200` but return **all-`null`** values. Agency-level / older cells can still be sparse. |
+### Real-Time Proxy Requests
 
-### Agency drill-down (served live)
+While static aggregated data sets reside directly within the warehouse, per-agency detail queries are executed dynamically at request time by the backend proxy routes. These live requests are optimized using an in-memory TTL caching mechanism:
 
-The warehouse holds national + state rows only. Clicking an agency on the map
-hits three backend routes that proxy the CDE API **live** (via `cdeclient`) and
-normalize the responses to the same row shapes the warehouse routes return, with
-a small in-process TTL cache in front:
-
-| Backend route | Upstream CDE path |
-|---|---|
+| Application Backend Route | Downstream Target FBI CDE Path |
+| :--- | :--- |
 | `/api/agency/{ori}/offenses` | `/summarized/agency/{ori}/{offense}` |
 | `/api/agency/{ori}/arrests` | `/arrest/agency/{ori}/{code}?type=totals` |
 | `/api/agency/{ori}/police-employment` | `/pe/{ST}/{ori}` |
 
-Agency-level data is sparse upstream, so panels degrade gracefully to "No Data".
+In situations where upstream data records are missing or incomplete, endpoints handle empty payloads gracefully by returning standardized null structures to prevent client-side formatting errors.
 
-### Verified offense slugs (summarized)
+### Validated Offense Slug Mappings
 
-`violent-crime`, `homicide`, `rape`, `robbery`, `aggravated-assault`,
-`property-crime`, `burglary`, `larceny`, `motor-vehicle-theft`, `arson`
-(hyphenated, not `snake_case`).
+The following hyphenated offense descriptors are verified as active:
+`violent-crime`, `homicide`, `rape`, `robbery`, `aggravated-assault`, `property-crime`, `burglary`, `larceny`, `motor-vehicle-theft`, `arson`.
 
-### Known gaps / not found on this base
+### Identified API Limitations and Exclusions
 
-- `/estimate/*` and `/nibrs/*` incident-level demographics → `404` on the `cde`
-  base with every path variant tried. They appear to live on the legacy `sapi`
-  base / deprecated Swagger UI (`https://crime-data-api.fr.cloud.gov/swagger-ui/`).
-  Revisit if the project needs national estimates or incident-level NIBRS data.
+* Endpoint routes matching `/estimate/*` and `/nibrs/*` return HTTP 404 responses from the current CDE endpoint. This incident-level data resides on legacy or deprecated servers (such as `sapi`). These are not currently supported by this project.
 
-## Deploy
+## Installation, Configuration, and Setup
 
-A single container (`Dockerfile`) serves everything: one stage builds the web
-app, another builds the DuckDB marts from `deploy/seed/` via dbt, and the FastAPI
-runtime serves the API **and** the static dashboard (same origin — no API key or
-CORS in the browser). Live on Railway:
+This section outlines how to set up the OpenHydra platform, extract source data, compile the analytics database, and execute the backend and frontend components locally or in containerized environments.
 
+### 1. Environment Configuration
+
+Register for an API key at [api.data.gov](https://api.data.gov/signup/).
+
+Configure your local environment by duplicating the template configuration:
 ```bash
-railway up        # builds the Dockerfile and deploys; FastAPI binds $PORT
+cp .env.example .env
+```
+Open the newly created [.env](file:///Users/carlo/Documents/Development/personal/OpenHydra/.env) file and add your key:
+```env
+FBI_CDE_API_KEY=your_api_key_here
 ```
 
-> **Runtime env:** set **`FBI_CDE_API_KEY`** in the Railway environment. The
-> warehouse-backed panels need no key, but the live **agency drill-down** routes
-> (`/api/agency/{ori}/*`) call the CDE API at request time. The browser still
-> never sees the key — it calls our API, which calls the FBI.
+### 2. Verify Client Connectivity
 
-## Layout
+You can query sample endpoints to confirm API key authorization and examine raw JSON structures:
+```bash
+./explore.sh
+```
+This utility script stores responses in [data/samples/](file:///Users/carlo/Documents/Development/personal/OpenHydra/data/samples) alongside a manifest index.
 
+### 3. Build the Data Warehouse
+
+The database relies on local Parquet files extracted from the FBI API, which are then compiled into analytical tables using dbt and DuckDB.
+
+First, navigate to the warehouse directory and install dependencies:
+```bash
+cd warehouse
+uv sync --group dbt
 ```
-cdeclient/    typed Python CDE API client + CLI            (Phase 1)
-warehouse/    ETL (oh-etl) + dbt → DuckDB/Parquet marts     (Phase 2)
-analysis/     Polars + Plotly notebooks + FINDINGS.md       (Phase 3)
-api/          FastAPI service over the marts (oh-api)       (Phase 4)
-web/          React + Vite + MapLibre command-center UI     (Phase 5)
-Dockerfile    one image: web build → dbt marts → API+static (Phase 6)
-docs/         verified API reference + dashboard screenshot
-data/samples/ saved sample API responses (fixtures)
-.env          API key + base URL (git-ignored)
+
+Execute the extraction command to pull target state data. You can run a selective pull for testing:
+```bash
+# Pulls data for New York state across selected crime categories
+uv run oh-etl pull --states NY --offenses homicide,violent-crime --from 01-2020 --to 12-2022
 ```
+Or initiate a full national dataset ingestion:
+```bash
+# Ingests datasets for all states and crime categories
+uv run oh-etl pull --states all
+```
+
+Once raw Parquet data is populated, run dbt migrations to build the DuckDB marts:
+```bash
+cd dbt
+uv run --group dbt dbt build --profiles-dir .
+```
+This command processes raw sources, runs integrity checks, and writes the compiled database file to [warehouse/openhydra.duckdb](file:///Users/carlo/Documents/Development/personal/OpenHydra/warehouse/openhydra.duckdb).
+
+### 4. Running the Application Locally
+
+To test the complete stack locally, start both the FastAPI backend server and the React frontend server.
+
+#### Start the FastAPI Backend:
+From the repository root directory, navigate to the API layer and start the server:
+```bash
+cd api
+uv sync
+uv run oh-api
+```
+The API documentation is accessible at `http://127.0.0.1:8000/docs`.
+
+#### Start the React Frontend:
+In a separate terminal session, navigate to the web directory and start the Vite development server:
+```bash
+cd web
+npm install
+npm run dev
+```
+The user dashboard will run at `http://localhost:5173`. The development server is pre-configured to proxy `/api` requests to the local backend port to prevent CORS issues.
+
+### 5. Production Container Deployment
+
+You can package and execute the entire project inside a single multi-stage Docker container. The image compiles frontend assets, populates the DuckDB warehouse, and runs the FastAPI backend.
+
+To build and run the container locally:
+```bash
+docker compose up --build
+```
+
+#### Deploying to Railway:
+The repository is pre-configured for automated deployment on Railway using [railway.json](file:///Users/carlo/Documents/Development/personal/OpenHydra/railway.json):
+```bash
+railway up
+```
+Ensure that the `FBI_CDE_API_KEY` environment variable is defined within the Railway dashboard settings.
