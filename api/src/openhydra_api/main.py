@@ -220,8 +220,7 @@ def population(
     """U.S. Census population by year — the denominator for per-capita metrics."""
     return _dicts(
         conn,
-        "select year, population from dim_population "
-        "where level = ? and area = ? order by year",
+        "select year, population from dim_population where level = ? and area = ? order by year",
         [level, area],
     )
 

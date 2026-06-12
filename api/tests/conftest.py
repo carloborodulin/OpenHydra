@@ -24,9 +24,12 @@ def client(tmp_path) -> Iterator[TestClient]:
             ttm_rate double, yoy_delta double, index_2019 double
         );
         insert into fct_offenses_monthly values
-            ('national','US','homicide', date '2020-01-01', 0.5, 1300, 0.26, 670, 0.515, 0.48, 0.10, 120.0),
-            ('national','US','homicide', date '2020-02-01', 0.4, 1100, 0.22, 560, 0.509, 0.46, 0.08, 110.0),
-            ('state','NY','homicide',    date '2020-01-01', 0.3,  80,  0.20,  40, 0.500, 0.30, NULL, 95.0);
+            ('national','US','homicide', date '2020-01-01',
+                0.5, 1300, 0.26, 670, 0.515, 0.48, 0.10, 120.0),
+            ('national','US','homicide', date '2020-02-01',
+                0.4, 1100, 0.22, 560, 0.509, 0.46, 0.08, 110.0),
+            ('state','NY','homicide', date '2020-01-01',
+                0.3, 80, 0.20, 40, 0.500, 0.30, NULL, 95.0);
 
         create table dim_agencies(
             ori varchar, agency_name varchar, agency_type varchar, county varchar,
