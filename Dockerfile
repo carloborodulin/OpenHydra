@@ -15,6 +15,8 @@ FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS data
 WORKDIR /app
 COPY warehouse/ ./warehouse/
 COPY deploy/seed/ ./data/raw/
+# Committed reference seeds read directly by dbt (e.g. Census population CSV).
+COPY data/seeds/ ./data/seeds/
 WORKDIR /app/warehouse/dbt
 # dbt reads ../../data/raw/*.parquet (relative to CWD) and writes ../openhydra.duckdb
 RUN uvx --from "dbt-duckdb>=1.8" dbt build --profiles-dir .
