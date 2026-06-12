@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { type ReactNode, useMemo } from "react";
 import { Empty } from "../components/Empty";
 import { Panel } from "../components/Panel";
 import { ArrestsChart } from "../components/charts/ArrestsChart";
@@ -26,20 +26,27 @@ export function BreakdownView({
   region,
   query,
   dimensions,
+  extra,
+  transformRows,
 }: {
   region: string;
   query: UseQueryResult<ArrestRow[]>;
   dimensions?: Dimension[];
+  // Optional extra panel(s) appended to the grid (e.g. a derived ratio panel).
+  extra?: ReactNode;
+  // Optional transform applied to the rows before grouping (e.g. per-capita scaling).
+  transformRows?: (rows: ArrestRow[]) => ArrestRow[];
 }) {
   const byCategory = useMemo(() => {
+    const src = transformRows ? transformRows(query.data ?? []) : (query.data ?? []);
     const m = new Map<string, ArrestRow[]>();
-    for (const r of query.data ?? []) {
+    for (const r of src) {
       const g = m.get(r.category) ?? [];
       g.push(r);
       m.set(r.category, g);
     }
     return m;
-  }, [query.data]);
+  }, [query.data, transformRows]);
 
   const dims = useMemo<Dimension[]>(
     () => dimensions ?? [...byCategory.keys()].sort().map((k) => ({ key: k, label: prettify(k) })),
@@ -71,6 +78,7 @@ export function BreakdownView({
           </Panel>
         );
       })}
+      {extra}
     </main>
   );
 }

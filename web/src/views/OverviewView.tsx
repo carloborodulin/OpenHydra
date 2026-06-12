@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { DeltaIndicator } from "../components/DeltaIndicator";
 import { Empty } from "../components/Empty";
 import { MapPanel } from "../components/MapPanel";
 import { Panel } from "../components/Panel";
@@ -7,7 +8,7 @@ import { StatTile } from "../components/StatTile";
 import { ArrestsChart } from "../components/charts/ArrestsChart";
 import { ClearanceChart } from "../components/charts/ClearanceChart";
 import { PoliceEmploymentChart } from "../components/charts/PoliceEmploymentChart";
-import { TrendChart } from "../components/charts/TrendChart";
+import { TrendChart, type TrendMode } from "../components/charts/TrendChart";
 import type { ArrestOffense } from "../lib/api";
 import { fmtNum, fmtPct, fmtRate, lastNonNull, monthLabel, titleCase } from "../lib/format";
 import {
@@ -17,10 +18,17 @@ import {
   useAgencyPoliceEmployment,
   useArrests,
   useMeta,
+  useOffenseBenchmark,
   useOffenseMonthly,
   usePoliceEmployment,
 } from "../lib/queries";
 import { regionName } from "../lib/states";
+
+const TREND_TITLES: Record<TrendMode, string> = {
+  rate: "Offense Rate",
+  index: "Indexed to 2019",
+  relative: "Relative to National",
+};
 
 function Legend() {
   return (
@@ -56,6 +64,9 @@ export function OverviewView({ offense, region }: { offense: string; region: str
   // main offense selector; otherwise an arrest-specific offense (48-code taxonomy).
   const [arrestOffense, setArrestOffense] = useState("");
   const [arrestCategory, setArrestCategory] = useState("Arrestee Race");
+  // Trend panel view: raw monthly rate, 2019-indexed (de-seasonalized), or relative
+  // to the national average. "relative" only applies when a state is selected.
+  const [view, setView] = useState<TrendMode>("rate");
 
   const isNational = region === "US";
   const level = isNational ? "national" : "state";
@@ -68,6 +79,10 @@ export function OverviewView({ offense, region }: { offense: string; region: str
   // Region-level (warehouse) and agency-level (live) sources; agency hooks stay
   // disabled until an agency is selected. Display whichever is active.
   const monthlyRegion = useOffenseMonthly(offense, level, area);
+  // Benchmark vs national — only for a selected state, and only when not drilled
+  // into a single (live) agency.
+  const canBenchmark = !isNational && !selectedAgency;
+  const benchmark = useOffenseBenchmark(offense, level, area, canBenchmark);
   const arrestsRegion = useArrests(arrestCategory, arrestOff, level, area);
   const peRegion = usePoliceEmployment(level, area);
   const monthlyAgency = useAgencyOffenseMonthly(ori, offense);
@@ -82,6 +97,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
 
   const rows = useMemo(() => monthly.data ?? [], [monthly.data]);
   const latestRate = lastNonNull(rows, "offenses_rate");
+  const latestYoy = lastNonNull(rows, "yoy_delta");
   const latestClr = lastNonNull(rows, "clearance_ratio");
   const peak = useMemo(
     () =>
@@ -94,6 +110,16 @@ export function OverviewView({ offense, region }: { offense: string; region: str
       ),
     [rows],
   );
+
+  // "relative" only applies to a state benchmark; agency drill-down has no
+  // warehouse-derived series, so force the raw rate there.
+  const effView: TrendMode = selectedAgency
+    ? "rate"
+    : !canBenchmark && view === "relative"
+      ? "rate"
+      : view;
+  const benchRows = canBenchmark ? (benchmark.data ?? []) : [];
+  const latestRel = lastNonNull(benchRows, "relative_index");
 
   const ag = agencies.data ?? [];
   const nibrs = ag.filter((a) => a.is_nibrs).length;
@@ -120,7 +146,14 @@ export function OverviewView({ offense, region }: { offense: string; region: str
         <StatTile
           label="Latest Rate /100k"
           value={fmtRate(latestRate?.value)}
-          sub={latestRate ? `${titleCase(offense)} · ${monthLabel(latestRate.period)}` : "—"}
+          delta={<DeltaIndicator value={latestYoy?.value} />}
+          sub={
+            latestRate
+              ? latestRel
+                ? `${monthLabel(latestRate.period)} · ${(latestRel.value / 100).toFixed(1)}× US`
+                : `${titleCase(offense)} · ${monthLabel(latestRate.period)}`
+              : "—"
+          }
         />
       </div>
       <div className="col-span-3">
@@ -149,10 +182,29 @@ export function OverviewView({ offense, region }: { offense: string; region: str
       </div>
 
       <Panel
-        title={`Offense Rate · ${titleCase(offense)} · ${focusLabel}`}
+        title={`${TREND_TITLES[effView]} · ${titleCase(offense)} · ${focusLabel}`}
+        right={
+          !selectedAgency && rows.length ? (
+            <Select
+              value={effView}
+              onChange={(v) => setView(v as TrendMode)}
+              options={[
+                { value: "rate", label: "Rate" },
+                { value: "index", label: "Index ’19" },
+                ...(canBenchmark ? [{ value: "relative", label: "vs National" }] : []),
+              ]}
+              title="Trend view"
+              className="w-32"
+            />
+          ) : undefined
+        }
         className="col-span-8 col-start-1 row-start-2"
       >
-        {rows.length ? <TrendChart data={rows} /> : <Empty state={monthly} />}
+        {rows.length ? (
+          <TrendChart data={rows} mode={effView} benchmark={benchRows.length ? benchRows : undefined} />
+        ) : (
+          <Empty state={monthly} />
+        )}
       </Panel>
 
       <Panel

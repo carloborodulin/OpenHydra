@@ -31,11 +31,36 @@ def test_offenses_monthly(client: TestClient) -> None:
     assert len(rows) == 2  # two national homicide months
     assert rows[0]["period"] == "2020-01-01"
     assert rows[0]["clearance_ratio"] == 0.515
+    # Trailing-12-month trend metrics are surfaced alongside the base series.
+    assert rows[0]["yoy_delta"] == 0.10
+    assert rows[0]["index_2019"] == 120.0
+    assert rows[0]["ttm_rate"] == 0.48
 
 
 def test_offenses_monthly_404(client: TestClient) -> None:
     r = client.get("/api/offenses/monthly", params={"offense": "does-not-exist"})
     assert r.status_code == 404
+
+
+def test_population(client: TestClient) -> None:
+    r = client.get("/api/population", params={"level": "national", "area": "US"})
+    assert r.status_code == 200
+    rows = r.json()
+    assert rows == [{"year": 2020, "population": 331577720}]
+
+
+def test_offenses_benchmark(client: TestClient) -> None:
+    # NY homicide rate 0.3 vs national 0.5 for 2020-01 -> relative index 60.
+    r = client.get(
+        "/api/offenses/benchmark",
+        params={"offense": "homicide", "level": "state", "area": "NY"},
+    )
+    assert r.status_code == 200
+    rows = r.json()
+    assert len(rows) == 1
+    assert rows[0]["area_rate"] == 0.3
+    assert rows[0]["national_rate"] == 0.5
+    assert rows[0]["relative_index"] == 60.0
 
 
 def test_agencies_filtered(client: TestClient) -> None:

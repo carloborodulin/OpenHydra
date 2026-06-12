@@ -10,6 +10,20 @@ export const useOffenseMonthly = (offense: string, level = "national", area = "U
     enabled: Boolean(offense),
   });
 
+// Area-vs-national benchmark for an offense. Only meaningful for a state/agency area;
+// disabled (and pointless) at the national level. `enabled` guards both.
+export const useOffenseBenchmark = (
+  offense: string,
+  level: string,
+  area: string,
+  enabled = true,
+) =>
+  useQuery({
+    queryKey: ["offense-benchmark", offense, level, area],
+    queryFn: () => api.offensesBenchmark(offense, level, area),
+    enabled: enabled && Boolean(offense),
+  });
+
 export const useArrests = (
   category: string,
   offense?: string,
@@ -128,6 +142,12 @@ export const usePoliceEmployment = (level = "national", area = "US") =>
   useQuery({
     queryKey: ["police-employment", level, area],
     queryFn: () => api.policeEmployment(level, area),
+  });
+
+export const usePopulation = (level = "national", area = "US") =>
+  useQuery({
+    queryKey: ["population", level, area],
+    queryFn: () => api.population(level, area),
   });
 
 // Agency drill-down hooks — disabled until an agency (ori) is selected.

@@ -29,6 +29,17 @@ class OffenseMonthly(BaseModel):
     clearances_rate: float | None = None
     clearances_actual: float | None = None
     clearance_ratio: float | None = None
+    # Trailing-12-month trend metrics (warehouse-derived; null for live agency rows).
+    ttm_rate: float | None = None
+    yoy_delta: float | None = None  # YoY change in the trailing-12-month rate
+    index_2019: float | None = None  # offense rate indexed to its 2019 mean (=100)
+
+
+class BenchmarkRow(BaseModel):
+    period: date
+    area_rate: float | None = None  # selected area's offense rate /100k
+    national_rate: float | None = None  # national rate for the same offense/month
+    relative_index: float | None = None  # area_rate / national_rate * 100 (100 = national)
 
 
 class AgencyFeature(BaseModel):
@@ -54,6 +65,11 @@ class PoliceEmploymentRow(BaseModel):
     metric: str
     year: int
     value: float | None = None
+
+
+class PopulationRow(BaseModel):
+    year: int
+    population: int
 
 
 class LesdcRow(BaseModel):

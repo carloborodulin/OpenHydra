@@ -20,3 +20,12 @@ sources:
       - name: uof_participation
       - name: uof_questions
       - name: nibrs_estimation
+
+  - name: seeds
+    description: Committed, version-controlled reference CSVs under data/seeds/.
+    meta:
+      external_location: "read_csv_auto('../../data/seeds/{name}.csv')"
+    tables:
+      # U.S. Census population estimates (state + national, 2015-2024). See
+      # warehouse/scripts/fetch_population.py for provenance.
+      - name: population

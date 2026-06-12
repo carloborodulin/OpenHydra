@@ -24,6 +24,24 @@ models:
           - not_null
           - unique
 
+  - name: dim_population
+    description: U.S. Census population by level/area/year — denominator for per-capita metrics.
+    columns:
+      - name: level
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["national", "state"]
+      - name: area
+        tests:
+          - not_null
+      - name: year
+        tests:
+          - not_null
+      - name: population
+        tests:
+          - not_null
+
   - name: fct_arrests
     description: Arrest demographic breakdowns, per offense.
     columns:

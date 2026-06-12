@@ -20,12 +20,13 @@ def client(tmp_path) -> Iterator[TestClient]:
         create table fct_offenses_monthly(
             level varchar, area varchar, offense varchar, period date,
             offenses_rate double, offenses_actual double,
-            clearances_rate double, clearances_actual double, clearance_ratio double
+            clearances_rate double, clearances_actual double, clearance_ratio double,
+            ttm_rate double, yoy_delta double, index_2019 double
         );
         insert into fct_offenses_monthly values
-            ('national','US','homicide', date '2020-01-01', 0.5, 1300, 0.26, 670, 0.515),
-            ('national','US','homicide', date '2020-02-01', 0.4, 1100, 0.22, 560, 0.509),
-            ('state','NY','homicide',    date '2020-01-01', 0.3,  80,  0.20,  40, 0.500);
+            ('national','US','homicide', date '2020-01-01', 0.5, 1300, 0.26, 670, 0.515, 0.48, 0.10, 120.0),
+            ('national','US','homicide', date '2020-02-01', 0.4, 1100, 0.22, 560, 0.509, 0.46, 0.08, 110.0),
+            ('state','NY','homicide',    date '2020-01-01', 0.3,  80,  0.20,  40, 0.500, 0.30, NULL, 95.0);
 
         create table dim_agencies(
             ori varchar, agency_name varchar, agency_type varchar, county varchar,
@@ -51,6 +52,13 @@ def client(tmp_path) -> Iterator[TestClient]:
         );
         insert into fct_police_employment values
             ('national','US','actual','Male Officers', 2020, 5000.0);
+
+        create table dim_population(
+            level varchar, area varchar, year integer, population bigint
+        );
+        insert into dim_population values
+            ('national','US', 2020, 331577720),
+            ('state','NY', 2020, 20201230);
 
         create table fct_hate_crime(
             level varchar, area varchar,

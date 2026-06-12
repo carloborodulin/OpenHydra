@@ -9,6 +9,7 @@ import { LesdcView } from "./views/LesdcView";
 import { NibrsEstimationView } from "./views/NibrsEstimationView";
 import { NibrsView } from "./views/NibrsView";
 import { OverviewView } from "./views/OverviewView";
+import { PerformanceView } from "./views/PerformanceView";
 import { PropertyView } from "./views/PropertyView";
 import { UseOfForceView } from "./views/UseOfForceView";
 
@@ -16,6 +17,7 @@ import { UseOfForceView } from "./views/UseOfForceView";
 // render switch below.
 const VIEWS: NavItem[] = [
   { id: "overview", label: "Overview" },
+  { id: "performance", label: "Performance" },
   { id: "hate-crime", label: "Hate Crime" },
   { id: "homicide", label: "Homicide" },
   { id: "property", label: "Property" },
@@ -53,12 +55,13 @@ export default function App() {
               states={states}
               region={region}
               onRegionChange={setRegion}
-              showOffenses={view === "overview"}
+              showOffenses={view === "overview" || view === "performance"}
             />
           </>
         )}
       </div>
       {view === "overview" && <OverviewView offense={active} region={region} />}
+      {view === "performance" && <PerformanceView offense={active} region={region} />}
       {view === "hate-crime" && <HateCrimeView region={region} />}
       {view === "homicide" && <HomicideView region={region} />}
       {view === "property" && <PropertyView region={region} />}

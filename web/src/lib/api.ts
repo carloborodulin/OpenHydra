@@ -22,12 +22,23 @@ export interface OffenseMonthly {
   clearances_rate: number | null;
   clearances_actual: number | null;
   clearance_ratio: number | null;
+  // Trailing-12-month trend metrics (warehouse-derived; null for live agency rows).
+  ttm_rate: number | null;
+  yoy_delta: number | null; // YoY change in the trailing-12-month rate (fraction)
+  index_2019: number | null; // rate indexed to its 2019 mean (=100)
 }
 
 export interface ArrestRow {
   category: string;
   label: string;
   value: number | null;
+}
+
+export interface BenchmarkRow {
+  period: string;
+  area_rate: number | null;
+  national_rate: number | null;
+  relative_index: number | null; // area_rate / national_rate * 100 (100 = national)
 }
 
 export interface AgencyFeature {
@@ -47,6 +58,11 @@ export interface PoliceEmploymentRow {
   metric: string;
   year: number;
   value: number | null;
+}
+
+export interface PopulationRow {
+  year: number;
+  population: number;
 }
 
 export interface LesdcRow {
@@ -78,11 +94,16 @@ export const api = {
   meta: () => get<Meta>("/api/meta"),
   offensesMonthly: (offense: string, level = "national", area = "US") =>
     get<OffenseMonthly[]>(`/api/offenses/monthly?${qs({ offense, level, area })}`),
+  // Area offense rate alongside the national rate + a relative index (100 = national).
+  offensesBenchmark: (offense: string, level = "state", area = "US") =>
+    get<BenchmarkRow[]>(`/api/offenses/benchmark?${qs({ offense, level, area })}`),
   arrests: (category: string, offense?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/arrests?${qs({ level, area, offense, category })}`),
   agencies: (state?: string) => get<AgencyFeature[]>(`/api/agencies?${qs({ state })}`),
   policeEmployment: (level = "national", area = "US") =>
     get<PoliceEmploymentRow[]>(`/api/police-employment?${qs({ level, area })}`),
+  population: (level = "national", area = "US") =>
+    get<PopulationRow[]>(`/api/population?${qs({ level, area })}`),
   // Hate crime breakdowns share the ArrestRow {category, label, value} shape;
   // `category` is the dimension (bias_category, offender_race, victim_type, …).
   hateCrime: (category?: string, level = "national", area = "US") =>

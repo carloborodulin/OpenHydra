@@ -18,6 +18,7 @@ mkdirSync(OUT, { recursive: true });
 
 const TABS = [
   "Overview",
+  "Performance",
   "Hate Crime",
   "Homicide",
   "Property",

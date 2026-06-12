@@ -11,6 +11,9 @@ export const fmtPct = (v: number | null | undefined, d = 1): string =>
   v == null ? "—" : `${(v * 100).toFixed(d)}%`;
 export const fmtRate = (v: number | null | undefined, d = 2): string =>
   v == null ? "—" : v.toFixed(d);
+// Signed percentage for deltas: 0.125 -> "+12.5%", -0.079 -> "−7.9%".
+export const fmtSignedPct = (v: number | null | undefined, d = 1): string =>
+  v == null ? "—" : `${v > 0 ? "+" : v < 0 ? "−" : ""}${(Math.abs(v) * 100).toFixed(d)}%`;
 export const monthLabel = (iso: string): string => iso.slice(0, 7); // YYYY-MM
 
 export const lastNonNull = <K extends string>(

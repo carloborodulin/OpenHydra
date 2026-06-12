@@ -22,10 +22,12 @@ from .models import (
     AgencyFeature,
     ArrestOffense,
     ArrestRow,
+    BenchmarkRow,
     LesdcRow,
     Meta,
     OffenseMonthly,
     PoliceEmploymentRow,
+    PopulationRow,
     UofParticipationRow,
 )
 
@@ -118,10 +120,41 @@ def offenses_monthly(
         conn,
         """
         select period, offenses_rate, offenses_actual,
-               clearances_rate, clearances_actual, clearance_ratio
+               clearances_rate, clearances_actual, clearance_ratio,
+               ttm_rate, yoy_delta, index_2019
         from fct_offenses_monthly
         where level = ? and area = ? and offense = ?
         order by period
+        """,
+        [level, area, offense],
+    )
+    if not rows:
+        raise HTTPException(status_code=404, detail="no data for that level/area/offense")
+    return rows
+
+
+@app.get("/api/offenses/benchmark", response_model=list[BenchmarkRow])
+def offenses_benchmark(
+    conn: Conn,
+    offense: str,
+    level: str = "state",
+    area: str = "US",
+) -> list[dict[str, Any]]:
+    """The area's monthly offense rate alongside the national rate for the same
+    offense, plus a relative index (area / national * 100; 100 = national average)."""
+    rows = _dicts(
+        conn,
+        """
+        select a.period,
+               a.offenses_rate as area_rate,
+               n.offenses_rate as national_rate,
+               a.offenses_rate / nullif(n.offenses_rate, 0) * 100 as relative_index
+        from fct_offenses_monthly a
+        left join fct_offenses_monthly n
+            on n.level = 'national' and n.area = 'US'
+           and n.offense = a.offense and n.period = a.period
+        where a.level = ? and a.area = ? and a.offense = ?
+        order by a.period
         """,
         [level, area, offense],
     )
@@ -174,6 +207,21 @@ def police_employment(
         conn,
         "select section, metric, year, value from fct_police_employment "
         "where level = ? and area = ? order by metric, year",
+        [level, area],
+    )
+
+
+@app.get("/api/population", response_model=list[PopulationRow])
+def population(
+    conn: Conn,
+    level: str = "national",
+    area: str = "US",
+) -> list[dict[str, Any]]:
+    """U.S. Census population by year — the denominator for per-capita metrics."""
+    return _dicts(
+        conn,
+        "select year, population from dim_population "
+        "where level = ? and area = ? order by year",
         [level, area],
     )
 
