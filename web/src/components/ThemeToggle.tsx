@@ -28,7 +28,7 @@ export function ThemeToggle() {
       onClick={toggle}
       title={`Switch to ${next} theme`}
       aria-label={`Switch to ${next} theme`}
-      className="mono flex cursor-pointer items-center gap-1.5 border border-line px-2 py-1 text-[0.58rem] tracking-widest text-muted uppercase transition hover:border-line-strong hover:text-ink"
+      className="mono flex min-h-12 min-w-12 cursor-pointer items-center justify-center gap-1.5 border border-line px-3 py-2.5 text-[0.62rem] tracking-widest text-muted uppercase transition hover:border-line-strong hover:text-ink lg:min-h-0 lg:min-w-0 lg:px-2 lg:py-1 lg:text-[0.58rem]"
     >
       {isDark ? <MoonIcon /> : <SunIcon />}
       <span className="hidden sm:inline">{isDark ? "Dark" : "Light"}</span>

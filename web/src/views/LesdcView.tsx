@@ -5,6 +5,7 @@ import { Select } from "../components/Select";
 import { ArrestsChart } from "../components/charts/ArrestsChart";
 import type { ArrestRow } from "../lib/api";
 import { useLesdc } from "../lib/queries";
+import { hudBtn } from "../lib/ui";
 
 // Mirrors cdeclient LESDC_CHART_TYPES.
 const CHART_TYPES: { code: string; label: string }[] = [
@@ -44,45 +45,32 @@ export function LesdcView() {
 
   return (
     <>
-      <div className="mx-3 mt-3 flex flex-wrap items-center gap-3">
-        <span className="panel-title shrink-0">LE Suicide Data</span>
-        <div className="flex gap-1.5">
-          {YEARS.map((y) => {
-            const on = y === year;
-            return (
-              <button
-                key={y}
-                type="button"
-                onClick={() => setYear(y)}
-                className={`mono cursor-pointer border px-2.5 py-1 text-[0.62rem] tracking-wider uppercase transition ${
-                  on
-                    ? "glow border-accent bg-accent/10 text-accent"
-                    : "border-line text-muted hover:border-line-strong hover:text-ink"
-                }`}
-              >
+      <div className="mx-3 mt-3 flex flex-col items-stretch gap-3 lg:flex-row lg:flex-wrap lg:items-center">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="panel-title shrink-0">LE Suicide Data</span>
+          <div className="flex flex-wrap gap-1.5">
+            {YEARS.map((y) => (
+              <button key={y} type="button" onClick={() => setYear(y)} className={hudBtn(y === year)}>
                 {y}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
-        <span className="h-4 w-px bg-line" />
+        <span className="hidden h-4 w-px bg-line lg:block" />
         <Select
           value={chartType}
           onChange={setChartType}
           options={CHART_TYPES.map((c) => ({ value: c.code, label: c.label }))}
           title="LESDC chart type"
-          className="w-56"
+          className="w-full lg:w-56"
         />
       </div>
 
-      <main
-        className="grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-auto p-3"
-        style={{ gridAutoRows: "minmax(280px, 1fr)" }}
-      >
-        <Panel title={`Suicides · ${label} · ${year}`} className="col-span-6">
+      <main className="grid flex-1 grid-cols-1 gap-3 p-3 [grid-auto-rows:minmax(280px,auto)] sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:overflow-auto lg:[grid-auto-rows:minmax(280px,1fr)]">
+        <Panel title={`Suicides · ${label} · ${year}`} className="col-span-1 lg:col-span-6">
           {suicide.length ? <ArrestsChart data={suicide} /> : <Empty state={query} />}
         </Panel>
-        <Panel title={`Attempted · ${label} · ${year}`} className="col-span-6">
+        <Panel title={`Attempted · ${label} · ${year}`} className="col-span-1 lg:col-span-6">
           {attempted.length ? <ArrestsChart data={attempted} /> : <Empty state={query} />}
         </Panel>
       </main>

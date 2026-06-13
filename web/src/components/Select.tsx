@@ -35,7 +35,12 @@ export function Select({
   placeholder,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState<{ top: number; left: number; minWidth: number } | null>(null);
+  const [pos, setPos] = useState<{
+    top: number;
+    left: number;
+    minWidth: number;
+    maxWidth: number;
+  } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +50,15 @@ export function Select({
   useLayoutEffect(() => {
     if (!open) return;
     const r = triggerRef.current?.getBoundingClientRect();
-    if (r) setPos({ top: r.bottom + 5, left: r.left, minWidth: r.width });
+    if (!r) return;
+    // Clamp the portaled popup to the viewport so it can't run off the right edge
+    // on narrow screens. On desktop vw is large, so maxWidth resolves to the 22rem
+    // cap and left stays r.left — i.e. the positioning is unchanged there.
+    const gutter = 8;
+    const vw = window.innerWidth;
+    const maxWidth = Math.min(352, vw - gutter * 2); // 352 = 22rem
+    const left = Math.max(gutter, Math.min(r.left, vw - maxWidth - gutter));
+    setPos({ top: r.bottom + 5, left, minWidth: Math.min(r.width, maxWidth), maxWidth });
   }, [open]);
 
   useEffect(() => {
@@ -57,15 +70,21 @@ export function Select({
     };
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     const close = () => setOpen(false);
+    // Close when the page scrolls, but ignore scrolls inside the popup's own list
+    // (otherwise dragging a long list on mobile dismisses it mid-scroll).
+    const onScroll = (e: Event) => {
+      if (popupRef.current?.contains(e.target as Node)) return;
+      setOpen(false);
+    };
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
     window.addEventListener("resize", close);
-    window.addEventListener("scroll", close, true); // capture → catches nested scrollers
+    window.addEventListener("scroll", onScroll, true); // capture → catches nested scrollers
     return () => {
       document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", close);
-      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("scroll", onScroll, true);
     };
   }, [open]);
 
@@ -83,7 +102,7 @@ export function Select({
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="mono flex w-full items-center justify-between gap-2 border border-line bg-accent/[0.06] px-2.5 py-1 text-left text-[0.62rem] tracking-wider text-accent uppercase transition hover:border-line-strong focus:border-accent focus:outline-none"
+        className="mono flex min-h-12 w-full items-center justify-between gap-2 border border-line bg-accent/[0.06] px-2.5 py-2.5 text-left text-[0.68rem] tracking-wider text-accent uppercase transition hover:border-line-strong focus:border-accent focus:outline-none lg:min-h-0 lg:py-1 lg:text-[0.62rem]"
       >
         <span className="truncate">{current?.label ?? placeholder ?? value}</span>
         <span
@@ -102,7 +121,7 @@ export function Select({
           <div
             ref={popupRef}
             role="listbox"
-            style={{ top: pos.top, left: pos.left, minWidth: pos.minWidth }}
+            style={{ top: pos.top, left: pos.left, minWidth: pos.minWidth, maxWidth: pos.maxWidth }}
             className="fixed z-[100] max-h-[60vh] w-max max-w-[22rem] overflow-y-auto border border-line-strong bg-bg2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
           >
             {options.map((o) => (
@@ -140,13 +159,13 @@ function Item({
       role="option"
       aria-selected={active}
       onClick={() => onPick(option.value)}
-      className={`mono block w-full cursor-pointer truncate px-2.5 py-1 text-left text-[0.62rem] tracking-wider uppercase transition ${
+      className={`mono flex min-h-12 w-full cursor-pointer items-center px-3 text-left text-[0.7rem] tracking-wider uppercase transition lg:min-h-0 lg:px-2.5 lg:py-1 lg:text-[0.62rem] ${
         active
           ? "glow bg-accent/15 text-accent"
           : "text-muted hover:bg-accent/[0.07] hover:text-ink"
       }`}
     >
-      {option.label}
+      <span className="truncate">{option.label}</span>
     </button>
   );
 }

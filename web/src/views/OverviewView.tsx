@@ -138,11 +138,8 @@ export function OverviewView({ offense, region }: { offense: string; region: str
   }, [meta.data?.arrest_offenses]);
 
   return (
-    <main
-      className="grid min-h-0 flex-1 grid-cols-12 gap-3 p-3"
-      style={{ gridTemplateRows: "auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)" }}
-    >
-      <div className="col-span-3">
+    <main className="grid flex-1 grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:[grid-template-rows:auto_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Latest Rate /100k"
           value={fmtRate(latestRate?.value)}
@@ -156,7 +153,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
           }
         />
       </div>
-      <div className="col-span-3">
+      <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Clearance"
           accent="warn"
@@ -164,7 +161,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
           sub={latestClr ? `Cleared · ${monthLabel(latestClr.period)}` : "—"}
         />
       </div>
-      <div className="col-span-3">
+      <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Peak Rate /100k"
           accent="alert"
@@ -172,7 +169,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
           sub={peak ? monthLabel(peak.period) : "—"}
         />
       </div>
-      <div className="col-span-3">
+      <div className="col-span-1 lg:col-span-3">
         <StatTile
           label={`Agencies · ${region}`}
           accent="good"
@@ -198,7 +195,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
             />
           ) : undefined
         }
-        className="col-span-8 col-start-1 row-start-2"
+        className="col-span-full lg:col-span-8 lg:col-start-1 lg:row-start-2"
       >
         {rows.length ? (
           <TrendChart data={rows} mode={effView} benchmark={benchRows.length ? benchRows : undefined} />
@@ -217,14 +214,14 @@ export function OverviewView({ offense, region }: { offense: string; region: str
                 type="button"
                 onClick={() => setSelectedAgency(null)}
                 title={`Exit ${selectedAgency.name}`}
-                className="mono glow cursor-pointer border border-accent bg-accent/10 px-2 py-0.5 text-[0.58rem] tracking-wider text-accent uppercase transition hover:border-line-strong"
+                className="mono glow inline-flex min-h-12 cursor-pointer items-center border border-accent bg-accent/10 px-3 py-2.5 text-[0.62rem] tracking-wider text-accent uppercase transition hover:border-line-strong lg:min-h-0 lg:px-2 lg:py-0.5 lg:text-[0.58rem]"
               >
                 ✕ {selectedAgency.name}
               </button>
             )}
           </div>
         }
-        className="col-span-4 col-start-9 row-start-2 row-span-3"
+        className="col-span-full lg:col-span-4 lg:col-start-9 lg:row-start-2 lg:row-span-3"
         bodyClass="relative overflow-hidden p-0"
       >
         {ag.length ? (
@@ -236,7 +233,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
 
       <Panel
         title={`Clearance Ratio · ${titleCase(offense)}`}
-        className="col-span-4 col-start-1 row-start-3"
+        className="col-span-full lg:col-span-4 lg:col-start-1 lg:row-start-3"
       >
         {rows.length ? <ClearanceChart data={rows} /> : <Empty state={monthly} />}
       </Panel>
@@ -265,12 +262,15 @@ export function OverviewView({ offense, region }: { offense: string; region: str
             />
           </div>
         }
-        className="col-span-4 col-start-5 row-start-3"
+        className="col-span-full lg:col-span-4 lg:col-start-5 lg:row-start-3"
       >
         {arrests.data?.length ? <ArrestsChart data={arrests.data} /> : <Empty state={arrests} />}
       </Panel>
 
-      <Panel title={`Police Employment · ${focusLabel}`} className="col-span-8 col-start-1 row-start-4">
+      <Panel
+        title={`Police Employment · ${focusLabel}`}
+        className="col-span-full lg:col-span-8 lg:col-start-1 lg:row-start-4"
+      >
         {hasPe ? <PoliceEmploymentChart data={pe.data ?? []} /> : <Empty state={pe} />}
       </Panel>
     </main>

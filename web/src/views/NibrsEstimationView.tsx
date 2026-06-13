@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Select } from "../components/Select";
 import { useNibrsEstimation } from "../lib/queries";
+import { hudBtn } from "../lib/ui";
 import { BreakdownView, type Dimension } from "./BreakdownView";
 
 // Curated NIBRS-estimation offense codes (mirrors NIBRS_ESTIMATION_OFFENSES).
@@ -44,34 +45,29 @@ export function NibrsEstimationView() {
 
   return (
     <>
-      <div className="mx-3 mt-3 flex flex-wrap items-center gap-3">
-        <span className="panel-title shrink-0">Estimated · Offense</span>
-        <Select
-          value={offense}
-          onChange={setOffense}
-          options={OFFENSES.map((o) => ({ value: o.code, label: o.label }))}
-          title="Estimation offense"
-          className="w-60"
-        />
-        <span className="h-4 w-px bg-line" />
+      <div className="mx-3 mt-3 flex flex-col items-stretch gap-3 lg:flex-row lg:flex-wrap lg:items-center">
+        <div className="flex w-full items-center gap-3 lg:w-auto">
+          <span className="panel-title shrink-0">Estimated · Offense</span>
+          <Select
+            value={offense}
+            onChange={setOffense}
+            options={OFFENSES.map((o) => ({ value: o.code, label: o.label }))}
+            title="Estimation offense"
+            className="w-full lg:w-60"
+          />
+        </div>
+        <span className="hidden h-4 w-px bg-line lg:block" />
         <div className="flex flex-wrap gap-1.5">
-          {GEOS.map((g, i) => {
-            const on = i === geoIdx;
-            return (
-              <button
-                key={g.label}
-                type="button"
-                onClick={() => setGeoIdx(i)}
-                className={`mono cursor-pointer border px-2.5 py-1 text-[0.62rem] tracking-wider uppercase transition ${
-                  on
-                    ? "glow border-accent bg-accent/10 text-accent"
-                    : "border-line text-muted hover:border-line-strong hover:text-ink"
-                }`}
-              >
-                {g.label}
-              </button>
-            );
-          })}
+          {GEOS.map((g, i) => (
+            <button
+              key={g.label}
+              type="button"
+              onClick={() => setGeoIdx(i)}
+              className={hudBtn(i === geoIdx)}
+            >
+              {g.label}
+            </button>
+          ))}
         </div>
       </div>
       <BreakdownView region={geo.label} query={query} dimensions={DIMENSIONS} />
