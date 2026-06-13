@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNibrs } from "../lib/queries";
+import { hudBtn } from "../lib/ui";
 import { BreakdownView, type Dimension } from "./BreakdownView";
 
 // Curated NIBRS offenses (mirrors cdeclient NIBRS_OFFENSES) for the selector.
@@ -37,23 +38,16 @@ export function NibrsView({ region }: { region: string }) {
       <div className="mx-3 mt-3 flex flex-wrap items-center gap-2">
         <span className="panel-title shrink-0">NIBRS Offense</span>
         <div className="flex flex-wrap gap-1.5">
-          {OFFENSES.map((o) => {
-            const on = o.code === offense;
-            return (
-              <button
-                key={o.code}
-                type="button"
-                onClick={() => setOffense(o.code)}
-                className={`mono cursor-pointer border px-2.5 py-1 text-[0.62rem] tracking-wider uppercase transition ${
-                  on
-                    ? "glow border-accent bg-accent/10 text-accent"
-                    : "border-line text-muted hover:border-line-strong hover:text-ink"
-                }`}
-              >
-                {o.label}
-              </button>
-            );
-          })}
+          {OFFENSES.map((o) => (
+            <button
+              key={o.code}
+              type="button"
+              onClick={() => setOffense(o.code)}
+              className={hudBtn(o.code === offense)}
+            >
+              {o.label}
+            </button>
+          ))}
         </div>
       </div>
       <BreakdownView region={region} query={query} dimensions={DIMENSIONS} />

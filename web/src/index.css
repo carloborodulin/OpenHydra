@@ -80,14 +80,16 @@
   html,
   body,
   #root {
-    height: 100%;
+    /* mobile: let content grow and the page scroll vertically */
+    min-height: 100%;
   }
   body {
     margin: 0;
     background-color: var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    overflow: hidden;
+    /* never scroll sideways; vertical scroll is allowed below lg */
+    overflow-x: hidden;
     background-image:
       radial-gradient(circle at 15% -10%, rgba(34, 211, 238, 0.1), transparent 45%),
       radial-gradient(circle at 110% 120%, rgba(167, 139, 250, 0.08), transparent 45%),
@@ -106,6 +108,17 @@
   ::-webkit-scrollbar-thumb {
     background: var(--color-line-strong);
     border-radius: 4px;
+  }
+  /* desktop (>= lg / 1024px): restore the fixed-viewport, no-scroll command center */
+  @media (min-width: 64rem) {
+    html,
+    body,
+    #root {
+      height: 100%;
+    }
+    body {
+      overflow: hidden;
+    }
   }
 }
 

@@ -57,7 +57,7 @@ export function BreakdownView({
   // No dimensions yet (loading / no data) — show a single placeholder.
   if (!dims.length) {
     return (
-      <main className="flex min-h-0 flex-1 p-3">
+      <main className="flex min-h-[20rem] flex-1 p-3 lg:min-h-0">
         <div className="panel brackets enter flex-1">
           <Empty state={query} />
         </div>
@@ -66,14 +66,15 @@ export function BreakdownView({
   }
 
   return (
-    <main
-      className="grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-auto p-3"
-      style={{ gridAutoRows: "minmax(240px, 1fr)" }}
-    >
+    <main className="grid flex-1 grid-cols-1 gap-3 p-3 [grid-auto-rows:minmax(240px,auto)] sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:overflow-auto lg:[grid-auto-rows:minmax(240px,1fr)]">
       {dims.map((d) => {
         const data = byCategory.get(d.key) ?? [];
         return (
-          <Panel key={d.key} title={`${d.label} · ${regionLabel}`} className="col-span-4">
+          <Panel
+            key={d.key}
+            title={`${d.label} · ${regionLabel}`}
+            className="col-span-1 lg:col-span-4"
+          >
             {data.length ? <ArrestsChart data={data} /> : <Empty state={query} />}
           </Panel>
         );

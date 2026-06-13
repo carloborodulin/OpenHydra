@@ -1,5 +1,6 @@
 import { regionName } from "../lib/states";
 import { titleCase } from "../lib/format";
+import { hudBtn } from "../lib/ui";
 import { Select } from "./Select";
 
 interface Props {
@@ -24,8 +25,8 @@ export function Controls({
   showOffenses = true,
 }: Props) {
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:gap-4">
+      <div className="flex w-full items-center gap-2 lg:w-auto">
         <span className="panel-title shrink-0">Region</span>
         <Select
           value={region}
@@ -35,31 +36,24 @@ export function Controls({
             ...states.map((s) => ({ value: s, label: regionName(s) })),
           ]}
           title="Region"
-          className="w-44"
+          className="w-full lg:w-44"
         />
       </div>
 
       {showOffenses && (
         <>
-          <span className="h-4 w-px bg-line" />
+          <span className="hidden h-4 w-px bg-line lg:block" />
           <div className="flex flex-wrap items-center gap-1.5">
-            {offenses.map((o) => {
-              const active = o === value;
-              return (
-                <button
-                  key={o}
-                  type="button"
-                  onClick={() => onChange(o)}
-                  className={`mono cursor-pointer border px-2.5 py-1 text-[0.62rem] tracking-wider uppercase transition ${
-                    active
-                      ? "glow border-accent bg-accent/10 text-accent"
-                      : "border-line text-muted hover:border-line-strong hover:text-ink"
-                  }`}
-                >
-                  {titleCase(o)}
-                </button>
-              );
-            })}
+            {offenses.map((o) => (
+              <button
+                key={o}
+                type="button"
+                onClick={() => onChange(o)}
+                className={hudBtn(o === value)}
+              >
+                {titleCase(o)}
+              </button>
+            ))}
           </div>
         </>
       )}

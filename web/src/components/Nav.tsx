@@ -1,3 +1,5 @@
+import { hudState } from "../lib/ui";
+
 export interface NavItem {
   id: string;
   label: string;
@@ -9,28 +11,24 @@ interface Props {
   onSelect: (id: string) => void;
 }
 
-// Top-level view switcher. New domain views (Hate Crime, Homicide, …) register
-// by adding an entry to the items list in App.tsx.
+// Desktop (>= lg) top-level view switcher. Below lg this is hidden and replaced
+// by the TopBar hamburger + NavDrawer. New domain views (Hate Crime, Homicide,
+// …) register by adding an entry to the items list in App.tsx.
 export function Nav({ items, active, onSelect }: Props) {
   return (
-    <nav className="flex flex-wrap items-center gap-1.5">
-      {items.map((it) => {
-        const on = it.id === active;
-        return (
-          <button
-            key={it.id}
-            type="button"
-            onClick={() => onSelect(it.id)}
-            className={`mono cursor-pointer border px-3 py-1 text-[0.62rem] tracking-wider uppercase transition ${
-              on
-                ? "glow border-accent bg-accent/10 text-accent"
-                : "border-line text-muted hover:border-line-strong hover:text-ink"
-            }`}
-          >
-            {it.label}
-          </button>
-        );
-      })}
+    <nav className="hidden flex-wrap items-center gap-1.5 lg:flex">
+      {items.map((it) => (
+        <button
+          key={it.id}
+          type="button"
+          onClick={() => onSelect(it.id)}
+          className={`mono cursor-pointer border px-3 py-1 text-[0.62rem] tracking-wider uppercase transition ${hudState(
+            it.id === active,
+          )}`}
+        >
+          {it.label}
+        </button>
+      ))}
     </nav>
   );
 }

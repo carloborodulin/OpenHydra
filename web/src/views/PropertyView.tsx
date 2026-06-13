@@ -4,6 +4,7 @@ import { PercentBarChart } from "../components/charts/PercentBarChart";
 import type { ArrestRow } from "../lib/api";
 import { usePopulation, useProperty } from "../lib/queries";
 import { regionName } from "../lib/states";
+import { hudBtn } from "../lib/ui";
 import { BreakdownView } from "./BreakdownView";
 
 const OFFENSES: { code: string; label: string }[] = [
@@ -63,25 +64,18 @@ export function PropertyView({ region }: { region: string }) {
       <div className="mx-3 mt-3 flex flex-wrap items-center gap-2">
         <span className="panel-title shrink-0">Property Offense</span>
         <div className="flex flex-wrap gap-1.5">
-          {OFFENSES.map((o) => {
-            const on = o.code === offense;
-            return (
-              <button
-                key={o.code}
-                type="button"
-                onClick={() => setOffense(o.code)}
-                className={`mono cursor-pointer border px-2.5 py-1 text-[0.62rem] tracking-wider uppercase transition ${
-                  on
-                    ? "glow border-accent bg-accent/10 text-accent"
-                    : "border-line text-muted hover:border-line-strong hover:text-ink"
-                }`}
-              >
-                {o.label}
-              </button>
-            );
-          })}
+          {OFFENSES.map((o) => (
+            <button
+              key={o.code}
+              type="button"
+              onClick={() => setOffense(o.code)}
+              className={hudBtn(o.code === offense)}
+            >
+              {o.label}
+            </button>
+          ))}
         </div>
-        <span className="h-4 w-px bg-line" />
+        <span className="hidden h-4 w-px bg-line lg:block" />
         <button
           type="button"
           disabled={!latestPop}
@@ -91,11 +85,7 @@ export function PropertyView({ region }: { region: string }) {
               ? "Scale stolen/recovered $ to per-resident (Census population)"
               : "No population data for this region"
           }
-          className={`mono cursor-pointer border px-2.5 py-1 text-[0.62rem] tracking-wider uppercase transition disabled:cursor-not-allowed disabled:opacity-40 ${
-            perCapita
-              ? "glow border-accent bg-accent/10 text-accent"
-              : "border-line text-muted hover:border-line-strong hover:text-ink"
-          }`}
+          className={`${hudBtn(perCapita)} disabled:cursor-not-allowed disabled:opacity-40`}
         >
           Per Capita
         </button>
@@ -106,7 +96,10 @@ export function PropertyView({ region }: { region: string }) {
         transformRows={transform}
         extra={
           recovery.length ? (
-            <Panel title={`Recovery Rate · By Property Type · ${regionName(region)}`} className="col-span-4">
+            <Panel
+              title={`Recovery Rate · By Property Type · ${regionName(region)}`}
+              className="col-span-1 lg:col-span-4"
+            >
               <PercentBarChart data={recovery} seriesName="Recovered" />
             </Panel>
           ) : null

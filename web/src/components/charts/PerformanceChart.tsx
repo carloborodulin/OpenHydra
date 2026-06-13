@@ -15,6 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { useChartColors } from "../../lib/theme";
+import { useIsMobile } from "../../lib/useMediaQuery";
 import { DarkTooltip } from "./DarkTooltip";
 
 // One row per year: crime volume, mean clearance ratio, and staffing per 1k.
@@ -31,6 +32,7 @@ const compact = (v: number) => Intl.NumberFormat("en", { notation: "compact" }).
 // report's "as volume surges, clearance falls" relationship.
 export function VolumeClearanceChart({ data }: { data: PerfYear[] }) {
   const c = useChartColors();
+  const mobile = useIsMobile();
   const tick = { fill: c.muted, fontSize: 10, fontFamily: c.font };
   const rows = data.map((d) => ({
     year: String(d.year),
@@ -42,12 +44,12 @@ export function VolumeClearanceChart({ data }: { data: PerfYear[] }) {
       <ComposedChart data={rows} margin={{ top: 6, right: 8, bottom: 0, left: -6 }}>
         <CartesianGrid stroke={c.grid} vertical={false} />
         <XAxis dataKey="year" tick={tick} stroke={c.axis} />
-        <YAxis yAxisId="vol" tick={tick} width={46} stroke={c.axis} tickFormatter={compact} />
+        <YAxis yAxisId="vol" tick={tick} width={mobile ? 38 : 46} stroke={c.axis} tickFormatter={compact} />
         <YAxis
           yAxisId="clr"
           orientation="right"
           tick={tick}
-          width={40}
+          width={mobile ? 34 : 40}
           stroke={c.axis}
           domain={[0, "auto"]}
           tickFormatter={(v: number) => `${v}%`}
@@ -92,6 +94,7 @@ function ScatterTip({
 // reporting-integrity tracker. The 2021 SRS→NIBRS transition shows as a jump.
 export function NibrsAdoptionChart({ data }: { data: { year: number; pct: number }[] }) {
   const c = useChartColors();
+  const mobile = useIsMobile();
   const tick = { fill: c.muted, fontSize: 10, fontFamily: c.font };
   const rows = data.map((d) => ({ year: String(d.year), "NIBRS %": +d.pct.toFixed(1) }));
   return (
@@ -105,7 +108,7 @@ export function NibrsAdoptionChart({ data }: { data: { year: number; pct: number
         </defs>
         <CartesianGrid stroke={c.grid} vertical={false} />
         <XAxis dataKey="year" tick={tick} stroke={c.axis} />
-        <YAxis tick={tick} width={40} stroke={c.axis} domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} />
+        <YAxis tick={tick} width={mobile ? 34 : 40} stroke={c.axis} domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} />
         <Tooltip content={<DarkTooltip unit="%" />} cursor={{ stroke: c.axis }} />
         <Area
           type="monotone"
@@ -125,6 +128,7 @@ export function NibrsAdoptionChart({ data }: { data: { year: number; pct: number
 // whether more officers per capita tracks higher clearance.
 export function StaffingClearanceScatter({ data }: { data: PerfYear[] }) {
   const c = useChartColors();
+  const mobile = useIsMobile();
   const tick = { fill: c.muted, fontSize: 10, fontFamily: c.font };
   const points = data
     .filter((d) => d.staffing != null && d.clearance != null)
@@ -147,7 +151,7 @@ export function StaffingClearanceScatter({ data }: { data: PerfYear[] }) {
           dataKey="y"
           name="Clearance %"
           tick={tick}
-          width={40}
+          width={mobile ? 34 : 40}
           stroke={c.axis}
           tickFormatter={(v: number) => `${v}%`}
         />

@@ -81,18 +81,15 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
   );
 
   return (
-    <main
-      className="grid min-h-0 flex-1 grid-cols-12 gap-3 p-3"
-      style={{ gridTemplateRows: "auto minmax(0, 1fr) minmax(0, 1fr)" }}
-    >
-      <div className="col-span-3">
+    <main className="grid flex-1 grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:[grid-template-rows:auto_minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Staffing /1k"
           value={fmtRate(latestStaff?.staffing)}
           sub={latestStaff ? `${latestStaff.year} · LE employees / 1,000` : "—"}
         />
       </div>
-      <div className="col-span-3">
+      <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Clearance"
           accent="warn"
@@ -100,7 +97,7 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
           sub={latestClr ? `${latestClr.year} · ${titleCase(offense)}` : "—"}
         />
       </div>
-      <div className="col-span-3">
+      <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Annual Volume"
           accent="alert"
@@ -108,7 +105,7 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
           sub={latestVol ? `${latestVol.year} · reported` : "—"}
         />
       </div>
-      <div className="col-span-3">
+      <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Peak Volume"
           accent="good"
@@ -119,14 +116,14 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
 
       <Panel
         title={`Volume vs Clearance · ${titleCase(offense)} · ${regionLabel}`}
-        className="col-span-8 col-start-1 row-start-2"
+        className="col-span-full lg:col-span-8 lg:col-start-1 lg:row-start-2"
       >
         {perf.length ? <VolumeClearanceChart data={perf} /> : <Empty state={monthly} />}
       </Panel>
 
       <Panel
         title={`Staffing vs Clearance · ${regionLabel}`}
-        className="col-span-4 col-start-9 row-start-2"
+        className="col-span-full lg:col-span-4 lg:col-start-9 lg:row-start-2"
       >
         {perf.some((p) => p.staffing != null && p.clearance != null) ? (
           <StaffingClearanceScatter data={perf} />
@@ -137,14 +134,14 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
 
       <Panel
         title={`Clearance Ratio · ${titleCase(offense)} · ${regionLabel}`}
-        className="col-span-8 col-start-1 row-start-3"
+        className="col-span-full lg:col-span-8 lg:col-start-1 lg:row-start-3"
       >
         {rows.length ? <ClearanceChart data={rows} /> : <Empty state={monthly} />}
       </Panel>
 
       <Panel
         title={`NIBRS Adoption · ${regionLabel}`}
-        className="col-span-4 col-start-9 row-start-3"
+        className="col-span-full lg:col-span-4 lg:col-start-9 lg:row-start-3"
       >
         {adoption.length ? <NibrsAdoptionChart data={adoption} /> : <Empty state={agencies} />}
       </Panel>

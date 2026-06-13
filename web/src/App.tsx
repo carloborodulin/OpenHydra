@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Controls } from "./components/Controls";
 import { Nav, type NavItem } from "./components/Nav";
+import { NavDrawer } from "./components/NavDrawer";
 import { TopBar } from "./components/TopBar";
 import { useMeta } from "./lib/queries";
 import { HateCrimeView } from "./views/HateCrimeView";
@@ -37,17 +38,34 @@ export default function App() {
   const [offense, setOffense] = useState("homicide");
   const [region, setRegion] = useState("US"); // "US" = national
   const [view, setView] = useState("overview");
+  const [navOpen, setNavOpen] = useState(false);
 
   const active = offenses.includes(offense) ? offense : (offenses[0] ?? offense);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
-      <TopBar />
-      <div className="panel brackets enter mx-3 mt-3 flex flex-wrap items-center gap-4 px-4 py-2.5">
+    <div className="flex min-h-screen flex-col lg:h-screen lg:overflow-hidden">
+      <TopBar onMenuClick={() => setNavOpen(true)} />
+      <NavDrawer
+        items={VIEWS}
+        active={view}
+        open={navOpen}
+        onClose={() => setNavOpen(false)}
+        onSelect={(id) => {
+          setView(id);
+          setNavOpen(false);
+        }}
+      />
+      {/* Below lg the inline Nav is hidden; for views without a region/offense
+          bar the whole row would be empty, so hide it on mobile in that case. */}
+      <div
+        className={`panel brackets enter mx-3 mt-3 flex-wrap items-center gap-2 px-4 py-2.5 lg:flex lg:gap-4 ${
+          NO_REGION_VIEWS.has(view) ? "hidden" : "flex"
+        }`}
+      >
         <Nav items={VIEWS} active={view} onSelect={setView} />
         {!NO_REGION_VIEWS.has(view) && (
           <>
-            <span className="h-4 w-px bg-line" />
+            <span className="hidden h-4 w-px bg-line lg:block" />
             <Controls
               offenses={offenses}
               value={active}

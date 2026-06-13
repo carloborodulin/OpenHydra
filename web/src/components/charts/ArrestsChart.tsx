@@ -1,10 +1,12 @@
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { ArrestRow } from "../../lib/api";
 import { useChartColors } from "../../lib/theme";
+import { useIsMobile } from "../../lib/useMediaQuery";
 import { DarkTooltip } from "./DarkTooltip";
 
 export function ArrestsChart({ data }: { data: ArrestRow[] }) {
   const c = useChartColors();
+  const mobile = useIsMobile();
   const tick = { fill: c.muted, fontSize: 10, fontFamily: c.font };
   const rows = data
     .filter((d) => (d.value ?? 0) > 0)
@@ -18,9 +20,12 @@ export function ArrestsChart({ data }: { data: ArrestRow[] }) {
         <YAxis
           type="category"
           dataKey="name"
-          tick={{ ...tick, fontSize: 9 }}
-          width={120}
+          tick={{ ...tick, fontSize: mobile ? 8 : 9 }}
+          width={mobile ? 78 : 120}
           stroke={c.axis}
+          tickFormatter={
+            mobile ? (v: string) => (v.length > 12 ? `${v.slice(0, 11)}…` : v) : undefined
+          }
         />
         <Tooltip content={<DarkTooltip />} cursor={{ fill: c.grid }} />
         <Bar dataKey="Arrests" radius={[0, 2, 2, 0]} barSize={14}>
