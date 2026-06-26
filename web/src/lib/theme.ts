@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo } from "react";
 
-// Two distinct looks: the default neon "command-center / HUD" (dark) and a
-// light "analytics platform" (GA-style) theme. The active theme is driven by a
+// Two distinct looks: the default light "analytics platform" (GA-style) theme
+// and a neon "command-center / HUD" (dark) theme. The active theme is driven by a
 // `data-theme` attribute on <html>; every color is a CSS variable in index.css,
 // so most of the UI re-themes for free. Charts are the exception — see
 // useChartColors below. The <ThemeProvider> lives in ./ThemeProvider (kept in a
@@ -27,7 +27,7 @@ export function readStoredTheme(): Theme {
   } catch {
     /* localStorage may be unavailable (private mode) — fall through */
   }
-  return "dark"; // dark HUD is the default first impression
+  return "light"; // light analytics view is the default first impression
 }
 
 // Apply the theme to the DOM + storage synchronously, BEFORE React re-renders,
