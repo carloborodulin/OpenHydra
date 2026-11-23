@@ -5,6 +5,7 @@ import { NavDrawer } from "./components/NavDrawer";
 import { Provenance } from "./components/Provenance";
 import { TopBar } from "./components/TopBar";
 import { useMeta } from "./lib/queries";
+import { useUrlState } from "./lib/urlState";
 import { HateCrimeView } from "./views/HateCrimeView";
 import { HomicideView } from "./views/HomicideView";
 import { LesdcView } from "./views/LesdcView";
@@ -36,12 +37,24 @@ export default function App() {
   const meta = useMeta();
   const offenses = meta.data?.offenses ?? [];
   const states = meta.data?.states ?? [];
-  const [offense, setOffense] = useState("homicide");
-  const [region, setRegion] = useState("US"); // "US" = national
-  const [view, setView] = useState("overview");
+  // View, region, offense, agency and comparison live in the URL (shareable,
+  // and back/forward work). Values that the snapshot does not have fall back.
+  const [url, setUrl] = useUrlState();
   const [navOpen, setNavOpen] = useState(false);
-
-  const active = offenses.includes(offense) ? offense : (offenses[0] ?? offense);
+  const known = meta.isSuccess;
+  const view = VIEWS.some((v) => v.id === url.view) ? url.view : "overview";
+  const region = !known || url.region === "US" || states.includes(url.region) ? url.region : "US";
+  const active = offenses.includes(url.offense) ? url.offense : (offenses[0] ?? url.offense);
+  const compare =
+    url.compare && (!known || states.includes(url.compare)) && url.compare !== region
+      ? url.compare
+      : null;
+  // An agency belongs to its state: a state view drops an agency of another state.
+  const agency =
+    url.agency && (region === "US" || url.agency.startsWith(region)) ? url.agency : null;
+  const setView = (id: string) => setUrl({ view: id });
+  const setRegion = (r: string) => setUrl({ region: r });
+  const setOffense = (o: string) => setUrl({ offense: o });
 
   return (
     <div className="flex min-h-screen flex-col lg:h-screen lg:overflow-hidden">
@@ -86,7 +99,16 @@ export default function App() {
             </>
           )}
         </div>
-        {view === "overview" && <OverviewView offense={active} region={region} />}
+        {view === "overview" && (
+          <OverviewView
+            offense={active}
+            region={region}
+            agency={agency}
+            onAgencyChange={(ori) => setUrl({ agency: ori })}
+            compare={compare}
+            onCompareChange={(st) => setUrl({ compare: st })}
+          />
+        )}
         {view === "performance" && <PerformanceView offense={active} region={region} />}
         {view === "hate-crime" && <HateCrimeView region={region} />}
         {view === "homicide" && <HomicideView region={region} />}

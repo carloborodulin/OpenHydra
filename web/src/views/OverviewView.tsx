@@ -51,7 +51,23 @@ function Legend() {
   );
 }
 
-export function OverviewView({ offense, region }: { offense: string; region: string }) {
+export function OverviewView({
+  offense,
+  region,
+  agency,
+  onAgencyChange,
+  compare,
+  onCompareChange,
+}: {
+  offense: string;
+  region: string;
+  /** ORI of the drilled-in agency (from the URL), or null. */
+  agency: string | null;
+  onAgencyChange: (ori: string | null) => void;
+  /** A second state for the trend overlay (from the URL), or null. */
+  compare: string | null;
+  onCompareChange: (state: string | null) => void;
+}) {
   const meta = useMeta();
   const arrestCats = meta.data?.arrest_categories?.length
     ? meta.data.arrest_categories
@@ -59,7 +75,15 @@ export function OverviewView({ offense, region }: { offense: string; region: str
 
   // Drill into one department (served live by the backend); the map still shows
   // the region's agencies.
-  const [selectedAgency, setSelectedAgency] = useState<{ ori: string; name: string } | null>(null);
+  const isNational0 = region === "US";
+  const agencies = useAgencies(isNational0 ? undefined : region);
+  // The agency comes from the URL; its name from the agency list of the snapshot.
+  const selectedAgency = useMemo(() => {
+    if (!agency) return null;
+    const hit = agencies.data?.find((a) => a.ori === agency);
+    return { ori: agency, name: hit?.agency_name ?? agency };
+  }, [agency, agencies.data]);
+  const setSelectedAgency = (a: { ori: string } | null) => onAgencyChange(a?.ori ?? null);
   // Arrests panel has its own dimension controls. arrestOffense "" = follow the
   // main offense selector; otherwise an arrest-specific offense (48-code taxonomy).
   const [arrestOffense, setArrestOffense] = useState("");
@@ -81,6 +105,8 @@ export function OverviewView({ offense, region }: { offense: string; region: str
   // Region-level (warehouse) and agency-level (live) sources; agency hooks stay
   // disabled until an agency is selected. Display whichever is active.
   const monthlyRegion = useOffenseMonthly(offense, level, area);
+  // The comparison state (warehouse data), for the trend overlay only.
+  const monthlyCompare = useOffenseMonthly(offense, "state", compare ?? "", Boolean(compare));
   // Benchmark vs national — only for a selected state, and only when not drilled
   // into a single (live) agency.
   const canBenchmark = !isNational && !selectedAgency;
@@ -102,7 +128,6 @@ export function OverviewView({ offense, region }: { offense: string; region: str
   const monthly = selectedAgency ? monthlyAgency : monthlyRegion;
   const arrests = selectedAgency ? arrestsAgency : arrestsRegion;
   const pe = selectedAgency ? peAgency : peRegion;
-  const agencies = useAgencies(isNational ? undefined : region);
   const focusLabel = selectedAgency ? selectedAgency.name : regionLabel;
 
   const rows = useMemo(() => monthly.data ?? [], [monthly.data]);
@@ -173,7 +198,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
             latestRate
               ? latestRel
                 ? `${monthLabel(latestRate.period)} · ${(latestRel.value / 100).toFixed(1)}× US`
-                : `${titleCase(offense)} · ${monthLabel(latestRate.period)}`
+                : `${focusLabel} · ${monthLabel(latestRate.period)}`
               : "—"
           }
         />
@@ -183,7 +208,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
           label="Clearance"
           accent="warn"
           value={fmtPct(latestClr?.value)}
-          sub={latestClr ? `Cleared · ${monthLabel(latestClr.period)}` : "—"}
+          sub={latestClr ? `${focusLabel} · ${monthLabel(latestClr.period)}` : "—"}
         />
       </div>
       <div className="col-span-1 lg:col-span-3">
@@ -191,7 +216,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
           label="Peak Rate /100k"
           accent="alert"
           value={fmtRate(peak?.value)}
-          sub={peak ? monthLabel(peak.period) : "—"}
+          sub={peak ? `${focusLabel} · ${monthLabel(peak.period)}` : "—"}
         />
       </div>
       <div className="col-span-1 lg:col-span-3">
@@ -207,23 +232,46 @@ export function OverviewView({ offense, region }: { offense: string; region: str
         title={`${TREND_TITLES[effView]} · ${titleCase(offense)} · ${focusLabel}`}
         right={
           !selectedAgency && rows.length ? (
-            <Select
-              value={effView}
-              onChange={(v) => setView(v as TrendMode)}
-              options={[
-                { value: "rate", label: "Rate" },
-                { value: "index", label: "Index ’19" },
-                ...(canBenchmark ? [{ value: "relative", label: "vs National" }] : []),
-              ]}
-              title="Trend view"
-              className="w-32"
-            />
+            <div className="flex items-center gap-1.5">
+              <Select
+                value={compare ?? ""}
+                onChange={(v) => onCompareChange(v || null)}
+                options={[
+                  { value: "", label: "Compare · none" },
+                  ...(meta.data?.states ?? [])
+                    .filter((s) => s !== region)
+                    .map((s) => ({ value: s, label: `vs ${regionName(s)}` })),
+                ]}
+                title="Compare with a state"
+                className="w-32"
+              />
+              <Select
+                value={effView}
+                onChange={(v) => setView(v as TrendMode)}
+                options={[
+                  { value: "rate", label: "Rate" },
+                  { value: "index", label: "Index ’19" },
+                  ...(canBenchmark ? [{ value: "relative", label: "vs National" }] : []),
+                ]}
+                title="Trend view"
+                className="w-32"
+              />
+            </div>
           ) : undefined
         }
         className="col-span-full lg:col-span-8 lg:col-start-1 lg:row-start-2"
       >
         {rows.length ? (
-          <TrendChart data={rows} mode={effView} benchmark={benchRows.length ? benchRows : undefined} />
+          <TrendChart
+            data={rows}
+            mode={effView}
+            benchmark={benchRows.length ? benchRows : undefined}
+            compare={
+              compare && !selectedAgency && monthlyCompare.data
+                ? { label: regionName(compare), rows: monthlyCompare.data }
+                : undefined
+            }
+          />
         ) : (
           <Empty state={monthly} />
         )}
@@ -260,11 +308,14 @@ export function OverviewView({ offense, region }: { offense: string; region: str
       >
         {ag.length ? (
           <div className="flex h-full flex-col">
-            <AgencySearch agencies={ag} onSelect={(o, name) => setSelectedAgency({ ori: o, name })} />
+            <AgencySearch
+              agencies={ag}
+              onSelect={(o) => setSelectedAgency({ ori: o })}
+            />
             <div className="min-h-0 flex-1">
               <MapPanel
                 agencies={ag}
-                onSelectAgency={(o, name) => setSelectedAgency({ ori: o, name })}
+                onSelectAgency={(o) => setSelectedAgency({ ori: o })}
               />
             </div>
           </div>
@@ -312,7 +363,11 @@ export function OverviewView({ offense, region }: { offense: string; region: str
             message={`No arrest data for ${titleCase(arrestOff)} in ${regionLabel}`}
           />
         ) : arrests.data?.length ? (
-          <HBarChart data={arrests.data} measure={ARRESTS} label={`Arrests by ${arrestCat}, ${focusLabel}`} />
+          <HBarChart
+            data={arrests.data}
+            measure={ARRESTS}
+            label={`Arrests by ${arrestCat}, ${focusLabel}`}
+          />
         ) : (
           <Empty state={arrests} />
         )}

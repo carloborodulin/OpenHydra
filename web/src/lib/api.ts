@@ -132,9 +132,67 @@ export interface UofParticipationRow {
   participation_percent: number | null;
 }
 
+/**
+ * An API failure with what the dashboard needs to explain it: the HTTP status,
+ * the stable `code` of the API error body (see api/README.md) and Retry-After.
+ * A network failure (offline, DNS) has status 0.
+ */
+export class ApiError extends Error {
+  readonly status: number;
+  readonly code: string | null;
+  readonly retryAfter: number | null;
+
+  constructor(status: number, code: string | null, retryAfter: number | null, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.code = code;
+    this.retryAfter = retryAfter;
+  }
+}
+
+// React Query passes an AbortSignal to each query function, so a stale request
+// (for example after a quick region change) is cancelled. `withSignal` hands
+// that signal to the fetch below: `get` reads it synchronously, before its first
+// await, so no other call can see it.
+let currentSignal: AbortSignal | undefined;
+
+export function withSignal<T>(signal: AbortSignal | undefined, call: () => Promise<T>): Promise<T> {
+  currentSignal = signal;
+  try {
+    return call();
+  } finally {
+    currentSignal = undefined;
+  }
+}
+
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${path}`);
+  const signal = currentSignal;
+  let res: Response;
+  try {
+    res = await fetch(path, { signal });
+  } catch (err) {
+    if (signal?.aborted) throw err;
+    throw new ApiError(0, "network", null, "The network request failed.");
+  }
+  if (!res.ok) {
+    let code: string | null = null;
+    let detail = `${res.status} ${res.statusText}`;
+    try {
+      const body = (await res.json()) as { code?: string; detail?: unknown };
+      code = body.code ?? null;
+      if (typeof body.detail === "string") detail = body.detail;
+    } catch {
+      // Not a JSON error body.
+    }
+    const after = Number(res.headers.get("Retry-After"));
+    throw new ApiError(
+      res.status,
+      code,
+      Number.isFinite(after) && after > 0 ? after : null,
+      detail,
+    );
+  }
   return res.json() as Promise<T>;
 }
 
@@ -169,13 +227,7 @@ export const api = {
   shr: (category?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/shr?${qs({ level, area, category })}`),
   // Expanded property; `offense` is NB/NL/NMVT/NROB.
-  property: (
-    offense: string,
-    category?: string,
-    level = "national",
-    area = "US",
-    year?: number,
-  ) =>
+  property: (offense: string, category?: string, level = "national", area = "US", year?: number) =>
     get<PropertyRow[]>(
       `/api/property?${qs({ level, area, offense, category, year: year == null ? undefined : String(year) })}`,
     ),
@@ -209,7 +261,9 @@ export const api = {
   agencyShr: (ori: string, category?: string) =>
     get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/shr?${qs({ category })}`),
   agencyProperty: (ori: string, offense: string, category?: string) =>
-    get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/property?${qs({ offense, category })}`),
+    get<ArrestRow[]>(
+      `/api/agency/${encodeURIComponent(ori)}/property?${qs({ offense, category })}`,
+    ),
   agencyNibrs: (ori: string, offense: string, category?: string) =>
     get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/nibrs?${qs({ offense, category })}`),
 };
