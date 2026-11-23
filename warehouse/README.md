@@ -17,14 +17,18 @@ uv sync           # installs deps + cdeclient (path dependency)
 ## Pull data
 
 ```bash
-# bounded example: national + NY, two offenses
-uv run oh-etl pull --states NY --offenses homicide,violent-crime --from 01-2020 --to 12-2022
+# bounded example: national + NY, two domains
+uv run oh-etl pull --states NY --domains summarized,arrests --from 01-2020 --to 12-2022
 
-# full pull: all 50 states + DC, all 10 offenses, all domains
+# full pull: all 50 states + DC, all 10 offenses, all 11 domains (the default)
 uv run oh-etl pull --states all
 ```
 
-Needs `FBI_CDE_API_KEY` (from the repo `.env`). `data/raw/` is git-ignored.
+The extract needs `FBI_CDE_API_KEY`. The client reads it from the environment
+or from the root `.env` file. The files go to `data/raw/`, which git ignores.
+
+You do not need an extract to build the warehouse: `make data` at the
+repository root uses the committed snapshot in `deploy/seed/`.
 
 ## Develop
 
@@ -40,7 +44,7 @@ uv run mypy
 |---|---|---|
 | `summarized` | level × area × offense × series × measure × month | `level, area, offense, series(offenses/clearances), measure(rate/actual), period(date), value` |
 | `agencies` | ORI | `ori, agency_name, agency_type, county, state_abbr, state_name, latitude, longitude, is_nibrs, nibrs_start_date` |
-| `arrests` | level × area × breakdown × label | `level, area, category, label, value` |
+| `arrests` | level × area × arrest code × breakdown × label | `level, area, offense, arrest_code, window_from, window_to, category, label, value` |
 | `pe` | level × area × section × metric × year | `level, area, section(rate/actual), metric, year, value` |
 | `hate_crime` | level × area × dimension × label | `level, area, category, label, value` |
 | `shr` | level × area × section_dimension × label | `level, area, category, label, value` |

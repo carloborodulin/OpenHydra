@@ -1,19 +1,19 @@
 # Crime & Law Enforcement Data: Comparative Analytics Report
 
-This report evaluates the data surfaced in the [OpenHydra](file:///Users/carlo/Documents/Development/personal/OpenHydra) front end, outlines various comparative and analytical methodologies, and ranks them in order of potential usefulness for policy-makers, researchers, and public safety officers.
+This report evaluates the data surfaced in the [OpenHydra](./) front end, outlines various comparative and analytical methodologies, and ranks them in order of potential usefulness for policy-makers, researchers, and public safety officers.
 
 ## 1. Overview of Surfaced Frontend Data
 
-The OpenHydra frontend (defined across [web/src/views/](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views)) surfaces data across several primary crime and law enforcement domains:
+The OpenHydra frontend (defined across [web/src/views/](web/src/views)) surfaces data across several primary crime and law enforcement domains:
 
-*   **Overview View ([OverviewView.tsx](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views/OverviewView.tsx)):** Displays monthly offense rates (per 100k), clearance ratios (cleared/reported), arrest demographics (race, sex, age), police employment (officers vs. civilians), and an interactive geographical map overlay showing agency locations and UCR reporting styles (NIBRS vs. SRS).
-*   **Hate Crime View ([HateCrimeView.tsx](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views/HateCrimeView.tsx)):** Breaks down bias incidents by Bias Category, Bias Motivation, Offender Race, Victim Type, Location Type, and Offense Type.
-*   **Homicide View ([HomicideView.tsx](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views/HomicideView.tsx)):** Surfaces Supplementary Homicide Report (SHR) details including weapons used, crime circumstances, victim-offender relationship, victim demographics (race, age), and offender race.
-*   **Property View ([PropertyView.tsx](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views/PropertyView.tsx)):** Focuses on Burglary, Larceny, Motor Vehicle Theft, and Robbery, displaying stolen/recovered values, location counts, and average stolen value.
-*   **NIBRS Incident View ([NibrsView.tsx](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views/NibrsView.tsx)):** Displays incident details for 12 crime categories, breaking them down by weapon, victim-offender relationship, location, and demographics.
-*   **NIBRS Estimation View ([NibrsEstimationView.tsx](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views/NibrsEstimationView.tsx)):** Provides modeled national and regional estimated counts for major crime offenses, displaying location, weapons, victim demographics, arrestee demographics, and clearance status.
-*   **Use of Force View ([UseOfForceView.tsx](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views/UseOfForceView.tsx)):** Tracks national agency reporting participation alongside breakdowns of force type, means of resistance, and reason for contact.
-*   **Law Enforcement Suicide (LESDC) View ([LesdcView.tsx](file:///Users/carlo/Documents/Development/personal/OpenHydra/web/src/views/LesdcView.tsx)):** Breaks down officer suicide and attempted suicide incidents by year, manner of death, duty status, years of experience, demographics, and agency wellness programs.
+*   **Overview View ([OverviewView.tsx](web/src/views/OverviewView.tsx)):** Displays monthly offense rates (per 100k), clearance ratios (cleared/reported), arrest demographics (race, sex, age), police employment (officers vs. civilians), and an interactive geographical map overlay showing agency locations and UCR reporting styles (NIBRS vs. SRS).
+*   **Hate Crime View ([HateCrimeView.tsx](web/src/views/HateCrimeView.tsx)):** Breaks down bias incidents by Bias Category, Bias Motivation, Offender Race, Victim Type, Location Type, and Offense Type.
+*   **Homicide View ([HomicideView.tsx](web/src/views/HomicideView.tsx)):** Surfaces Supplementary Homicide Report (SHR) details including weapons used, crime circumstances, victim-offender relationship, victim demographics (race, age), and offender race.
+*   **Property View ([PropertyView.tsx](web/src/views/PropertyView.tsx)):** Focuses on Burglary, Larceny, Motor Vehicle Theft, and Robbery, displaying stolen/recovered values, location counts, and average stolen value.
+*   **NIBRS Incident View ([NibrsView.tsx](web/src/views/NibrsView.tsx)):** Displays incident details for 12 crime categories, breaking them down by weapon, victim-offender relationship, location, and demographics.
+*   **NIBRS Estimation View ([NibrsEstimationView.tsx](web/src/views/NibrsEstimationView.tsx)):** Provides modeled national and regional estimated counts for major crime offenses, displaying location, weapons, victim demographics, arrestee demographics, and clearance status.
+*   **Use of Force View ([UseOfForceView.tsx](web/src/views/UseOfForceView.tsx)):** Tracks national agency reporting participation alongside breakdowns of force type, means of resistance, and reason for contact.
+*   **Law Enforcement Suicide (LESDC) View ([LesdcView.tsx](web/src/views/LesdcView.tsx)):** Breaks down officer suicide and attempted suicide incidents by year, manner of death, duty status, years of experience, demographics, and agency wellness programs.
 
 ---
 
@@ -65,7 +65,7 @@ The analytical methods below are ranked based on their **actionability** (abilit
 ### Rank 2: Year-over-Year (YoY) & Multi-Year Indexed Trend Analysis (Temporal)
 *   **How it works:** 
     *   Calculate YoY percentage changes for specific months to remove seasonality (e.g., comparing Dec 2023 to Dec 2022).
-    *   Index multi-year trends to a baseline year (e.g., setting 2019 to $100$ and tracking subsequent years, as done in [FINDINGS.md](file:///Users/carlo/Documents/Development/personal/OpenHydra/analysis/FINDINGS.md)).
+    *   Index multi-year trends to a baseline year (e.g., setting 2019 to $100$ and tracking subsequent years, as done in [FINDINGS.md](analysis/FINDINGS.md)).
 *   **Why it is useful:** Separates short-term seasonal fluctuations from long-term structural changes. It reveals structural inflections—such as the massive rise in motor-vehicle thefts post-2021 ($+45\%$ vs. 2019) or the peak and subsequent decline of homicides during the COVID-19 era.
 *   **Data Constraints:** Changes in reporting standards (e.g., the transition from Summary Reporting System (SRS) to NIBRS in 2021) can create artificial shifts in the trend line if some agencies fail to report in the transitional years.
 *   **Application Example:** Evaluating whether the post-pandemic decline in homicide rates has returned to pre-2020 levels.
