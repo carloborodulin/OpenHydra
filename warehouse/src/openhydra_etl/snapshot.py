@@ -42,7 +42,10 @@ class FileSpec:
     name: str
     schema: dict[str, pl.DataType]
     partition: tuple[str, ...]
-    key: tuple[str, ...] | None = None  # None: every column except "value"
+    key: tuple[str, ...] | None = None  # None: every column except value columns
+    # Columns added after the first release. A file without them gets null
+    # columns at promotion, so an older extract still promotes.
+    optional: tuple[str, ...] = ()
 
     @property
     def file(self) -> str:
@@ -51,7 +54,7 @@ class FileSpec:
     def key_columns(self, frame: pl.DataFrame) -> list[str]:
         if self.key is not None:
             return list(self.key)
-        return [c for c in frame.columns if c != "value"]
+        return [c for c in frame.columns if c not in ("value", "lower", "upper")]
 
 
 FILES: dict[str, FileSpec] = {
@@ -69,7 +72,10 @@ FILES: dict[str, FileSpec] = {
         FileSpec("uof_participation", normalize.UOF_PARTICIPATION_SCHEMA, ("year",), key=("year",)),
         FileSpec("uof_questions", normalize.UOF_QUESTIONS_SCHEMA, ("year",)),
         FileSpec(
-            "nibrs_estimation", normalize.NIBRS_ESTIMATION_SCHEMA, ("level", "area", "offense")
+            "nibrs_estimation",
+            normalize.NIBRS_ESTIMATION_SCHEMA,
+            ("level", "area", "offense"),
+            optional=("lower", "upper"),
         ),
     )
 }
@@ -234,10 +240,15 @@ class PromoteResult:
     kept: list[str]
 
 
-def _check_schema(frame: pl.DataFrame, spec: FileSpec) -> None:
+def _conform(frame: pl.DataFrame, spec: FileSpec) -> pl.DataFrame:
+    """Add missing optional columns as nulls; refuse a missing required column."""
     missing = [c for c in spec.schema if c not in frame.columns]
+    required = [c for c in missing if c not in spec.optional]
+    if required:
+        raise PromoteError(f"{spec.file}: missing columns {required}")
     if missing:
-        raise PromoteError(f"{spec.file}: missing columns {missing}")
+        frame = frame.with_columns(pl.lit(None, dtype=spec.schema[c]).alias(c) for c in missing)
+    return frame.select(list(spec.schema))
 
 
 def _merge(old: pl.DataFrame, new: pl.DataFrame, spec: FileSpec) -> pl.DataFrame:
@@ -334,10 +345,9 @@ def promote(
 
     for name, spec in FILES.items():
         old_path = target / spec.file
-        old = pl.read_parquet(old_path) if old_path.is_file() else None
+        old = _conform(pl.read_parquet(old_path), spec) if old_path.is_file() else None
         if name in completed:
-            new = pl.read_parquet(staging / spec.file)
-            _check_schema(new, spec)
+            new = _conform(pl.read_parquet(staging / spec.file), spec)
             if merge and old is not None:
                 new = _merge(old, new, spec)
             if old is not None and not allow_shrink:
@@ -362,8 +372,10 @@ def promote(
             }
             replaced.append(name)
         elif old is not None:
-            shutil.copy2(old_path, next_dir / spec.file)
-            domains[name] = current["domains"].get(name, file_facts(old_path, spec))
+            # The old data, with any new optional column added as nulls.
+            write_parquet_atomic(old, next_dir / spec.file)
+            facts = file_facts(next_dir / spec.file, spec)
+            domains[name] = {**current["domains"].get(name, {}), **facts}
             kept.append(name)
         else:
             raise PromoteError(f"{spec.file} is in neither the run nor the current release")

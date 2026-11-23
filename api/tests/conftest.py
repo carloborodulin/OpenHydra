@@ -153,12 +153,14 @@ def client(tmp_path) -> Iterator[TestClient]:
 
         create table fct_nibrs_estimation(
             level varchar, area varchar, offense varchar,
-            category varchar, label varchar, value double
+            category varchar, label varchar, value double,
+            lower double default null, upper double default null
         );
         insert into fct_nibrs_estimation values
-            ('national','US','55','Victim_Victim race','White', 12345.0),
-            ('national','US','55','Victim_Victim race','Black or African American', 6789.0),
-            ('region','Midwest','55','Victim_Victim race','White', 3000.0);
+            ('national','US','55','Victim_Victim race','White', 12345.0, 11000.0, 13700.0),
+            ('national','US','55','Victim_Victim race','Black or African American', 6789.0,
+                NULL, NULL),
+            ('region','Midwest','55','Victim_Victim race','White', 3000.0, NULL, NULL);
         """
     )
     con.close()

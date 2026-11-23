@@ -115,6 +115,13 @@ class ArrestRow(BaseModel):
     value: float | None = None
 
 
+class EstimateRow(ArrestRow):
+    """A NIBRS estimate with the FBI interval (null in older releases)."""
+
+    lower: float | None = None
+    upper: float | None = None
+
+
 class PropertyRow(ArrestRow):
     """An expanded property row. A null year means a total over the whole window."""
 

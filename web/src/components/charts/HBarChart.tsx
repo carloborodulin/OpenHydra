@@ -1,7 +1,9 @@
 import { ANIMATE } from "../../lib/motion";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { ArrestRow } from "../../lib/api";
+import { useRef } from "react";
 import type { Measure } from "../../lib/measures";
+import { ExportButtons } from "./ExportButtons";
 import { useChartColors } from "../../lib/theme";
 import { useIsMobile } from "../../lib/useMediaQuery";
 
@@ -29,13 +31,16 @@ function Tip({ active, payload, measure }: TipProps) {
  * `limit` positive values and says so. The table below it lists every
  * category, zeros and unknowns included, for screen readers and exact values.
  */
+type BarRow = ArrestRow & { lower?: number | null; upper?: number | null };
+
 export function HBarChart({
   data,
   measure,
   limit = 6,
   label,
 }: {
-  data: ArrestRow[];
+  /** Rows with an optional interval (NIBRS estimates) show it in the table. */
+  data: BarRow[];
   measure: Measure;
   limit?: number;
   /** A short description of the chart for assistive technology. */
@@ -52,13 +57,18 @@ export function HBarChart({
       ? `Top ${rows.length} of ${sorted.length} categories`
       : `${sorted.length} categories`;
 
+  const hasInterval = data.some((d) => d.lower != null || d.upper != null);
+  const chart = useRef<HTMLDivElement>(null);
+  const title = label ?? measure.name;
+  const exportRows = sorted.map((d) => ({
+    category: d.label,
+    [measure.name]: d.value,
+    ...(hasInterval ? { lower: d.lower ?? null, upper: d.upper ?? null } : {}),
+  }));
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-1">
-      <div
-        className="min-h-0 flex-1"
-        role="img"
-        aria-label={`${label ?? measure.name}: ${shownNote}`}
-      >
+      <div ref={chart} className="min-h-0 flex-1" role="img" aria-label={`${title}: ${shownNote}`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={rows}
@@ -91,36 +101,57 @@ export function HBarChart({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <details className="mono shrink-0 text-[0.6rem] text-muted">
-        <summary className="cursor-pointer select-none">
-          {shownNote} · {measure.name} · table
-        </summary>
-        <div className="mt-1 max-h-40 overflow-auto">
-          <table className="w-full border-collapse text-left">
-            <caption className="sr-only">{label ?? measure.name}</caption>
-            <thead>
-              <tr>
-                <th scope="col" className="py-0.5 pr-2 font-normal">
-                  Category
-                </th>
-                <th scope="col" className="py-0.5 text-right font-normal">
-                  {measure.name}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((d) => (
-                <tr key={d.label} className="border-t border-line">
-                  <td className="py-0.5 pr-2 text-ink">{d.label}</td>
-                  <td className="py-0.5 text-right text-ink tabular-nums">
-                    {d.value == null ? "—" : measure.format(d.value)}
-                  </td>
+      <div className="mono flex shrink-0 items-start gap-2 text-[0.6rem] text-muted">
+        <details className="min-w-0 flex-1">
+          <summary className="cursor-pointer select-none">
+            {shownNote} · {measure.name} · table
+          </summary>
+          <div className="mt-1 max-h-40 overflow-auto">
+            <table className="w-full border-collapse text-left">
+              <caption className="sr-only">{label ?? measure.name}</caption>
+              <thead>
+                <tr>
+                  <th scope="col" className="py-0.5 pr-2 font-normal">
+                    Category
+                  </th>
+                  <th scope="col" className="py-0.5 text-right font-normal">
+                    {measure.name}
+                  </th>
+                  {hasInterval && (
+                    <th scope="col" className="py-0.5 pl-2 text-right font-normal">
+                      FBI interval
+                    </th>
+                  )}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </details>
+              </thead>
+              <tbody>
+                {sorted.map((d) => (
+                  <tr key={d.label} className="border-t border-line">
+                    <td className="py-0.5 pr-2 text-ink">{d.label}</td>
+                    <td className="py-0.5 text-right text-ink tabular-nums">
+                      {d.value == null ? "—" : measure.format(d.value)}
+                    </td>
+                    {hasInterval && (
+                      <td className="py-0.5 pl-2 text-right text-ink tabular-nums">
+                        {d.lower == null || d.upper == null
+                          ? "—"
+                          : `${measure.format(d.lower)} – ${measure.format(d.upper)}`}
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+        <ExportButtons
+          title={title}
+          rows={exportRows}
+          unit={measure.name}
+          grain="category"
+          chartRef={chart}
+        />
+      </div>
     </div>
   );
 }

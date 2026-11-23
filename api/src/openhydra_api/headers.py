@@ -35,7 +35,8 @@ CSP = "; ".join(
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com",
         "img-src 'self' data: blob: https://*.cartocdn.com",
-        "connect-src 'self' https://*.cartocdn.com",
+        # Chart PNG export makes the browser fetch the font stylesheet.
+        "connect-src 'self' https://*.cartocdn.com https://fonts.googleapis.com",
         "worker-src 'self' blob:",
         "child-src 'self' blob:",
         "object-src 'none'",

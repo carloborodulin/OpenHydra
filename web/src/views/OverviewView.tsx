@@ -192,6 +192,7 @@ export function OverviewView({
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Latest Rate /100k"
+          help="ttm"
           value={fmtRate(latestRate?.value)}
           delta={<DeltaIndicator value={latestYoy?.value} />}
           sub={
@@ -206,6 +207,7 @@ export function OverviewView({
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Clearance"
+          help="clearance"
           accent="warn"
           value={fmtPct(latestClr?.value)}
           sub={latestClr ? `${focusLabel} · ${monthLabel(latestClr.period)}` : "—"}
@@ -214,6 +216,7 @@ export function OverviewView({
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Peak Rate /100k"
+          help="offenses"
           accent="alert"
           value={fmtRate(peak?.value)}
           sub={peak ? `${focusLabel} · ${monthLabel(peak.period)}` : "—"}
@@ -222,6 +225,7 @@ export function OverviewView({
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label={`Agencies · ${region}`}
+          help="agencies"
           accent="good"
           value={fmtNum(ag.length)}
           sub={`${nibrs} NIBRS · ${nibrsPct}%`}

@@ -269,6 +269,8 @@ def test_nibrs_estimation(client: TestClient) -> None:
     rows = r.json()
     assert {row["label"] for row in rows} == {"White", "Black or African American"}
     assert rows[0]["value"] == 12345.0  # White, value desc
+    assert (rows[0]["lower"], rows[0]["upper"]) == (11000.0, 13700.0)  # the FBI interval
+    assert rows[1]["lower"] is None  # an older release has no interval
     # region geography isolates a different estimate
     mw = client.get(
         "/api/nibrs-estimation", params={"level": "region", "area": "Midwest", "offense": "55"}

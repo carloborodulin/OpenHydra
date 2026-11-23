@@ -32,6 +32,7 @@ export const VIEW_DOMAINS: Record<string, string[]> = {
   "nibrs-estimation": ["nibrs_estimation"],
   "use-of-force": ["uof_participation", "uof_questions"],
   lesdc: ["lesdc"],
+  methodology: [],
 };
 
 /** The coverage of the files a view reads: window and extraction date(s). */

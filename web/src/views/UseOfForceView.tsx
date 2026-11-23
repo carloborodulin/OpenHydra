@@ -50,6 +50,7 @@ export function UseOfForceView() {
             <StatTile
               key={p.year}
               label={`${p.year} · FBI participation`}
+              help="uof"
               accent={p.year === year ? "accent" : "good"}
               value={f.fbiPercent}
               sub={`Agencies ${f.agencyShare} · ${f.agencyLine}`}
