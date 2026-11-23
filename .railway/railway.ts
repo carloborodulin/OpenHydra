@@ -1,7 +1,7 @@
 import { defineRailway, github, project, service } from "railway/iac";
 
 // Infrastructure definition for the OpenHydra production service.
-// This file replaces the legacy railway.json. Each value keeps the deployed behavior.
+// This file replaced the legacy railway.json. Each value keeps the deployed behavior.
 export default defineRailway(() => {
   // Adopt the existing service by its exact name.
   const app = service("OpenHydra", {
