@@ -74,6 +74,7 @@ export default function App() {
   // An agency belongs to its state: a state view drops an agency of another state.
   const agency =
     url.agency && (region === "US" || url.agency.startsWith(region)) ? url.agency : null;
+  const offenseRow = view === "overview" || view === "performance";
   const setView = (id: string) => setUrl({ view: id });
   const setRegion = (r: string) => setUrl({ region: r });
   const setOffense = (o: string) => setUrl({ offense: o });
@@ -99,50 +100,66 @@ export default function App() {
         {/* One <main> landmark holds the filters and the view (a11y: every part of
           the page is in a landmark). */}
         <main className="flex min-h-0 flex-1 flex-col">
-          {/* Below lg the inline Nav is hidden; for views without a region/offense
+          {/* The controls, the footer and the default offense come from /api/meta.
+            Show one loading panel until it answers, then render them together,
+            so no part of the page moves when the data arrives (layout shift).
+            On an error, render the page with the fallbacks. */}
+          {meta.isPending ? (
+            <ViewLoading />
+          ) : (
+            <>
+              {/* Below lg the inline Nav is hidden; for views without a region/offense
           bar the whole row would be empty, so hide it on mobile in that case. */}
-          <div
-            className={`panel brackets enter mx-3 mt-3 flex-wrap items-center gap-2 px-4 py-2.5 lg:flex lg:gap-4 ${
-              NO_REGION_VIEWS.has(view) ? "hidden" : "flex"
-            }`}
-          >
-            <Nav items={VIEWS} active={view} onSelect={setView} />
-            {!NO_REGION_VIEWS.has(view) && (
-              <>
-                <span className="hidden h-4 w-px bg-line lg:block" />
-                <Controls
-                  offenses={offenses}
-                  value={active}
-                  onChange={setOffense}
-                  states={states}
-                  region={region}
-                  onRegionChange={setRegion}
-                  showOffenses={view === "overview" || view === "performance"}
-                />
-              </>
-            )}
-          </div>
-          <Suspense fallback={<ViewLoading />}>
-            {view === "overview" && (
-              <OverviewView
-                offense={active}
-                region={region}
-                agency={agency}
-                onAgencyChange={(ori) => setUrl({ agency: ori })}
-                compare={compare}
-                onCompareChange={(st) => setUrl({ compare: st })}
-              />
-            )}
-            {view === "performance" && <PerformanceView offense={active} region={region} />}
-            {view === "hate-crime" && <HateCrimeView region={region} />}
-            {view === "homicide" && <HomicideView region={region} />}
-            {view === "property" && <PropertyView region={region} />}
-            {view === "nibrs" && <NibrsView region={region} />}
-            {view === "nibrs-estimation" && <NibrsEstimationView />}
-            {view === "use-of-force" && <UseOfForceView />}
-            {view === "lesdc" && <LesdcView />}
-            {view === "methodology" && <MethodologyView />}
-          </Suspense>
+              <div
+                className={`panel brackets enter mx-3 mt-3 flex-wrap items-center gap-2 px-4 py-2.5 lg:flex lg:gap-4 ${
+                  NO_REGION_VIEWS.has(view) ? "hidden" : "flex"
+                }`}
+              >
+                <Nav items={VIEWS} active={view} onSelect={setView} />
+                {!NO_REGION_VIEWS.has(view) && (
+                  <>
+                    {/* On desktop, the offense buttons always go on their own line.
+                      The layout then does not depend on the number of offenses. */}
+                    {offenseRow ? (
+                      <span className="hidden lg:block lg:h-0 lg:basis-full" aria-hidden="true" />
+                    ) : (
+                      <span className="hidden h-4 w-px bg-line lg:block" />
+                    )}
+                    <Controls
+                      offenses={offenses}
+                      value={active}
+                      onChange={setOffense}
+                      states={states}
+                      region={region}
+                      onRegionChange={setRegion}
+                      showOffenses={offenseRow}
+                    />
+                  </>
+                )}
+              </div>
+              <Suspense fallback={<ViewLoading />}>
+                {view === "overview" && (
+                  <OverviewView
+                    offense={active}
+                    region={region}
+                    agency={agency}
+                    onAgencyChange={(ori) => setUrl({ agency: ori })}
+                    compare={compare}
+                    onCompareChange={(st) => setUrl({ compare: st })}
+                  />
+                )}
+                {view === "performance" && <PerformanceView offense={active} region={region} />}
+                {view === "hate-crime" && <HateCrimeView region={region} />}
+                {view === "homicide" && <HomicideView region={region} />}
+                {view === "property" && <PropertyView region={region} />}
+                {view === "nibrs" && <NibrsView region={region} />}
+                {view === "nibrs-estimation" && <NibrsEstimationView />}
+                {view === "use-of-force" && <UseOfForceView />}
+                {view === "lesdc" && <LesdcView />}
+                {view === "methodology" && <MethodologyView />}
+              </Suspense>
+            </>
+          )}
         </main>
         <Provenance snapshot={meta.data?.snapshot} view={view} />
       </div>
