@@ -31,7 +31,7 @@ def test_arrests_fetch_each_code_once_per_area(
     tmp_path: Path, sample: Callable[[str], Any]
 ) -> None:
     fake = CountingArrests(ArrestTotalsResponse.model_validate(sample("arrest_state_NY_all")))
-    ex = Extractor(fake, raw_dir=tmp_path)  # type: ignore[arg-type]
+    ex = Extractor(fake, tmp_path)  # type: ignore[arg-type]
     # "homicide" also appears inside violent-crime; "11" is homicide's raw code.
     frame = ex.pull_arrests(
         ["NY"], ["violent-crime", "homicide", "11", "all", "property-crime"], "01-2015", "12-2024"

@@ -107,6 +107,15 @@ export function OverviewView({ offense, region }: { offense: string; region: str
   const focusLabel = selectedAgency ? selectedAgency.name : regionLabel;
 
   const rows = useMemo(() => monthly.data ?? [], [monthly.data]);
+  // The live badge shows only after a successful live answer, with its real range.
+  const liveRange = useMemo(() => {
+    if (!selectedAgency || !monthlyAgency.isSuccess) return null;
+    const periods = (monthlyAgency.data ?? [])
+      .filter((r) => r.offenses_actual != null)
+      .map((r) => r.period);
+    if (!periods.length) return null;
+    return `${monthLabel(periods[0])} – ${monthLabel(periods[periods.length - 1])}`;
+  }, [selectedAgency, monthlyAgency.isSuccess, monthlyAgency.data]);
   const latestRate = lastNonNull(rows, "offenses_rate");
   const latestYoy = lastNonNull(rows, "yoy_delta");
   const latestClr = lastNonNull(rows, "clearance_ratio");
@@ -235,6 +244,15 @@ export function OverviewView({ offense, region }: { offense: string; region: str
               >
                 ✕ {selectedAgency.name}
               </button>
+            )}
+            {selectedAgency && liveRange && (
+              <span
+                className="mono inline-flex items-center gap-1.5 text-[0.58rem] tracking-wider text-good uppercase"
+                title="Agency data comes live from the FBI Crime Data Explorer API"
+              >
+                <span className="live-dot" aria-hidden />
+                Live · {liveRange}
+              </span>
             )}
           </div>
         }

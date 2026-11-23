@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel
 
@@ -19,7 +19,41 @@ class ArrestOffense(BaseModel):
     in_snapshot: bool = False
 
 
+class SnapshotDomain(BaseModel):
+    """One file of the release: when it was extracted and the window it covers."""
+
+    domain: str
+    extracted_at: datetime | None = None
+    window_from: str | None = None
+    window_to: str | None = None
+    row_count: int | None = None
+    status: str | None = None
+
+
+class Snapshot(BaseModel):
+    """The data release that the warehouse holds (from meta_snapshot)."""
+
+    release_id: str
+    promoted_at: datetime | None = None
+    extracted_at_min: datetime | None = None
+    extracted_at_max: datetime | None = None
+    window_from: str | None = None
+    window_to: str | None = None
+    source: str | None = None
+    # True when the dates come from git history, not from an extract manifest.
+    reconstructed: bool = False
+    domains: list[SnapshotDomain] = []
+
+
+class Capabilities(BaseModel):
+    # True when the server has an API key for the live agency routes. The key
+    # itself is never sent.
+    live_agency: bool = False
+
+
 class Meta(BaseModel):
+    snapshot: Snapshot | None = None
+    capabilities: Capabilities = Capabilities()
     offenses: list[str]
     states: list[str]
     levels: list[str]

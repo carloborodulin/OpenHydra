@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Controls } from "./components/Controls";
 import { Nav, type NavItem } from "./components/Nav";
 import { NavDrawer } from "./components/NavDrawer";
+import { Provenance } from "./components/Provenance";
 import { TopBar } from "./components/TopBar";
 import { useMeta } from "./lib/queries";
 import { HateCrimeView } from "./views/HateCrimeView";
@@ -44,7 +45,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen flex-col lg:h-screen lg:overflow-hidden">
-      <TopBar onMenuClick={() => setNavOpen(true)} />
+      <TopBar snapshot={meta.data?.snapshot} onMenuClick={() => setNavOpen(true)} />
       <NavDrawer
         items={VIEWS}
         active={view}
@@ -87,6 +88,7 @@ export default function App() {
       {view === "nibrs-estimation" && <NibrsEstimationView />}
       {view === "use-of-force" && <UseOfForceView />}
       {view === "lesdc" && <LesdcView />}
+      <Provenance snapshot={meta.data?.snapshot} view={view} />
     </div>
   );
 }

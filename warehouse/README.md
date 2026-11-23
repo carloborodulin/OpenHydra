@@ -14,7 +14,11 @@ cd warehouse
 uv sync           # installs deps + cdeclient (path dependency)
 ```
 
-## Pull data
+## Pull data and publish a release
+
+An extract never writes over the published data. It runs in two steps.
+
+**1. Pull into a staging directory.**
 
 ```bash
 # bounded example: national + NY, two domains
@@ -24,11 +28,32 @@ uv run oh-etl pull --states NY --domains summarized,arrests --from 01-2020 --to 
 uv run oh-etl pull --states all
 ```
 
-The extract needs `FBI_CDE_API_KEY`. The client reads it from the environment
-or from the root `.env` file. The files go to `data/raw/`, which git ignores.
+- Each run writes to `data/staging/<run id>/` (git ignores it).
+- One part file is written per upstream request, and the domain file only after every part succeeds.
+- `_manifest.json` records the window, the states and the outcome of each request (ok, empty or error).
+- A failed domain is listed and the command exits with status 2. Run the same command with `--out data/staging/<run id>` to resume: the parts that exist are not fetched again.
+- `--per-hour` limits the request rate (default 700 per hour), so the live site keeps part of the key quota.
 
-You do not need an extract to build the warehouse: `make data` at the
-repository root uses the committed snapshot in `deploy/seed/`.
+**2. Promote the run to the release in `deploy/seed/`.**
+
+```bash
+uv run oh-etl promote data/staging/<run id> --dry-run   # check and report only
+uv run oh-etl promote data/staging/<run id>
+```
+
+`promote` works in this order:
+
+- A domain that the run completed replaces the domain in the release. With `--merge`, it replaces only the partitions it holds (use this for a subset pull, for example one state).
+- A domain that the run did not complete stays as it was. A failed UoF request, for example, keeps the last good UoF data.
+- A domain may not lose a partition (a state, an offense or a year) unless you pass `--allow-shrink`.
+- `revisions.md` lists the changed values against the last release.
+- The new files and `_manifest.json` replace `deploy/seed/` in one rename.
+
+Then `make data` at the repository root builds the warehouse from the release. The dashboard shows the release ID, the window and the extraction date of each view.
+
+The extract needs `FBI_CDE_API_KEY`. The client reads it from the environment
+or from the root `.env` file. You do not need an extract to build the
+warehouse: `make data` uses the committed release.
 
 ## Develop
 

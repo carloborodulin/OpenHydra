@@ -3,22 +3,33 @@ version: 2
 models:
   - name: stg_summarized
     description: Monthly offense & clearance series (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, offense, series, measure, period]
     columns:
       - name: series
         tests:
           - accepted_values:
-              values: ["offenses", "clearances", "other"]
+              arguments:
+                values: ["offenses", "clearances", "other"]
       - name: measure
         tests:
           - accepted_values:
-              values: ["rate", "actual"]
+              arguments:
+                values: ["rate", "actual"]
       - name: level
         tests:
           - accepted_values:
-              values: ["national", "state", "agency"]
+              arguments:
+                values: ["national", "state", "agency"]
 
   - name: stg_agencies
     description: One row per reporting agency (ORI).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [ori]
     columns:
       - name: ori
         tests:
@@ -26,30 +37,77 @@ models:
 
   - name: stg_arrests
     description: Arrest demographic breakdowns (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, offense, category, label]
 
   - name: stg_police_employment
     description: Law-enforcement employment by year (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, section, metric, year]
 
   - name: stg_hate_crime
     description: Hate crime incident/offense breakdowns by dimension (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, category, label]
 
   - name: stg_shr
     description: Supplementary Homicide Report breakdowns by section_dimension (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, category, label]
 
   - name: stg_property
     description: Expanded property value/count breakdowns by offense & dimension (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, offense, category, label]
 
   - name: stg_nibrs
     description: NIBRS incident breakdowns by offense & section_dimension (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, offense, category, label]
 
   - name: stg_lesdc
     description: LE suicide data collection by year, chart type, S/AS section (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [year, chart_type, section, label]
 
   - name: stg_uof_participation
     description: Use-of-Force national participation summary, one row per year.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [year]
 
   - name: stg_uof_questions
     description: Use-of-Force report items by year & quest category (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [year, category, label]
 
   - name: stg_nibrs_estimation
     description: NIBRS estimated counts by geography, offense & section_dimension (long format).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, offense, category, label]
+
+  - name: stg_population
+    description: Census population by area and year.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [area, year]

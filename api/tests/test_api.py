@@ -6,8 +6,55 @@ from fastapi.testclient import TestClient
 def test_health(client: TestClient) -> None:
     r = client.get("/health")
     assert r.status_code == 200
-    assert r.json()["status"] == "ok"
-    assert r.json()["offense_rows"] == 3
+    assert r.json() == {"status": "ok", "release_id": "20261123T000000Z"}
+
+
+def test_health_is_503_for_an_empty_mart(tmp_path, monkeypatch) -> None:
+    import duckdb
+
+    from openhydra_api.db import get_conn
+    from openhydra_api.main import REQUIRED_TABLES, app
+
+    db = tmp_path / "empty.duckdb"
+    con = duckdb.connect(str(db))
+    for table in REQUIRED_TABLES:
+        con.execute(f"create table {table} (x integer)")
+        if table != "fct_arrests":
+            con.execute(f"insert into {table} values (1)")
+    con.close()
+    ro = duckdb.connect(str(db), read_only=True)
+    app.dependency_overrides[get_conn] = lambda: (yield ro)
+    try:
+        r = TestClient(app).get("/health")
+    finally:
+        app.dependency_overrides.clear()
+        ro.close()
+    assert r.status_code == 503
+    assert r.json() == {"status": "invalid_snapshot", "problems": ["fct_arrests: no rows"]}
+
+
+def test_missing_warehouse_is_a_clean_503(monkeypatch, tmp_path) -> None:
+    from openhydra_api.main import app
+
+    monkeypatch.setenv("OPENHYDRA_DUCKDB", str(tmp_path / "absent.duckdb"))
+    r = TestClient(app).get("/health")
+    assert r.status_code == 503
+    assert r.json()["code"] == "warehouse_unavailable"
+    assert "absent.duckdb" not in r.text
+
+
+def test_meta_snapshot_and_capabilities(client: TestClient, monkeypatch) -> None:
+    monkeypatch.delenv("FBI_CDE_API_KEY", raising=False)
+    monkeypatch.setenv("OPENHYDRA_ENV_FILE", "/nonexistent/.env")
+    body = client.get("/api/meta").json()
+    assert body["snapshot"]["release_id"] == "20261123T000000Z"
+    assert body["snapshot"]["window_from"] == "01-2015"
+    assert body["snapshot"]["reconstructed"] is False
+    lesdc = next(d for d in body["snapshot"]["domains"] if d["domain"] == "lesdc")
+    assert (lesdc["window_from"], lesdc["window_to"]) == ("2022", "2023")
+    assert body["capabilities"] == {"live_agency": False}
+    monkeypatch.setenv("FBI_CDE_API_KEY", "synthetic")
+    assert client.get("/api/meta").json()["capabilities"] == {"live_agency": True}
 
 
 def test_meta(client: TestClient) -> None:

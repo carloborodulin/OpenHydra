@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import type { Snapshot } from "../lib/api";
+import { fmtDay, fmtWindow } from "../lib/snapshot";
 import { ThemeToggle } from "./ThemeToggle";
 
-export function TopBar({ window: win, onMenuClick }: { window?: string; onMenuClick?: () => void }) {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const time = now.toLocaleTimeString("en-US", { hour12: false });
-  const date = now.toISOString().slice(0, 10);
-
+/**
+ * The header shows the data release, not a clock: the warehouse views are a
+ * dated snapshot of the FBI data, not a live feed.
+ */
+export function TopBar({
+  snapshot,
+  onMenuClick,
+}: {
+  snapshot?: Snapshot | null;
+  onMenuClick?: () => void;
+}) {
   return (
     <header className="panel flex items-center justify-between border-x-0 border-t-0 px-3 py-2 lg:px-5 lg:py-2.5">
       <div className="flex min-w-0 items-center gap-2 lg:gap-4">
@@ -45,18 +47,18 @@ export function TopBar({ window: win, onMenuClick }: { window?: string; onMenuCl
         </div>
       </div>
       <div className="mono flex items-center gap-2 text-[0.62rem] tracking-widest text-muted uppercase lg:gap-5">
-        {win && (
-          <span className="hidden sm:inline">
-            Window <span className="text-ink">{win}</span>
+        {snapshot && (
+          <span
+            className="hidden sm:inline"
+            title={`Release ${snapshot.release_id}${snapshot.reconstructed ? " (dates from history)" : ""}`}
+          >
+            Snapshot <span className="text-ink">{fmtWindow(snapshot.window_from, snapshot.window_to)}</span>
+            <span className="hidden lg:inline">
+              {" "}
+              · extracted <span className="text-ink tabular-nums">{fmtDay(snapshot.extracted_at_max)}</span>
+            </span>
           </span>
         )}
-        <span className="flex items-center gap-2">
-          <span className="live-dot" />
-          <span className="hidden text-good sm:inline">Live Feed</span>
-        </span>
-        <span className="hidden text-ink tabular-nums sm:inline">
-          {date} · {time}
-        </span>
         <ThemeToggle />
       </div>
     </header>

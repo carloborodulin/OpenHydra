@@ -1,0 +1,182 @@
+{
+  "domains": {
+    "agencies": {
+      "extracted_at": "2026-06-09T00:00:00Z",
+      "file": "agencies.parquet",
+      "note": "from git history (4299875)",
+      "partitions": 51,
+      "rows": 19619,
+      "run_id": null,
+      "sha256": "af87a5df53a5f02d5d182bdabb1d1b730ae76a7d4aebe9f29c7e938ffe7511e3",
+      "status": "reconstructed",
+      "window": null
+    },
+    "arrests": {
+      "extracted_at": "2026-06-11T00:00:00Z",
+      "file": "arrests.parquet",
+      "note": "from git history (01ab3b1; schema migrated in 1ea5153)",
+      "partitions": 495,
+      "rows": 86625,
+      "run_id": null,
+      "sha256": "68617e85c6afa396d68beb9bd3302f977fa581ba708a400a5765e3a8996ba7e7",
+      "status": "reconstructed",
+      "window": {
+        "from": "01-2015",
+        "to": "12-2024"
+      }
+    },
+    "hate_crime": {
+      "extracted_at": "2026-06-11T00:00:00Z",
+      "file": "hate_crime.parquet",
+      "note": "from git history (01ab3b1)",
+      "partitions": 55,
+      "rows": 15125,
+      "run_id": null,
+      "sha256": "2abc703d674ebc3dc7643fb78ea362517d936fe7a9f24a88f68ab0eb127af5ff",
+      "status": "reconstructed",
+      "window": {
+        "from": "01-2015",
+        "to": "12-2024"
+      }
+    },
+    "lesdc": {
+      "extracted_at": "2026-06-10T00:00:00Z",
+      "file": "lesdc.parquet",
+      "note": "from git history (f6775cd)",
+      "partitions": 32,
+      "rows": 908,
+      "run_id": null,
+      "sha256": "357e8ff843d7e904eb1459988066f1408e29aa358f5deb19d6fa279ff0c027ba",
+      "status": "reconstructed",
+      "window": {
+        "from": "2022",
+        "to": "2023"
+      }
+    },
+    "nibrs": {
+      "extracted_at": "2026-06-11T00:00:00Z",
+      "file": "nibrs.parquet",
+      "note": "from git history (01ab3b1)",
+      "partitions": 636,
+      "rows": 154548,
+      "run_id": null,
+      "sha256": "8d0e98eb0d45d9fc4067877b9d71b53759c9858589588750ea3324595d8b49e1",
+      "status": "reconstructed",
+      "window": {
+        "from": "01-2015",
+        "to": "12-2024"
+      }
+    },
+    "nibrs_estimation": {
+      "extracted_at": "2026-06-10T00:00:00Z",
+      "file": "nibrs_estimation.parquet",
+      "note": "from git history (a24029f)",
+      "partitions": 48,
+      "rows": 2949,
+      "run_id": null,
+      "sha256": "a868bf42f6c3137bba60036750c22f4b7b1cb349caa6db3cbb7adc578abcaede",
+      "status": "reconstructed",
+      "window": {
+        "from": "2022",
+        "to": "2022"
+      }
+    },
+    "pe": {
+      "extracted_at": "2026-06-11T00:00:00Z",
+      "file": "pe.parquet",
+      "note": "from git history (01ab3b1)",
+      "partitions": 55,
+      "rows": 2750,
+      "run_id": null,
+      "sha256": "379df6f769e15b9b8bbf5d02ec287353fab24019bc2cbe00b42fd86d21910490",
+      "status": "reconstructed",
+      "window": {
+        "from": "2015",
+        "to": "2024"
+      }
+    },
+    "property": {
+      "extracted_at": "2026-06-11T00:00:00Z",
+      "file": "property.parquet",
+      "note": "from git history (01ab3b1)",
+      "partitions": 217,
+      "rows": 7890,
+      "run_id": null,
+      "sha256": "61ced68bc1b6556f7cc7ae0d6296512c8424407527220fff3df94f9b598b051d",
+      "status": "reconstructed",
+      "window": {
+        "from": "01-2015",
+        "to": "12-2024"
+      }
+    },
+    "shr": {
+      "extracted_at": "2026-06-11T00:00:00Z",
+      "file": "shr.parquet",
+      "note": "from git history (01ab3b1)",
+      "partitions": 55,
+      "rows": 7260,
+      "run_id": null,
+      "sha256": "38904bcf3414bcc42333d8b5e220b1f2f9d51deaa8d890111f20d99fe33fa3f9",
+      "status": "reconstructed",
+      "window": {
+        "from": "01-2015",
+        "to": "12-2024"
+      }
+    },
+    "summarized": {
+      "extracted_at": "2026-06-11T00:00:00Z",
+      "file": "summarized.parquet",
+      "note": "from git history (01ab3b1)",
+      "partitions": 540,
+      "rows": 259200,
+      "run_id": null,
+      "sha256": "f07791507182f5b4fcc3dbfdbdb80308715b051e88e2856b772e8b91e5adb273",
+      "status": "reconstructed",
+      "window": {
+        "from": "01-2015",
+        "to": "12-2024"
+      }
+    },
+    "uof_participation": {
+      "extracted_at": "2026-06-10T00:00:00Z",
+      "file": "uof_participation.parquet",
+      "note": "from git history (b245da2)",
+      "partitions": 5,
+      "rows": 5,
+      "run_id": null,
+      "sha256": "cc4dcb8a39b414e689cdc4d1af0a732911c3af459b52fb1a96b86da825e62343",
+      "status": "reconstructed",
+      "window": {
+        "from": "2019",
+        "to": "2023"
+      }
+    },
+    "uof_questions": {
+      "extracted_at": "2026-06-10T00:00:00Z",
+      "file": "uof_questions.parquet",
+      "note": "from git history (b245da2)",
+      "partitions": 3,
+      "rows": 105,
+      "run_id": null,
+      "sha256": "5d3eda6f67a9128652003a5df9b21e6aedca8ec58ba103e04bccb74516470103",
+      "status": "reconstructed",
+      "window": {
+        "from": "2019",
+        "to": "2023"
+      }
+    }
+  },
+  "extracted_at_max": "2026-06-11T00:00:00Z",
+  "extracted_at_min": "2026-06-09T00:00:00Z",
+  "kind": "release",
+  "previous_release_id": null,
+  "promoted_at": "2026-11-23T06:07:52Z",
+  "reconstructed": true,
+  "release_id": "2026-06-11-reconstructed",
+  "schema_version": 1,
+  "source": "FBI Crime Data Explorer API (api.usa.gov/crime/fbi/cde)",
+  "window": {
+    "from": "01-2015",
+    "to": "12-2024"
+  }
+}

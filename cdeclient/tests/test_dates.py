@@ -4,7 +4,7 @@ from datetime import date
 
 import pytest
 
-from cdeclient.dates import to_month, to_year
+from cdeclient.dates import parse_window, to_month, to_year, year_of
 
 
 def test_to_month_passthrough() -> None:
@@ -36,3 +36,20 @@ def test_to_year() -> None:
 def test_to_year_rejects_garbage(bad: str) -> None:
     with pytest.raises(ValueError):
         to_year(bad)
+
+
+@pytest.mark.parametrize(
+    ("value", "year"),
+    [("12-2024", "2024"), ("2024-12", "2024"), ("2024/02", "2024"), (date(2024, 2, 29), "2024")],
+)
+def test_year_of_handles_each_form(value: str | date, year: str) -> None:
+    assert year_of(value) == year
+
+
+def test_parse_window_normalizes_and_orders() -> None:
+    assert parse_window("2015-01", "12-2024") == ("01-2015", "12-2024")
+    assert parse_window(date(2020, 2, 29), "02-2020") == ("02-2020", "02-2020")
+    with pytest.raises(ValueError, match="starts after"):
+        parse_window("12-2024", "01-2015")
+    with pytest.raises(ValueError):
+        parse_window("13-2024", "12-2024")

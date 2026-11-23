@@ -33,6 +33,21 @@ def client(tmp_path) -> Iterator[TestClient]:
             ('state','NY','homicide', date '2020-01-01',
                 0.3, 80, 0.20, 40, 0.500, 0.30, NULL, 95.0);
 
+        create table meta_snapshot as select
+            '20261123T000000Z' as release_id,
+            timestamp '2026-11-23 00:00:00' as promoted_at,
+            timestamp '2026-06-09 00:00:00' as extracted_at_min,
+            timestamp '2026-11-22 12:00:00' as extracted_at_max,
+            '01-2015' as window_from,
+            '12-2024' as window_to,
+            'FBI Crime Data Explorer API' as source,
+            false as reconstructed;
+
+        create table meta_snapshot_domains as select * from (values
+            ('summarized', timestamp '2026-11-22 12:00:00', '01-2015', '12-2024', 3, 'ok'),
+            ('lesdc', timestamp '2026-06-10 00:00:00', '2022', '2023', 2, 'ok')
+        ) t(domain, extracted_at, window_from, window_to, row_count, status);
+
         create table dim_agencies(
             ori varchar, agency_name varchar, agency_type varchar, county varchar,
             state_abbr varchar, state_name varchar, latitude double, longitude double,
@@ -151,6 +166,7 @@ def client(tmp_path) -> Iterator[TestClient]:
 
     app.dependency_overrides[get_conn] = _override
     with TestClient(app) as c:
+        c.db_path = db  # type: ignore[attr-defined]
         yield c
     app.dependency_overrides.clear()
     ro.close()

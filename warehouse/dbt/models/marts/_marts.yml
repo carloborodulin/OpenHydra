@@ -8,7 +8,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["national", "state", "agency"]
+              arguments:
+                values: ["national", "state", "agency"]
       - name: offense
         tests:
           - not_null
@@ -31,7 +32,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["national", "state"]
+              arguments:
+                values: ["national", "state"]
       - name: area
         tests:
           - not_null
@@ -82,7 +84,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["national", "state", "agency"]
+              arguments:
+                values: ["national", "state", "agency"]
       - name: category
         tests:
           - not_null
@@ -97,7 +100,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["national", "state", "agency"]
+              arguments:
+                values: ["national", "state", "agency"]
       - name: category
         tests:
           - not_null
@@ -112,7 +116,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["NB", "NL", "NMVT", "NROB"]
+              arguments:
+                values: ["NB", "NL", "NMVT", "NROB"]
       - name: category
         tests:
           - not_null
@@ -143,7 +148,8 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["S", "AS"]
+              arguments:
+                values: ["S", "AS"]
       - name: value
         tests:
           - not_null
@@ -173,10 +179,39 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ["national", "region"]
+              arguments:
+                values: ["national", "region"]
       - name: offense
         tests:
           - not_null
       - name: value
+        tests:
+          - not_null
+
+  - name: meta_snapshot
+    description: The release manifest of the snapshot, as one row.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [release_id]
+    columns:
+      - name: release_id
+        tests:
+          - not_null
+      - name: extracted_at_max
+        tests:
+          - not_null
+      - name: window_from
+        tests:
+          - not_null
+
+  - name: meta_snapshot_domains
+    description: One row per file of the release, with its extraction date and window.
+    columns:
+      - name: domain
+        tests:
+          - not_null
+          - unique
+      - name: row_count
         tests:
           - not_null
