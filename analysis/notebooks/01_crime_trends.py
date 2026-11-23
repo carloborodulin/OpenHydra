@@ -27,6 +27,8 @@
 # values and a provenance file go to `../outputs/`.
 
 # %%
+# DuckDB 2: a query that becomes a Polars frame uses con.sql(...).pl(); the
+# result of con.execute() has no .pl().
 import json
 import os
 from datetime import UTC, datetime
@@ -52,10 +54,10 @@ WINDOW = ("2015-01-01", "2024-12-01")  # first and last month, inclusive
 WINDOW_LABEL = f"{WINDOW[0][:4]}–{WINDOW[1][:4]}"
 
 con = duckdb.connect(str(DUCKDB), read_only=True)
-release = con.execute(
+release = con.sql(
     "select release_id, extracted_at_min, extracted_at_max, window_from, window_to, reconstructed"
     " from meta_snapshot"
-).fetchone()
+).fetchall()[0]
 assert release is not None, "meta_snapshot is empty: build the warehouse with `make data`"
 if release[0] != EXPECTED_RELEASE and not os.environ.get("OPENHYDRA_ANY_RELEASE"):
     raise SystemExit(
@@ -90,7 +92,7 @@ def save(fig, name: str, frame: pl.DataFrame, x: str, y: str, series: str) -> No
 
 # %%
 off = (
-    con.execute(
+    con.sql(
         """
         select period, offense, index_2019
         from fct_offenses_monthly
@@ -100,7 +102,7 @@ off = (
           and index_2019 is not null
         order by offense, period
         """,
-        list(WINDOW),
+        params=list(WINDOW),
     )
     .pl()
 )
@@ -138,7 +140,7 @@ for offense_name in ("homicide", "motor-vehicle-theft"):
 
 # %%
 clr = (
-    con.execute(
+    con.sql(
         """
         select date_part('year', period) as year, offense,
                sum(clearances_actual) / sum(offenses_actual) as clearance,
@@ -152,7 +154,7 @@ clr = (
         having count(*) = 12
         order by offense, year
         """,
-        list(WINDOW),
+        params=list(WINDOW),
     )
     .pl()
 )
@@ -181,10 +183,10 @@ for row in clr.filter(pl.col("year") == int(WINDOW[1][:4])).iter_rows(named=True
 
 # %%
 ARREST_OFFENSE = "all"
-arrest_window = con.execute(
+arrest_window = con.sql(
     "select min(window_from), max(window_to) from fct_arrests where offense = ?",
-    [ARREST_OFFENSE],
-).fetchone()
+    params=[ARREST_OFFENSE],
+).fetchall()[0]
 ARREST_WINDOW = f"{arrest_window[0]} to {arrest_window[1]}"
 # The arrest totals cover their extract window; it must be the notebook window.
 assert (arrest_window[0], arrest_window[1]) == (
@@ -192,14 +194,14 @@ assert (arrest_window[0], arrest_window[1]) == (
     f"{WINDOW[1][5:7]}-{WINDOW[1][:4]}",
 ), f"arrest window {ARREST_WINDOW} differs from {WINDOW_LABEL}"
 race = (
-    con.execute(
+    con.sql(
         """
         select label as race, value as arrests
         from fct_arrests
         where level = 'national' and offense = ? and category = 'Arrestee Race' and value > 0
         order by arrests desc
         """,
-        [ARREST_OFFENSE],
+        params=[ARREST_OFFENSE],
     )
     .pl()
 )
@@ -227,7 +229,7 @@ AGE_WIDTH = {
 }
 AGE_ORDER = list(AGE_WIDTH)
 age = (
-    con.execute(
+    con.sql(
         """
         select
             label as age_band,
@@ -237,7 +239,7 @@ age = (
         where level = 'national' and offense = ?
           and category in ('Male Arrests By Age','Female Arrests By Age')
         """,
-        [ARREST_OFFENSE],
+        params=[ARREST_OFFENSE],
     )
     .pl()
     .filter(pl.col("age_band").is_in(AGE_ORDER))
