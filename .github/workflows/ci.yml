@@ -16,7 +16,7 @@ concurrency:
 
 env:
   UV_VERSION: "0.11.19"
-  NODE_VERSION: "22"
+  NODE_VERSION: "26"
   NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:

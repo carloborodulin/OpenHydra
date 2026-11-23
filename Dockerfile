@@ -4,7 +4,7 @@
 # Base images are pinned by digest, so a rebuild of an old commit gets the same
 # images. Dependabot proposes digest updates. The uv image digest is the
 # python3.12-bookworm-slim tag of 2026-11-22 (uv 0.9.30, per its annotation).
-ARG NODE_IMAGE=node:22-slim@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee
+ARG NODE_IMAGE=node:26-slim@sha256:e6bedef217677b276c591795e169840edd9096dbf13f29df8ef8d1856b8820bc
 ARG UV_IMAGE=ghcr.io/astral-sh/uv:python3.12-bookworm-slim@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58
 
 # ---- 1. build the dashboard ------------------------------------------------
