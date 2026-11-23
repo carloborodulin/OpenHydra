@@ -22,6 +22,8 @@ from typing import Any
 
 from cdeclient.models import ArrestTotalsResponse, ChartResponse, SummarizedResponse
 
+from . import obs
+
 
 def _month_to_date(period: str) -> date:
     """'MM-YYYY' -> first of that month (matches OffenseMonthly.period)."""
@@ -144,12 +146,19 @@ def cache_key(*parts: str | None) -> str:
 
 
 def cached(key: str, produce: Callable[[], list[dict[str, Any]]]) -> list[dict[str, Any]]:
-    """Return cached rows, else call ``produce`` and cache only non-empty results."""
+    """Return cached rows, else call ``produce`` and cache only non-empty results.
+
+    An exception from ``produce`` (an upstream failure) passes through and is
+    not cached.
+    """
     now = time.monotonic()
     hit = _cache.get(key)
     if hit is not None and now - hit[0] < _TTL_SECONDS:
+        obs.note(cache="hit")
         return hit[1]
+    obs.note(cache="miss")
     rows = produce()
+    obs.note(upstream="2xx")
     if rows:  # never cache empties (transient errors / no-data)
         if len(_cache) >= _MAX_ENTRIES:
             del _cache[min(_cache, key=lambda k: _cache[k][0])]  # evict oldest

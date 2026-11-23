@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from cdeclient import CdeError
+from cdeclient import CdeConfigError, CdeUpstreamError
 from cdeclient.models import (
     ArrestTotalsResponse,
     ChartResponse,
@@ -104,7 +104,8 @@ def make_client():
 
     def _make(fake: FakeCde) -> TestClient:
         agency_live.clear_cache()
-        app.dependency_overrides[cde.get_cde_client] = lambda: fake
+        # Routes get a provider and call it only on a cache miss.
+        app.dependency_overrides[cde.get_cde_client] = lambda: lambda: fake
         c = TestClient(app)
         created.append(c)
         return c
@@ -144,12 +145,14 @@ def test_agency_offenses_caches_nonempty(make_client) -> None:
     assert fake.calls["summarized"] == 1  # second request served from cache
 
 
-def test_agency_offenses_error_returns_empty_uncached(make_client) -> None:
-    fake = FakeCde(summarized=CdeError("boom"))
+def test_agency_offenses_upstream_error_is_502_and_uncached(make_client) -> None:
+    fake = FakeCde(summarized=CdeUpstreamError(500, "summarized/agency/NY0303000/homicide"))
     c = make_client(fake)
-    assert c.get("/api/agency/NY0303000/offenses", params={"offense": "homicide"}).json() == []
+    r = c.get("/api/agency/NY0303000/offenses", params={"offense": "homicide"})
+    assert r.status_code == 502
+    assert r.json()["code"] == "upstream_error"
     c.get("/api/agency/NY0303000/offenses", params={"offense": "homicide"})
-    assert fake.calls["summarized"] == 2  # empties are not cached → retried
+    assert fake.calls["summarized"] == 2  # errors are not cached → retried
 
 
 # -- arrests ----------------------------------------------------------------
@@ -222,12 +225,15 @@ def test_agency_police_employment(make_client) -> None:
 
 # -- no key configured ------------------------------------------------------
 def test_missing_api_key_returns_503(monkeypatch) -> None:
-    # With no override, get_cde_client constructs a real CdeClient; force the
+    # With no override, the provider builds the shared CdeClient; force the
     # no-key error path and assert a clean 503.
     def _boom(*a: Any, **k: Any) -> Any:
-        raise CdeError("No API key.")
+        raise CdeConfigError("No API key.")
 
+    cde.close_shared_client()
+    agency_live.clear_cache()
     monkeypatch.setattr(cde, "CdeClient", _boom)
     app.dependency_overrides.pop(cde.get_cde_client, None)
     r = TestClient(app).get("/api/agency/NY0303000/police-employment")
     assert r.status_code == 503
+    assert r.json()["code"] == "live_data_unconfigured"

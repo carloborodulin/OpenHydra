@@ -6,7 +6,7 @@ import sys
 from typing import Annotated
 
 import typer
-from cdeclient import STATES, CdeClient, CdeError
+from cdeclient import BULK, STATES, CdeClient, CdeError
 
 from .extract import ALL_ARREST_OFFENSES, ALL_OFFENSES, Extractor
 
@@ -62,7 +62,8 @@ def pull(
     # Generous retries + a longer read timeout: a bulk pull makes many calls and
     # the gateway throws intermittent 503 spells and slow responses (notably the
     # modeled NIBRS estimations); ride through them rather than aborting mid-run.
-    with CdeClient(timeout=60.0, max_attempts=8, base_wait=1.0, max_wait=30.0) as client:
+    # BULK: patient retries with jitter that honor the API's Retry-After.
+    with CdeClient(policy=BULK) as client:
         ex = Extractor(client)
         if "summarized" in doms:
             f = ex.pull_summarized(offs, st, from_, to)
