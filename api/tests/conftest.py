@@ -6,7 +6,9 @@ import duckdb
 import pytest
 from fastapi.testclient import TestClient
 
+from openhydra_api import agency_live
 from openhydra_api.db import get_conn
+from openhydra_api.live_guard import LiveGuard
 from openhydra_api.main import app
 
 
@@ -145,3 +147,41 @@ def client(tmp_path) -> Iterator[TestClient]:
         yield c
     app.dependency_overrides.clear()
     ro.close()
+
+
+@pytest.fixture
+def live_db(tmp_path) -> Iterator[None]:
+    """A temp DuckDB that knows the agency NY0303000, for the live routes."""
+    db = tmp_path / "live.duckdb"
+    con = duckdb.connect(str(db))
+    con.execute(
+        """
+        create table dim_agencies(
+            ori varchar, agency_name varchar, agency_type varchar, county varchar,
+            state_abbr varchar, state_name varchar, latitude double, longitude double,
+            is_nibrs boolean, nibrs_start_year integer
+        );
+        insert into dim_agencies values
+            ('NY0303000','Test PD','City','ERIE','NY','New York', 42.0, -78.0, true, 2021),
+            ('NY0303001','Other PD','City','ERIE','NY','New York', 42.1, -78.1, true, 2021);
+        """
+    )
+    con.close()
+    ro = duckdb.connect(str(db), read_only=True)
+
+    def _override() -> Iterator[duckdb.DuckDBPyConnection]:
+        yield ro
+
+    app.dependency_overrides[get_conn] = _override
+    yield
+    app.dependency_overrides.pop(get_conn, None)
+    ro.close()
+
+
+@pytest.fixture(autouse=True)
+def fresh_live_guard(monkeypatch: pytest.MonkeyPatch) -> LiveGuard:
+    """Each test gets its own generous live limits and an empty live cache."""
+    g = LiveGuard(client_per_min=10_000, global_per_hour=100_000, concurrency=8)
+    monkeypatch.setattr(agency_live, "guard", g)
+    agency_live.clear_cache()
+    return g

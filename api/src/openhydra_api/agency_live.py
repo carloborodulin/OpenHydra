@@ -8,21 +8,24 @@ and normalize the responses into the existing ``OffenseMonthly`` / ``ArrestRow``
 clearance-ratio pivot in ``fct_offenses_monthly.sql``) in Python so the frontend
 reuses its types and chart components unchanged.
 
-A tiny in-process TTL cache fronts the live calls. It caches only successful,
-non-empty results, so a transient gateway 503 (which surfaces as ``[]``) never
-sticks — the next request retries.
+An in-process LRU cache with single flight fronts the live calls, and
+``live_guard`` limits the upstream work (see ``LiveCache`` and ``fetch``).
 """
 
 from __future__ import annotations
 
+import threading
 import time
+from collections import OrderedDict
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
 from cdeclient.models import ArrestTotalsResponse, ChartResponse, SummarizedResponse
 
 from . import obs
+from .live_guard import LiveLimitError, guard
 
 
 def _month_to_date(period: str) -> date:
@@ -135,37 +138,127 @@ def pe_to_rows(resp: ChartResponse) -> list[dict[str, Any]]:
     return rows
 
 
-# -- tiny in-process TTL cache ---------------------------------------------
-_TTL_SECONDS = 3600.0
-_MAX_ENTRIES = 512
-_cache: dict[str, tuple[float, list[dict[str, Any]]]] = {}
+# -- in-process cache with single flight ------------------------------------
+@dataclass
+class _Flight:
+    """One upstream fetch that other requests for the same key can wait on."""
+
+    done: threading.Event = field(default_factory=threading.Event)
+    rows: list[dict[str, Any]] | None = None
+    error: BaseException | None = None
 
 
-def cache_key(*parts: str | None) -> str:
-    return "|".join("" if p is None else p for p in parts)
+class LiveCache:
+    """A thread-safe LRU cache of unfiltered upstream rows.
 
-
-def cached(key: str, produce: Callable[[], list[dict[str, Any]]]) -> list[dict[str, Any]]:
-    """Return cached rows, else call ``produce`` and cache only non-empty results.
-
-    An exception from ``produce`` (an upstream failure) passes through and is
-    not cached.
+    - A non-empty result stays for ``ttl`` seconds. A valid empty result (the
+      agency has no data) stays for ``empty_ttl`` seconds, so repeat requests
+      for it do not spend quota.
+    - An upstream error is never stored.
+    - Concurrent misses for one key make one upstream call (single flight).
+      The other requests wait for it and get the same result or error.
+    - Each caller gets its own copy of the rows.
     """
-    now = time.monotonic()
-    hit = _cache.get(key)
-    if hit is not None and now - hit[0] < _TTL_SECONDS:
-        obs.note(cache="hit")
-        return hit[1]
-    obs.note(cache="miss")
-    rows = produce()
-    obs.note(upstream="2xx")
-    if rows:  # never cache empties (transient errors / no-data)
-        if len(_cache) >= _MAX_ENTRIES:
-            del _cache[min(_cache, key=lambda k: _cache[k][0])]  # evict oldest
-        _cache[key] = (now, rows)
-    return rows
+
+    def __init__(
+        self,
+        *,
+        max_entries: int = 512,
+        ttl: float = 3600.0,
+        empty_ttl: float = 300.0,
+        wait_timeout: float = 20.0,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
+        self.max_entries = max_entries
+        self.ttl = ttl
+        self.empty_ttl = empty_ttl
+        self.wait_timeout = wait_timeout
+        self._clock = clock
+        self._lock = threading.Lock()
+        self._data: OrderedDict[str, tuple[float, list[dict[str, Any]]]] = OrderedDict()
+        self._inflight: dict[str, _Flight] = {}
+
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._data.clear()
+
+    def get(self, key: str, produce: Callable[[], list[dict[str, Any]]]) -> list[dict[str, Any]]:
+        with self._lock:
+            hit = self._data.get(key)
+            if hit is not None and self._clock() < hit[0]:
+                self._data.move_to_end(key)
+                obs.note(cache="hit")
+                return _copy(hit[1])
+            flight = self._inflight.get(key)
+            leader = flight is None
+            if flight is None:
+                flight = _Flight()
+                self._inflight[key] = flight
+
+        if not leader:
+            obs.note(cache="coalesced")
+            if not flight.done.wait(self.wait_timeout):
+                raise LiveLimitError(
+                    503, "live_busy", "Live agency data is busy. Try again in a moment.", 5
+                )
+            if flight.error is not None:
+                raise flight.error
+            return _copy(flight.rows or [])
+
+        obs.note(cache="miss")
+        try:
+            rows = produce()
+            obs.note(upstream="2xx")
+            with self._lock:
+                expires = self._clock() + (self.ttl if rows else self.empty_ttl)
+                self._data[key] = (expires, rows)
+                self._data.move_to_end(key)
+                while len(self._data) > self.max_entries:
+                    self._data.popitem(last=False)
+            flight.rows = rows
+            return _copy(rows)
+        except BaseException as exc:
+            flight.error = exc
+            raise
+        finally:
+            with self._lock:
+                self._inflight.pop(key, None)
+            flight.done.set()
+
+
+def _copy(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [dict(r) for r in rows]
+
+
+cache = LiveCache()
+
+
+def cache_key(kind: str, *parts: str) -> str:
+    """A canonical key. Callers pass validated, upper-case ORIs and offense codes."""
+    return ":".join((kind, *parts))
+
+
+def fetch(key: str, produce: Callable[[], list[dict[str, Any]]]) -> list[dict[str, Any]]:
+    """Get rows from the cache, or charge the live budget and call ``produce``.
+
+    ``produce`` must return the unfiltered rows. Filter by category after.
+    """
+
+    def guarded() -> list[dict[str, Any]]:
+        guard.admit(obs.client_id())
+        with guard.upstream_slot():
+            return produce()
+
+    return cache.get(key, guarded)
+
+
+def filter_category(rows: list[dict[str, Any]], category: str | None) -> list[dict[str, Any]]:
+    return rows if category is None else [r for r in rows if r["category"] == category]
 
 
 def clear_cache() -> None:
     """Drop all cached entries (used by tests)."""
-    _cache.clear()
+    cache.clear()

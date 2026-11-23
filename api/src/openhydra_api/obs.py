@@ -42,6 +42,8 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
+from .live_guard import LiveLimitError
+
 log = logging.getLogger("openhydra.access")
 
 # Per-request facts that handlers deep in the stack fill in. The dict is
@@ -59,6 +61,23 @@ def note(**facts: Any) -> None:
     state = _request.get()
     if state is not None:
         state.update(facts)
+
+
+def client_id() -> str:
+    """The client address for rate limits ("unknown" outside a request)."""
+    state = _request.get()
+    return "unknown" if state is None else str(state.get("client", "unknown"))
+
+
+def _client_address(scope: Scope, headers: dict[bytes, bytes]) -> str:
+    # The Railway edge appends the address it sees to X-Forwarded-For. A client
+    # can forge the entries before it, so use the last entry only.
+    forwarded = headers.get(b"x-forwarded-for", b"").decode("latin-1")
+    last = forwarded.split(",")[-1].strip()
+    if last:
+        return last[:64]
+    peer = scope.get("client")
+    return str(peer[0]) if peer else "unknown"
 
 
 def current_request_id() -> str | None:
@@ -95,7 +114,10 @@ class RequestContextMiddleware:
             if _SAFE_ID.match(raw):
                 rid = raw
                 break
-        state: dict[str, Any] = {"request_id": rid or uuid.uuid4().hex}
+        state: dict[str, Any] = {
+            "request_id": rid or uuid.uuid4().hex,
+            "client": _client_address(scope, headers),
+        }
         token = _request.set(state)
         start = time.perf_counter()
         status = 500
@@ -176,8 +198,15 @@ async def handle_cde_error(request: Request, exc: Exception) -> JSONResponse:
     return _error(request, 502, "upstream_error", "The FBI data service failed.")
 
 
+async def handle_live_limit(request: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, LiveLimitError)
+    note(upstream="refused")
+    return _error(request, exc.status, exc.code, exc.detail, {"Retry-After": str(exc.retry_after)})
+
+
 def install(app: FastAPI) -> None:
     configure_logging()
     app.add_middleware(RequestContextMiddleware)
     app.add_exception_handler(CdeError, handle_cde_error)
     app.add_exception_handler(ValidationError, handle_cde_error)
+    app.add_exception_handler(LiveLimitError, handle_live_limit)

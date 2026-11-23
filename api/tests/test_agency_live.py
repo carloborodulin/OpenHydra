@@ -98,7 +98,7 @@ def _resolve(value: Any) -> Any:
 
 
 @pytest.fixture
-def make_client():
+def make_client(live_db):
     """Build a TestClient whose get_cde_client yields the given FakeCde."""
     created: list[TestClient] = []
 
@@ -224,7 +224,7 @@ def test_agency_police_employment(make_client) -> None:
 
 
 # -- no key configured ------------------------------------------------------
-def test_missing_api_key_returns_503(monkeypatch) -> None:
+def test_missing_api_key_returns_503(monkeypatch, live_db) -> None:
     # With no override, the provider builds the shared CdeClient; force the
     # no-key error path and assert a clean 503.
     def _boom(*a: Any, **k: Any) -> Any:

@@ -63,7 +63,7 @@ FAILURES: list[tuple[str, CdeError | ValidationError, int, str]] = [
 
 
 @pytest.fixture
-def client_for():
+def client_for(live_db):
     def _make(fake: FakeCde) -> TestClient:
         agency_live.clear_cache()
         app.dependency_overrides[cde.get_cde_client] = lambda: lambda: fake
@@ -111,7 +111,7 @@ def test_sparse_valid_response_is_200_with_rows(client_for: Any) -> None:
     assert r.json()
 
 
-def test_cache_hit_does_not_touch_the_client(client_for: Any) -> None:
+def test_cache_hit_does_not_touch_the_client(client_for: Any) -> None:  # noqa: ARG001
     built = {"n": 0}
     fake = FakeCde(
         summarized=SummarizedResponse.model_validate(_sample("summarized_agency_violent"))
