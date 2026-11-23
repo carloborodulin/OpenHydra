@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Controls } from "./components/Controls";
 import { Empty } from "./components/Empty";
 import { Nav, type NavItem } from "./components/Nav";
@@ -10,31 +10,38 @@ import { ReleaseContext } from "./lib/release";
 import { useUrlState } from "./lib/urlState";
 
 // Each view is its own chunk, so the first load fetches only the open view.
-const HateCrimeView = lazy(() =>
-  import("./views/HateCrimeView").then((m) => ({ default: m.HateCrimeView })),
-);
-const HomicideView = lazy(() =>
-  import("./views/HomicideView").then((m) => ({ default: m.HomicideView })),
-);
-const LesdcView = lazy(() => import("./views/LesdcView").then((m) => ({ default: m.LesdcView })));
-const NibrsEstimationView = lazy(() =>
-  import("./views/NibrsEstimationView").then((m) => ({ default: m.NibrsEstimationView })),
-);
-const NibrsView = lazy(() => import("./views/NibrsView").then((m) => ({ default: m.NibrsView })));
-const OverviewView = lazy(() =>
-  import("./views/OverviewView").then((m) => ({ default: m.OverviewView })),
-);
+// LOADERS also lets the app start the download of a chunk before the view renders.
+const LOADERS = {
+  overview: () => import("./views/OverviewView"),
+  performance: () => import("./views/PerformanceView"),
+  "hate-crime": () => import("./views/HateCrimeView"),
+  homicide: () => import("./views/HomicideView"),
+  property: () => import("./views/PropertyView"),
+  nibrs: () => import("./views/NibrsView"),
+  "nibrs-estimation": () => import("./views/NibrsEstimationView"),
+  "use-of-force": () => import("./views/UseOfForceView"),
+  lesdc: () => import("./views/LesdcView"),
+  methodology: () => import("./views/MethodologyView"),
+};
+const OverviewView = lazy(() => LOADERS.overview().then((m) => ({ default: m.OverviewView })));
 const PerformanceView = lazy(() =>
-  import("./views/PerformanceView").then((m) => ({ default: m.PerformanceView })),
+  LOADERS.performance().then((m) => ({ default: m.PerformanceView })),
 );
-const PropertyView = lazy(() =>
-  import("./views/PropertyView").then((m) => ({ default: m.PropertyView })),
+const HateCrimeView = lazy(() =>
+  LOADERS["hate-crime"]().then((m) => ({ default: m.HateCrimeView })),
 );
-const MethodologyView = lazy(() =>
-  import("./views/MethodologyView").then((m) => ({ default: m.MethodologyView })),
+const HomicideView = lazy(() => LOADERS.homicide().then((m) => ({ default: m.HomicideView })));
+const PropertyView = lazy(() => LOADERS.property().then((m) => ({ default: m.PropertyView })));
+const NibrsView = lazy(() => LOADERS.nibrs().then((m) => ({ default: m.NibrsView })));
+const NibrsEstimationView = lazy(() =>
+  LOADERS["nibrs-estimation"]().then((m) => ({ default: m.NibrsEstimationView })),
 );
 const UseOfForceView = lazy(() =>
-  import("./views/UseOfForceView").then((m) => ({ default: m.UseOfForceView })),
+  LOADERS["use-of-force"]().then((m) => ({ default: m.UseOfForceView })),
+);
+const LesdcView = lazy(() => LOADERS.lesdc().then((m) => ({ default: m.LesdcView })));
+const MethodologyView = lazy(() =>
+  LOADERS.methodology().then((m) => ({ default: m.MethodologyView })),
 );
 
 // Top-level views. Each domain group adds an entry here and a branch in the
@@ -75,6 +82,11 @@ export default function App() {
   const agency =
     url.agency && (region === "US" || url.agency.startsWith(region)) ? url.agency : null;
   const offenseRow = view === "overview" || view === "performance";
+  // The view renders only after /api/meta answers. Start its chunk now, so the
+  // two downloads run at the same time.
+  useEffect(() => {
+    if (view in LOADERS) void LOADERS[view as keyof typeof LOADERS]();
+  }, [view]);
   const setView = (id: string) => setUrl({ view: id });
   const setRegion = (r: string) => setUrl({ region: r });
   const setOffense = (o: string) => setUrl({ offense: o });
