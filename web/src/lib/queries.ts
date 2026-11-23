@@ -76,11 +76,18 @@ export const useProperty = (
   category: string | undefined,
   level = "national",
   area = "US",
+  year?: number,
 ) =>
   useQuery({
-    queryKey: ["property", offense, category, level, area],
-    queryFn: () => api.property(offense, category, level, area),
+    queryKey: ["property", offense, category, level, area, year ?? "latest"],
+    queryFn: () => api.property(offense, category, level, area, year),
     enabled: Boolean(offense),
+  });
+
+export const usePropertyYears = (offense: string, level = "national", area = "US") =>
+  useQuery({
+    queryKey: ["property-years", offense, level, area],
+    queryFn: () => api.propertyYears(offense, level, area),
   });
 
 export const useAgencyProperty = (ori: string | undefined, offense: string, category?: string) =>

@@ -23,9 +23,12 @@ def client(tmp_path) -> Iterator[TestClient]:
             level varchar, area varchar, offense varchar, period date,
             offenses_rate double, offenses_actual double,
             clearances_rate double, clearances_actual double, clearance_ratio double,
-            ttm_rate double, yoy_delta double, index_2019 double
+            ttm_months bigint default 12, ttm_rate double, yoy_delta double, index_2019 double
         );
-        insert into fct_offenses_monthly values
+        insert into fct_offenses_monthly
+            (level, area, offense, period, offenses_rate, offenses_actual, clearances_rate,
+             clearances_actual, clearance_ratio, ttm_rate, yoy_delta, index_2019)
+        values
             ('national','US','homicide', date '2020-01-01',
                 0.5, 1300, 0.26, 670, 0.515, 0.48, 0.10, 120.0),
             ('national','US','homicide', date '2020-02-01',
@@ -106,13 +109,14 @@ def client(tmp_path) -> Iterator[TestClient]:
             ('national','US','victim_race','Black or African American', 31402.0);
 
         create table fct_property(
-            level varchar, area varchar, offense varchar,
+            level varchar, area varchar, offense varchar, year integer,
             category varchar, label varchar, value double
         );
         insert into fct_property values
-            ('national','US','NB','stolen_value','Miscellaneous', 1465971185687.0),
-            ('national','US','NB','stolen_value','Firearms', 14479512996.0),
-            ('national','US','NL','stolen_value','Currency, Notes, etc.', 500.0);
+            ('national','US','NB', 2024,'stolen_value','Miscellaneous', 1465971185687.0),
+            ('national','US','NB', 2024,'stolen_value','Firearms', 14479512996.0),
+            ('national','US','NB', 2023,'stolen_value','Firearms', 1.0),
+            ('national','US','NL', NULL,'stolen_value','Currency, Notes, etc.', 500.0);
 
         create table fct_nibrs(
             level varchar, area varchar, offense varchar,

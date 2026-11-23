@@ -3,6 +3,10 @@ version: 2
 models:
   - name: fct_offenses_monthly
     description: One row per level/area/offense/month with offense & clearance rates/actuals and a clearance ratio.
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, offense, period]
     columns:
       - name: level
         tests:
@@ -215,3 +219,73 @@ models:
       - name: row_count
         tests:
           - not_null
+
+unit_tests:
+  - name: ttm_needs_12_calendar_months
+    description: >
+      A missing month (June 2019) leaves 11 months in each window that holds it,
+      so the TTM rate and the 2019 baseline are null. A ROWS window would reach
+      back 13 months instead.
+    model: fct_offenses_monthly
+    given:
+      - input: ref('stg_summarized')
+        format: sql
+        rows: |
+          select 'national' as level, 'US' as area, 'x' as offense,
+                 'offenses' as series, 'rate' as measure,
+                 cast(d as date) as period, 10.0 as value
+          from generate_series(date '2019-01-01', date '2020-01-01', interval 1 month) as g(d)
+          where d <> date '2019-06-01'
+    expect:
+      format: sql
+      rows: |
+        select 'national' as level, 'US' as area, 'x' as offense,
+               cast(d as date) as period,
+               10.0 as offenses_rate,
+               cast(null as double) as offenses_actual,
+               cast(null as double) as clearances_rate,
+               cast(null as double) as clearances_actual,
+               cast(null as double) as clearance_ratio,
+               cast(case when d = date '2020-01-01' then 11
+                         when d < date '2019-06-01' then month(d)
+                         else month(d) - 1 end as bigint) as ttm_months,
+               cast(null as double) as ttm_rate,
+               cast(null as double) as yoy_delta,
+               cast(null as double) as index_2019
+        from generate_series(date '2019-01-01', date '2020-01-01', interval 1 month) as g(d)
+        where d <> date '2019-06-01'
+
+  - name: index_is_100_in_december_2019
+    description: >
+      With 2019 at 120 and 2020 at 240 per month, the TTM rate is null for the
+      first 11 months, 120 in December 2019 (index 100) and 120 + 10m in month m
+      of 2020.
+    model: fct_offenses_monthly
+    given:
+      - input: ref('stg_summarized')
+        format: sql
+        rows: |
+          select 'national' as level, 'US' as area, 'x' as offense,
+                 'offenses' as series, 'rate' as measure,
+                 cast(d as date) as period,
+                 case when year(d) = 2019 then 120.0 else 240.0 end as value
+          from generate_series(date '2019-01-01', date '2020-12-01', interval 1 month) as g(d)
+    expect:
+      format: sql
+      rows: |
+        select 'national' as level, 'US' as area, 'x' as offense,
+               cast(d as date) as period,
+               case when year(d) = 2019 then 120.0 else 240.0 end as offenses_rate,
+               cast(null as double) as offenses_actual,
+               cast(null as double) as clearances_rate,
+               cast(null as double) as clearances_actual,
+               cast(null as double) as clearance_ratio,
+               cast(case when year(d) = 2019 then month(d) else 12 end as bigint) as ttm_months,
+               case when d < date '2019-12-01' then null
+                    when year(d) = 2019 then 120.0
+                    else cast(120 + 10 * month(d) as double) end as ttm_rate,
+               case when d = date '2020-12-01' then 240.0 / 120.0 - 1 end as yoy_delta,
+               case when d < date '2019-12-01' then null
+                    when year(d) = 2019 then 120.0 / 120.0 * 100
+                    else cast(120 + 10 * month(d) as double) / 120.0 * 100 end as index_2019
+        from generate_series(date '2019-01-01', date '2020-12-01', interval 1 month) as g(d)

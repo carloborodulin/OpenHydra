@@ -102,7 +102,7 @@
       "partitions": 217,
       "rows": 7890,
       "run_id": null,
-      "sha256": "61ced68bc1b6556f7cc7ae0d6296512c8424407527220fff3df94f9b598b051d",
+      "sha256": "a04ba3d23ec0da6d7c975a3c617316a6025903c2620e4fd6ff3977207d378e07",
       "status": "reconstructed",
       "window": {
         "from": "01-2015",
@@ -170,7 +170,7 @@
   "extracted_at_min": "2026-06-09T00:00:00Z",
   "kind": "release",
   "previous_release_id": null,
-  "promoted_at": "2026-11-23T06:07:52Z",
+  "promoted_at": "2026-11-23T06:31:20Z",
   "reconstructed": true,
   "release_id": "2026-06-11-reconstructed",
   "schema_version": 1,

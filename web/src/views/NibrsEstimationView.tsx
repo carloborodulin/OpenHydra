@@ -70,7 +70,7 @@ export function NibrsEstimationView() {
           ))}
         </div>
       </div>
-      <BreakdownView region={geo.label} query={query} dimensions={DIMENSIONS} />
+      <BreakdownView domain="nibrs-estimation" region={geo.label} query={query} dimensions={DIMENSIONS} />
     </>
   );
 }

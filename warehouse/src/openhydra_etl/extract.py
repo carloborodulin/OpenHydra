@@ -48,6 +48,19 @@ NIBRS_ESTIMATION_YEAR: str = "2022"
 _UNSAFE = re.compile(r"[^A-Za-z0-9._-]+")
 
 
+def year_windows(from_: str, to: str) -> list[tuple[int, str, str]]:
+    """Split a month window into calendar-year windows: (year, MM-YYYY, MM-YYYY).
+
+    The first and the last year keep the months of the original window.
+    """
+    start, end = to_month(from_), to_month(to)
+    y0, y1 = int(year_of(start)), int(year_of(end))
+    out = []
+    for y in range(y0, y1 + 1):
+        out.append((y, start if y == y0 else f"01-{y}", end if y == y1 else f"12-{y}"))
+    return out
+
+
 class DomainFailed(RuntimeError):
     """A request of a domain failed, so the domain is not written."""
 
@@ -293,24 +306,35 @@ class Extractor:
     def pull_property(
         self, states: list[str], from_: str, to: str, *, include_national: bool = True
     ) -> pl.DataFrame:
-        def produce(level: str, area: str, off: str | None) -> pl.DataFrame:
-            assert off is not None
-            resp = (
-                self.client.property_national(off, from_, to)
-                if level == "national"
-                else self.client.property_state(area, off, from_, to)
-            )
-            return normalize.property_to_frame(resp, level=level, area=area, offense=off)
+        """Expanded property values, one request per area, offense and year.
 
-        return self._breakdown_domain(
-            "property",
-            "property",
-            normalize.PROPERTY_SCHEMA,
-            states,
-            include_national,
-            list(EXPANDED_PROPERTY_OFFENSES),
-            produce,
+        The API returns totals for the request window. One window per calendar
+        year gives annual values, so a per-resident figure can use the
+        population of the same year.
+        """
+        frames: list[pl.DataFrame] = []
+        for level, area in self._areas(states, include_national):
+            for off in EXPANDED_PROPERTY_OFFENSES:
+                for year, start, end in year_windows(from_, to):
+                    part = self._part(
+                        "property",
+                        f"{area}:{off}:{year}",
+                        partial(self._property, level, area, off, year, start, end),
+                    )
+                    assert part is not None
+                    frames.append(part)
+        path = self._write("property", frames, normalize.PROPERTY_SCHEMA)
+        return pl.read_parquet(path)
+
+    def _property(
+        self, level: str, area: str, off: str, year: int, start: str, end: str
+    ) -> pl.DataFrame:
+        resp = (
+            self.client.property_national(off, start, end)
+            if level == "national"
+            else self.client.property_state(area, off, start, end)
         )
+        return normalize.property_to_frame(resp, level=level, area=area, offense=off, year=year)
 
     def pull_nibrs(
         self, states: list[str], from_: str, to: str, *, include_national: bool = True

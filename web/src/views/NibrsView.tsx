@@ -50,7 +50,7 @@ export function NibrsView({ region }: { region: string }) {
           ))}
         </div>
       </div>
-      <BreakdownView region={region} query={query} dimensions={DIMENSIONS} />
+      <BreakdownView domain="nibrs" region={region} query={query} dimensions={DIMENSIONS} />
     </>
   );
 }

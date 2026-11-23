@@ -5,7 +5,8 @@ import { MapPanel } from "../components/MapPanel";
 import { Panel } from "../components/Panel";
 import { Select } from "../components/Select";
 import { StatTile } from "../components/StatTile";
-import { ArrestsChart } from "../components/charts/ArrestsChart";
+import { HBarChart } from "../components/charts/HBarChart";
+import { ARRESTS } from "../lib/measures";
 import { ClearanceChart } from "../components/charts/ClearanceChart";
 import { PoliceEmploymentChart } from "../components/charts/PoliceEmploymentChart";
 import { TrendChart, type TrendMode } from "../components/charts/TrendChart";
@@ -27,7 +28,7 @@ import { regionName } from "../lib/states";
 
 const TREND_TITLES: Record<TrendMode, string> = {
   rate: "Offense Rate",
-  index: "Indexed to 2019",
+  index: "TTM index (Dec 2019 = 100)",
   relative: "Relative to National",
 };
 
@@ -305,7 +306,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
             message={`No arrest data for ${titleCase(arrestOff)} in ${regionLabel}`}
           />
         ) : arrests.data?.length ? (
-          <ArrestsChart data={arrests.data} />
+          <HBarChart data={arrests.data} measure={ARRESTS} label={`Arrests by ${arrestCat}, ${focusLabel}`} />
         ) : (
           <Empty state={arrests} />
         )}

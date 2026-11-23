@@ -2,6 +2,7 @@ select
     level,
     area,
     offense,
+    year,
     category,
     label,
     value

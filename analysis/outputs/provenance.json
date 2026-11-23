@@ -1,0 +1,15 @@
+{
+  "release_id": "2026-06-11-reconstructed",
+  "extracted_at_min": "2026-06-09 00:00:00",
+  "extracted_at_max": "2026-06-11 00:00:00",
+  "release_window": [
+    "01-2015",
+    "12-2024"
+  ],
+  "reconstructed": true,
+  "notebook_window": [
+    "2015-01-01",
+    "2024-12-01"
+  ],
+  "generated_at": "2026-11-23T06:33:55+00:00"
+}

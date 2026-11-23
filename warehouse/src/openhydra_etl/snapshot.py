@@ -63,7 +63,7 @@ FILES: dict[str, FileSpec] = {
         FileSpec("pe", normalize.PE_SCHEMA, ("level", "area")),
         FileSpec("hate_crime", normalize.HATE_CRIME_SCHEMA, ("level", "area")),
         FileSpec("shr", normalize.SHR_SCHEMA, ("level", "area")),
-        FileSpec("property", normalize.PROPERTY_SCHEMA, ("level", "area", "offense")),
+        FileSpec("property", normalize.PROPERTY_SCHEMA, ("level", "area", "offense", "year")),
         FileSpec("nibrs", normalize.NIBRS_SCHEMA, ("level", "area", "offense")),
         FileSpec("lesdc", normalize.LESDC_SCHEMA, ("year", "chart_type")),
         FileSpec("uof_participation", normalize.UOF_PARTICIPATION_SCHEMA, ("year",), key=("year",)),
