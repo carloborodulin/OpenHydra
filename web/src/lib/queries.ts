@@ -24,6 +24,13 @@ export const useOffenseBenchmark = (
     enabled: enabled && Boolean(offense),
   });
 
+export const useArrestsAvailable = (level = "national", area = "US", enabled = true) =>
+  useQuery({
+    queryKey: ["arrests-available", level, area],
+    queryFn: () => api.arrestsAvailable(level, area),
+    enabled,
+  });
+
 export const useArrests = (
   category: string,
   offense?: string,

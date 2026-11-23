@@ -42,14 +42,21 @@ def client(tmp_path) -> Iterator[TestClient]:
             ('NY001','Test PD','City','ERIE','NY','New York', 42.0, -78.0, true, 2021);
 
         create table fct_arrests(
-            level varchar, area varchar, offense varchar,
-            category varchar, label varchar, value double
+            level varchar, area varchar, offense varchar, arrest_code varchar,
+            window_from varchar default '01-2015', window_to varchar default '12-2024',
+            category varchar, label varchar, value double, is_derived boolean
         );
-        insert into fct_arrests values
-            ('national','US','homicide','Arrestee Sex','Male', 100.0),
-            ('national','US','homicide','Arrestee Sex','Female', 40.0),
-            ('national','US','burglary','Arrestee Sex','Male', 200.0),
-            ('national','US','burglary','Arrestee Sex','Female', 80.0);
+        insert into fct_arrests
+            (level, area, offense, arrest_code, category, label, value, is_derived)
+        values
+            ('national','US','all','all', 'Arrestee Sex','Male', 900.0, false),
+            ('national','US','all','all', 'Arrestee Sex','Female', 400.0, false),
+            ('national','US','homicide','11', 'Arrestee Sex','Male', 100.0, false),
+            ('national','US','homicide','11', 'Arrestee Sex','Female', 40.0, false),
+            ('national','US','burglary','60', 'Arrestee Sex','Male', 200.0, false),
+            ('national','US','burglary','60', 'Arrestee Sex','Female', 80.0, false),
+            ('national','US','violent-crime',NULL, 'Arrestee Sex','Male', 150.0, true),
+            ('state','NY','all','all', 'Arrestee Sex','Male', 50.0, false);
 
         create table fct_police_employment(
             level varchar, area varchar, section varchar,

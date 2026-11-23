@@ -17,6 +17,7 @@ import {
   useAgencyOffenseMonthly,
   useAgencyPoliceEmployment,
   useArrests,
+  useArrestsAvailable,
   useMeta,
   useOffenseBenchmark,
   useOffenseMonthly,
@@ -75,6 +76,8 @@ export function OverviewView({ offense, region }: { offense: string; region: str
 
   const ori = selectedAgency?.ori;
   const arrestOff = arrestOffense || offense; // "" => follow the main offense
+  // A category picked in one scope may be absent in the next; fall back to the first.
+  const arrestCat = arrestCats.includes(arrestCategory) ? arrestCategory : arrestCats[0];
 
   // Region-level (warehouse) and agency-level (live) sources; agency hooks stay
   // disabled until an agency is selected. Display whichever is active.
@@ -83,10 +86,18 @@ export function OverviewView({ offense, region }: { offense: string; region: str
   // into a single (live) agency.
   const canBenchmark = !isNational && !selectedAgency;
   const benchmark = useOffenseBenchmark(offense, level, area, canBenchmark);
-  const arrestsRegion = useArrests(arrestCategory, arrestOff, level, area);
+  // The snapshot holds a subset of the arrest taxonomy for each scope. The live
+  // agency route serves every code, so the check applies only to the region.
+  const available = useArrestsAvailable(level, area, !selectedAgency);
+  const availableSet = useMemo(
+    () => new Set(available.data?.offenses ?? []),
+    [available.data?.offenses],
+  );
+  const arrestInScope = Boolean(selectedAgency) || availableSet.has(arrestOff);
+  const arrestsRegion = useArrests(arrestCat, arrestOff, level, area);
   const peRegion = usePoliceEmployment(level, area);
   const monthlyAgency = useAgencyOffenseMonthly(ori, offense);
-  const arrestsAgency = useAgencyArrests(ori, arrestCategory, arrestOff);
+  const arrestsAgency = useAgencyArrests(ori, arrestCat, arrestOff);
   const peAgency = useAgencyPoliceEmployment(ori);
 
   const monthly = selectedAgency ? monthlyAgency : monthlyRegion;
@@ -126,16 +137,22 @@ export function OverviewView({ offense, region }: { offense: string; region: str
   const nibrsPct = ag.length ? Math.round((nibrs / ag.length) * 100) : 0;
   const hasPe = (pe.data ?? []).some((r) => r.value != null);
 
-  // Group the 48 arrest offenses by UCR category for the dropdown.
+  // Group the arrest offenses by UCR category for the dropdown. A region view
+  // offers only the offenses that have rows in the snapshot for that scope; an
+  // agency view (live) offers every code.
   const offenseGroups = useMemo(() => {
     const m = new Map<string, ArrestOffense[]>();
     for (const o of meta.data?.arrest_offenses ?? []) {
+      if (!selectedAgency && !availableSet.has(o.slug)) continue;
       const g = m.get(o.category) ?? [];
       g.push(o);
       m.set(o.category, g);
     }
     return [...m.entries()];
-  }, [meta.data?.arrest_offenses]);
+  }, [meta.data?.arrest_offenses, selectedAgency, availableSet]);
+  // Leave a chosen offense that the new scope lacks: fall back to "follow".
+  const arrestValue =
+    arrestOffense && (selectedAgency || availableSet.has(arrestOffense)) ? arrestOffense : "";
 
   return (
     <main className="grid flex-1 grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:[grid-template-rows:auto_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
@@ -243,14 +260,14 @@ export function OverviewView({ offense, region }: { offense: string; region: str
         right={
           <div className="flex items-center gap-1.5">
             <Select
-              value={arrestCategory}
+              value={arrestCat}
               onChange={setArrestCategory}
               options={arrestCats.map((c) => ({ value: c, label: c }))}
               title="Arrest demographic category"
               className="w-32"
             />
             <Select
-              value={arrestOffense}
+              value={arrestValue}
               onChange={setArrestOffense}
               options={[{ value: "", label: `Follow · ${titleCase(offense)}` }]}
               groups={offenseGroups.map(([cat, offs]) => ({
@@ -264,7 +281,16 @@ export function OverviewView({ offense, region }: { offense: string; region: str
         }
         className="col-span-full lg:col-span-4 lg:col-start-5 lg:row-start-3"
       >
-        {arrests.data?.length ? <ArrestsChart data={arrests.data} /> : <Empty state={arrests} />}
+        {!arrestInScope && !available.isLoading ? (
+          <Empty
+            state={available}
+            message={`No arrest data for ${titleCase(arrestOff)} in ${regionLabel}`}
+          />
+        ) : arrests.data?.length ? (
+          <ArrestsChart data={arrests.data} />
+        ) : (
+          <Empty state={arrests} />
+        )}
       </Panel>
 
       <Panel

@@ -3,14 +3,18 @@ export interface ArrestOffense {
   code: string;
   name: string;
   category: string;
+  // violent-crime and property-crime: the sum of their 4 Part I offenses.
+  derived: boolean;
+  // True when the national snapshot has rows. The others are live-only.
+  in_snapshot: boolean;
 }
 
 export interface Meta {
   offenses: string[];
   states: string[];
   levels: string[];
-  // The full 48-code arrest taxonomy and the demographic categories present in
-  // the warehouse (e.g. "Arrestee Race", "Arrestee Sex", "Male Arrests By Age").
+  // The 48-code arrest taxonomy plus the 2 derived rollups, and the demographic
+  // categories present in the warehouse (e.g. "Arrestee Race", "Arrestee Sex").
   arrest_offenses: ArrestOffense[];
   arrest_categories: string[];
 }
@@ -32,6 +36,18 @@ export interface ArrestRow {
   category: string;
   label: string;
   value: number | null;
+}
+
+/** An arrest row always says which offense it counts. */
+export interface ArrestBreakdownRow extends ArrestRow {
+  offense: string;
+  is_derived: boolean;
+}
+
+export interface ArrestAvailability {
+  level: string;
+  area: string;
+  offenses: string[];
 }
 
 export interface BenchmarkRow {
@@ -97,8 +113,10 @@ export const api = {
   // Area offense rate alongside the national rate + a relative index (100 = national).
   offensesBenchmark: (offense: string, level = "state", area = "US") =>
     get<BenchmarkRow[]>(`/api/offenses/benchmark?${qs({ offense, level, area })}`),
-  arrests: (category: string, offense?: string, level = "national", area = "US") =>
-    get<ArrestRow[]>(`/api/arrests?${qs({ level, area, offense, category })}`),
+  arrests: (category: string, offense = "all", level = "national", area = "US") =>
+    get<ArrestBreakdownRow[]>(`/api/arrests?${qs({ level, area, offense, category })}`),
+  arrestsAvailable: (level = "national", area = "US") =>
+    get<ArrestAvailability>(`/api/arrests/available?${qs({ level, area })}`),
   agencies: (state?: string) => get<AgencyFeature[]>(`/api/agencies?${qs({ state })}`),
   policeEmployment: (level = "national", area = "US") =>
     get<PoliceEmploymentRow[]>(`/api/police-employment?${qs({ level, area })}`),
@@ -133,7 +151,7 @@ export const api = {
   agencyOffenses: (ori: string, offense: string) =>
     get<OffenseMonthly[]>(`/api/agency/${encodeURIComponent(ori)}/offenses?${qs({ offense })}`),
   agencyArrests: (ori: string, category: string, offense?: string) =>
-    get<ArrestRow[]>(
+    get<ArrestBreakdownRow[]>(
       `/api/agency/${encodeURIComponent(ori)}/arrests?${qs({ category, offense })}`,
     ),
   agencyPoliceEmployment: (ori: string) =>

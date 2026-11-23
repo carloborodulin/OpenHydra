@@ -8,7 +8,7 @@ from typing import Annotated
 import typer
 from cdeclient import BULK, STATES, CdeClient, CdeError
 
-from .extract import ALL_ARREST_OFFENSES, ALL_OFFENSES, Extractor
+from .extract import ALL_ARREST_OFFENSES, ALL_OFFENSES, DEFAULT_ARREST_OFFENSES, Extractor
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -41,7 +41,10 @@ def pull(
         str,
         typer.Option(
             "--arrest-offenses",
-            help="Comma arrest offense slugs, or 'all' for all 48. Blank = same as --offenses.",
+            help=(
+                "Comma arrest offense slugs, or 'all' for all 48 codes. "
+                "Blank = the all-offense total and the 8 Part I offenses."
+            ),
         ),
     ] = "",
     domains: Annotated[
@@ -52,11 +55,10 @@ def pull(
     st = list(STATES) if states.strip().lower() == "all" else [s.upper() for s in _split(states)]
     offs = [o.lower() for o in _split(offenses)] or ALL_OFFENSES
     if arrest_offenses.strip().lower() == "all":
-        # Full 48-code taxonomy, plus the summarized offenses so the aggregate
-        # slugs (violent-crime/property-crime) stay available for overview panels.
-        aoffs = list(dict.fromkeys([*offs, *ALL_ARREST_OFFENSES]))
+        aoffs = ALL_ARREST_OFFENSES  # the full 48-code taxonomy
     else:
-        aoffs = [a.lower() for a in _split(arrest_offenses)] or offs
+        # The Part I codes let dbt build the violent/property rollups.
+        aoffs = [a.lower() for a in _split(arrest_offenses)] or DEFAULT_ARREST_OFFENSES
     doms = [d.lower() for d in _split(domains)]
 
     # Generous retries + a longer read timeout: a bulk pull makes many calls and

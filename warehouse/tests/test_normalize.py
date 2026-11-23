@@ -57,11 +57,16 @@ def test_agencies_to_frame(sample: Callable[[str], Any]) -> None:
 
 def test_arrests_to_frame(sample: Callable[[str], Any]) -> None:
     resp = ArrestTotalsResponse.model_validate(sample("arrest_national_all_totals"))
-    df = normalize.arrests_to_frame(resp, level="national", area="US", offense="violent-crime")
+    df = normalize.arrests_to_frame(
+        resp, level="national", area="US", code="all", window_from="01-2020", window_to="12-2022"
+    )
     assert df.columns == list(normalize.ARRESTS_SCHEMA)
     assert df.height > 0
     assert "Arrestee Sex" in set(df["category"].unique())
-    assert set(df["offense"].unique()) == {"violent-crime"}
+    # The canonical slug of code "all" is "all", never an aggregate like violent-crime.
+    assert set(df["offense"].unique()) == {"all"}
+    assert set(df["arrest_code"].unique()) == {"all"}
+    assert set(df["window_from"].unique()) == {"01-2020"}
 
 
 def test_hate_crime_to_frame(sample: Callable[[str], Any]) -> None:

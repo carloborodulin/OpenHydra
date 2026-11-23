@@ -146,28 +146,39 @@ save(fig2, "02_clearance_ratio")
 # %% [markdown]
 # ## 3. National arrest demographics
 #
-# From `fct_arrests` (aggregated totals). Race + sex composition, and the
-# age profile of male vs female arrests.
+# From `fct_arrests` (totals over the extract window). Race + sex composition,
+# and the age profile of male vs female arrests. Each query selects one offense,
+# `all` (every offense together): `fct_arrests` holds one set of rows per
+# offense, so a query without an offense filter would add them up several times.
 
 # %%
+ARREST_OFFENSE = "all"
+arrest_window = con.execute(
+    "select min(window_from), max(window_to) from fct_arrests where offense = ?",
+    [ARREST_OFFENSE],
+).fetchone()
+ARREST_WINDOW = f"{arrest_window[0]} to {arrest_window[1]}"
 race = (
     con.execute(
         """
         select label as race, value as arrests
         from fct_arrests
-        where level = 'national' and category = 'Arrestee Race' and value > 0
+        where level = 'national' and offense = ? and category = 'Arrestee Race' and value > 0
         order by arrests desc
-        """
+        """,
+        [ARREST_OFFENSE],
     )
     .pl()
 )
+# One row per race label for the chosen offense.
+assert race["race"].is_unique().all(), "duplicate race labels: check the offense filter"
 fig3 = px.bar(
     race.to_pandas(),
     x="arrests",
     y="race",
     orientation="h",
     labels={"arrests": "Arrests", "race": ""},
-    title="National arrests by race",
+    title=f"National arrests by race, all offenses ({ARREST_WINDOW})",
 )
 fig3.update_yaxes(categoryorder="total ascending")
 save(fig3, "03_arrests_by_race")
@@ -190,9 +201,10 @@ age = (
             case when category = 'Male Arrests By Age' then 'Male' else 'Female' end as sex,
             value as arrests
         from fct_arrests
-        where level = 'national'
+        where level = 'national' and offense = ?
           and category in ('Male Arrests By Age','Female Arrests By Age')
-        """
+        """,
+        [ARREST_OFFENSE],
     )
     .pl()
     .filter(pl.col("age_band").is_in(AGE_ORDER))
@@ -208,9 +220,10 @@ fig4 = px.line(
     color="sex",
     markers=True,
     category_orders={"age_band": AGE_ORDER},
-    labels={"per_year": "Arrests per year of age (2017–2023)", "age_band": "Age"},
+    labels={"per_year": f"Arrests per year of age ({ARREST_WINDOW})", "age_band": "Age"},
     title="National arrests by age and sex (per year of age)",
 )
+assert not age.select(["age_band", "sex"]).is_duplicated().any(), "duplicate age rows"
 save(fig4, "04_arrests_by_age")
 
 print("\nDone. Charts in", OUT)

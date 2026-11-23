@@ -10,6 +10,7 @@ from datetime import date
 from typing import Protocol
 
 import polars as pl
+from cdeclient.constants import ARREST_CODE_TO_SLUG
 from cdeclient.models import (
     Agency,
     ArrestTotalsResponse,
@@ -54,10 +55,16 @@ AGENCIES_SCHEMA: dict[str, pl.DataType] = {
     "nibrs_start_date": pl.String(),
 }
 
+# One row per area, arrest code and breakdown label. `offense` is the canonical
+# arrest slug of `arrest_code` ("all", "homicide", "drug-abuse-violations", ...).
+# `window_from`/`window_to` record the request window (MM-YYYY) of the totals.
 ARRESTS_SCHEMA: dict[str, pl.DataType] = {
     "level": pl.String(),
     "area": pl.String(),
     "offense": pl.String(),
+    "arrest_code": pl.String(),
+    "window_from": pl.String(),
+    "window_to": pl.String(),
     "category": pl.String(),
     "label": pl.String(),
     "value": pl.Float64(),
@@ -204,8 +211,15 @@ def agencies_to_frame(by_county: dict[str, list[Agency]]) -> pl.DataFrame:
 
 
 def arrests_to_frame(
-    resp: ArrestTotalsResponse, *, level: str, area: str, offense: str
+    resp: ArrestTotalsResponse,
+    *,
+    level: str,
+    area: str,
+    code: str,
+    window_from: str,
+    window_to: str,
 ) -> pl.DataFrame:
+    offense = ARREST_CODE_TO_SLUG[code]
     rows: list[dict[str, object]] = []
     for category, mapping in resp.breakdowns.items():
         if not isinstance(mapping, dict):
@@ -217,6 +231,9 @@ def arrests_to_frame(
                         "level": level,
                         "area": area,
                         "offense": offense,
+                        "arrest_code": code,
+                        "window_from": window_from,
+                        "window_to": window_to,
                         "category": category,
                         "label": str(label),
                         "value": float(value),

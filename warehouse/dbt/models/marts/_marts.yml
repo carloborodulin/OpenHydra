@@ -43,7 +43,14 @@ models:
           - not_null
 
   - name: fct_arrests
-    description: Arrest demographic breakdowns, per offense.
+    description: >
+      Arrest demographic breakdowns per offense. Rows from the API have
+      is_derived = false. The violent-crime and property-crime rows are the
+      sum of their four Part I offenses (is_derived = true).
+    tests:
+      - unique_combination:
+          arguments:
+            columns: [level, area, offense, category, label]
     columns:
       - name: offense
         tests:
@@ -52,6 +59,12 @@ models:
         tests:
           - not_null
       - name: value
+        tests:
+          - not_null
+      - name: window_from
+        tests:
+          - not_null
+      - name: is_derived
         tests:
           - not_null
 

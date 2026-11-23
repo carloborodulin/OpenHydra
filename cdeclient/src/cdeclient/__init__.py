@@ -5,8 +5,11 @@ from __future__ import annotations
 from .client import CdeClient
 from .config import Settings
 from .constants import (
+    ARREST_CODE_TO_SLUG,
     ARREST_OFFENSE_CODES,
     ARREST_OFFENSES,
+    ARREST_ROLLUP_NAMES,
+    ARREST_ROLLUPS,
     EXPANDED_PROPERTY_OFFENSES,
     LESDC_CHART_TYPES,
     NIBRS_ESTIMATION_OFFENSES,
@@ -18,6 +21,7 @@ from .constants import (
     ArrestType,
     Offense,
     arrest_code,
+    arrest_components,
 )
 from .errors import (
     CdeAuthError,
@@ -52,7 +56,10 @@ from .policy import BULK, INTERACTIVE, RetryPolicy, redact
 
 __all__ = [
     "ARREST_OFFENSES",
+    "ARREST_CODE_TO_SLUG",
     "ARREST_OFFENSE_CODES",
+    "ARREST_ROLLUPS",
+    "ARREST_ROLLUP_NAMES",
     "EXPANDED_PROPERTY_OFFENSES",
     "STATES",
     "Agency",
@@ -60,6 +67,7 @@ __all__ = [
     "ArrestTotalsResponse",
     "ArrestType",
     "arrest_code",
+    "arrest_components",
     "BULK",
     "CdeAuthError",
     "CdeClient",
