@@ -1,0 +1,5 @@
+# The owner must review a change to the delivery and deployment files.
+/.github/           @carloborodulin
+/.railway/          @carloborodulin
+/Dockerfile         @carloborodulin
+/.dockerignore      @carloborodulin

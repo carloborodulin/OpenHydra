@@ -7,7 +7,7 @@ export default defineRailway(() => {
   const app = service("OpenHydra", {
     source: github("carloborodulin/OpenHydra", {
       branch: "main", // Keep the current production source branch.
-      checkSuites: false, // Keep the trigger timing during the migration.
+      checkSuites: true, // Deploy only after the GitHub checks pass.
     }),
     build: {
       buildEnvironment: "V3", // Match the effective deployment manifest.
