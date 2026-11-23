@@ -28,10 +28,13 @@ export function TrendChart({
   data,
   mode = "rate",
   benchmark,
+  compare,
 }: {
   data: OffenseMonthly[];
   mode?: TrendMode;
   benchmark?: BenchmarkRow[];
+  /** A second area from the same snapshot, drawn as a dashed line (rate and index modes). */
+  compare?: { label: string; rows: OffenseMonthly[] };
 }) {
   const c = useChartColors();
   const mobile = useIsMobile();
@@ -40,6 +43,11 @@ export function TrendChart({
 
   const key = mode === "index" ? "Index" : mode === "relative" ? "vs US" : "Rate";
   const showNational = mode === "rate" && bench.size > 0;
+  const cmp =
+    compare && mode !== "relative"
+      ? new Map(compare.rows.map((r) => [monthLabel(r.period), r]))
+      : null;
+  const cmpKey = compare ? compare.label : "";
   const baseline = mode === "index" || mode === "relative";
 
   const rows = data.map((d) => {
@@ -54,6 +62,14 @@ export function TrendChart({
             ? (b?.relative_index ?? null)
             : d.offenses_rate,
       ...(showNational ? { National: b?.national_rate ?? null } : {}),
+      ...(cmp
+        ? {
+            [cmpKey]:
+              mode === "index"
+                ? (cmp.get(p)?.index_2019 ?? null)
+                : (cmp.get(p)?.offenses_rate ?? null),
+          }
+        : {}),
     };
   });
 
@@ -79,6 +95,18 @@ export function TrendChart({
             content={<DarkTooltip unit={mode === "rate" ? " /100k" : ""} />}
             cursor={{ stroke: c.axis }}
           />
+          {cmp && (
+            <Line
+              isAnimationActive={ANIMATE}
+              type="monotone"
+              dataKey={cmpKey}
+              stroke={c.warn}
+              strokeWidth={1.5}
+              strokeDasharray="2 3"
+              dot={false}
+              connectNulls
+            />
+          )}
           {showNational && (
             <Legend wrapperStyle={{ fontFamily: c.font, fontSize: 10, color: c.muted }} />
           )}

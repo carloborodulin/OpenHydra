@@ -130,6 +130,7 @@ function MapCanvas({
   const c = useChartColors();
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapLibreMap | null>(null);
+  const [tilesFailing, setTilesFailing] = useState(false);
   const loadedTheme = useRef(theme);
   // Keep the latest props in refs so the once-registered map listeners never
   // close over stale values (the refs update in an effect, not during render).
@@ -155,7 +156,16 @@ function MapCanvas({
       zoom: 3.2,
       attributionControl: { compact: true },
     });
-    m.on("error", (e) => console.warn("[map]", e.error?.message ?? String(e)));
+    // Basemap failures (offline, blocked CDN) leave a blank map: say so.
+    m.on("error", (e) => {
+      console.warn("[map]", e.error?.message ?? String(e));
+      if ((e as { sourceId?: string }).sourceId !== "agencies") setTilesFailing(true);
+    });
+    m.on("data", (e) => {
+      if (e.dataType === "source" && (e as { isSourceLoaded?: boolean }).isSourceLoaded) {
+        setTilesFailing(false);
+      }
+    });
     // A style load (the first one and each theme swap) drops our layers, so
     // add them again from the latest data and palette.
     m.on("style.load", () => {
@@ -216,12 +226,22 @@ function MapCanvas({
   // h-full/w-full (not absolute): MapLibre forces position:relative on its
   // container via its own CSS, which would defeat `absolute inset-0`.
   return (
-    <div
-      ref={container}
-      className="h-full w-full"
-      role="region"
-      aria-label="Map of reporting agencies. Select a point to show that agency."
-    />
+    <div className="relative h-full w-full">
+      <div
+        ref={container}
+        className="h-full w-full"
+        role="region"
+        aria-label="Map of reporting agencies. Select a point to show that agency."
+      />
+      {tilesFailing && (
+        <p
+          role="status"
+          className="mono absolute inset-x-2 bottom-8 bg-bg2/90 px-2 py-1 text-center text-[0.62rem] text-muted"
+        >
+          The map tiles are not loading (offline or blocked). Use “Find an agency” above.
+        </p>
+      )}
+    </div>
   );
 }
 
