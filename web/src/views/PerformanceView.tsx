@@ -85,6 +85,7 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Staffing /1k"
+          help="staffing"
           value={fmtRate(latestStaff?.staffing)}
           sub={latestStaff ? `${latestStaff.year} · LE employees / 1,000` : "—"}
         />
@@ -92,6 +93,7 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Clearance"
+          help="clearance"
           accent="warn"
           value={fmtPct(latestClr?.clearance)}
           sub={latestClr ? `${latestClr.year} · cleared ÷ reported, 12 months` : "—"}
@@ -100,6 +102,7 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Annual Volume"
+          help="offenses"
           accent="alert"
           value={fmtNum(latestVol?.volume)}
           sub={latestVol ? `${latestVol.year} · reported` : "—"}
@@ -108,6 +111,7 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Peak Volume"
+          help="offenses"
           accent="good"
           value={fmtNum(peakVol?.volume)}
           sub={peakVol ? `${peakVol.year}` : "—"}

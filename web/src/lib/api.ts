@@ -130,6 +130,12 @@ export interface PoliceEmploymentRow {
   value: number | null;
 }
 
+/** A NIBRS estimate with the FBI interval (null in releases before 2026-11). */
+export interface EstimateRow extends ArrestRow {
+  lower: number | null;
+  upper: number | null;
+}
+
 /** An expanded property row. A null year means a total over the whole window. */
 export interface PropertyRow extends ArrestRow {
   year: number | null;
@@ -275,7 +281,7 @@ export const api = {
     get<ArrestRow[]>(`/api/uof/questions?${qs({ year: String(year), category })}`),
   // NIBRS estimations; national / region, numeric offense code.
   nibrsEstimation: (level: string, area: string, offense: string, category?: string) =>
-    get<ArrestRow[]>(`/api/nibrs-estimation?${qs({ level, area, offense, category })}`),
+    get<EstimateRow[]>(`/api/nibrs-estimation?${qs({ level, area, offense, category })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>

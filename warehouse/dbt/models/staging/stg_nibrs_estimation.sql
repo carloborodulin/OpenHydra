@@ -4,5 +4,7 @@ select
     offense,
     category,
     label,
-    value
+    value,
+    lower,
+    upper
 from {{ source('raw', 'nibrs_estimation') }}

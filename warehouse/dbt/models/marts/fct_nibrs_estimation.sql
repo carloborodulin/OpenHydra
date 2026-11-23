@@ -3,5 +3,8 @@
 -- so a duplicate extract fails the build. No sum() can hide it here.
 select
     level, area, offense, category, label,
-    value
+    value,
+    -- The FBI interval of the estimate (null in releases before 2026-11).
+    lower,
+    upper
 from {{ ref('stg_nibrs_estimation') }}

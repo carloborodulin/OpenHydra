@@ -42,6 +42,7 @@ from .models import (
     ArrestRow,
     BenchmarkRow,
     Capabilities,
+    EstimateRow,
     LesdcRow,
     Meta,
     OffenseMonthly,
@@ -579,7 +580,7 @@ def uof_questions(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/nibrs-estimation", response_model=list[ArrestRow])
+@app.get("/api/nibrs-estimation", response_model=list[EstimateRow])
 def nibrs_estimation(
     conn: Conn,
     level: str = "national",
@@ -589,7 +590,10 @@ def nibrs_estimation(
 ) -> list[dict[str, Any]]:
     # Modeled (estimated) NIBRS counts; level is national|region, `offense` a
     # numeric estimation code, `category` the section_dimension.
-    sql = "select category, label, value from fct_nibrs_estimation where level = ? and area = ?"
+    sql = (
+        "select category, label, value, lower, upper from fct_nibrs_estimation "
+        "where level = ? and area = ?"
+    )
     params: list[Any] = [level, area]
     if offense:
         sql += " and offense = ?"

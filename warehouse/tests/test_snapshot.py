@@ -255,3 +255,35 @@ def test_repeated_states_are_pulled_once(
     manifest = json.loads((tmp_path / "_manifest.json").read_text())
     assert manifest["states"] == ["NY"]
     assert manifest["domains"]["hate-crime"]["status"] == "ok"
+
+
+def test_promote_adds_missing_optional_columns(tmp_path: Path) -> None:
+    # An extract from older code has no interval columns; promote adds them as nulls.
+    target = tmp_path / "seed"
+    _release(target, {})
+    staging = tmp_path / "staging"
+    staging.mkdir()
+    old_style = pl.DataFrame(
+        [
+            {
+                "level": "national",
+                "area": "US",
+                "offense": "55",
+                "category": "c",
+                "label": "x",
+                "value": 1.0,
+            }
+        ]
+    )
+    old_style.write_parquet(staging / "nibrs_estimation.parquet")
+    run = _run(staging, [])
+    run.start("nibrs-estimation")
+    run.finish("nibrs-estimation", [staging / "nibrs_estimation.parquet"])
+    promote(staging, target, allow_shrink=True)
+    out = pl.read_parquet(target / "nibrs_estimation.parquet")
+    assert out.columns == list(FILES["nibrs_estimation"].schema)
+    assert out["lower"].to_list() == [None]
+    # A missing required column is still an error.
+    pl.DataFrame([{"level": "x"}]).write_parquet(staging / "nibrs_estimation.parquet")
+    with pytest.raises(PromoteError, match="missing columns"):
+        promote(staging, target, allow_shrink=True)

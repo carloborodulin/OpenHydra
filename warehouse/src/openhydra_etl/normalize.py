@@ -121,7 +121,10 @@ NIBRS_ESTIMATION_SCHEMA: dict[str, pl.DataType] = {
     "offense": pl.String(),  # numeric NIBRS-estimation offense code
     "category": pl.String(),  # section_dimension (e.g. Victim_Victim race)
     "label": pl.String(),
-    "value": pl.Float64(),  # the estimate (confidence bounds dropped)
+    "value": pl.Float64(),  # the estimate
+    # The FBI interval of the estimate. Null in releases before 2026-11.
+    "lower": pl.Float64(),
+    "upper": pl.Float64(),
 }
 
 UOF_PARTICIPATION_SCHEMA: dict[str, pl.DataType] = {
@@ -345,10 +348,18 @@ def nibrs_estimation_to_frame(
     resp: NibrsEstimationResponse, *, level: str, area: str, offense: str
 ) -> pl.DataFrame:
     """Flatten NIBRS-estimation section/dimension estimates to tidy long rows,
-    keyed on the estimation offense code (confidence bounds dropped)."""
-    return _breakdowns_to_frame(
-        resp, NIBRS_ESTIMATION_SCHEMA, level=level, area=area, extra={"offense": offense}
-    )
+    keyed on the estimation offense code, with the FBI interval (lower, upper)."""
+    base = {k: v for k, v in NIBRS_ESTIMATION_SCHEMA.items() if k not in ("lower", "upper")}
+    frame = _breakdowns_to_frame(resp, base, level=level, area=area, extra={"offense": offense})
+    bounds = resp.bounds
+    pairs = [
+        bounds.get(cat, {}).get(label, (None, None))
+        for cat, label in frame.select("category", "label").iter_rows()
+    ]
+    return frame.with_columns(
+        pl.Series("lower", [p[0] for p in pairs], dtype=pl.Float64),
+        pl.Series("upper", [p[1] for p in pairs], dtype=pl.Float64),
+    ).select(list(NIBRS_ESTIMATION_SCHEMA))
 
 
 def uof_participation_to_frame(records: list[UofParticipation]) -> pl.DataFrame:

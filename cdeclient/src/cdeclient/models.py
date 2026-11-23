@@ -241,6 +241,9 @@ class UofQuestionItem(BaseModel):
     value: Any = None
 
 
+_NIBRS_EST_BOUNDS = ("lower_bound", "upper_bound")
+
+
 class NibrsEstimationResponse(BaseModel):
     """/nibrs-estimation/* — modeled (estimated) counts with confidence intervals.
 
@@ -282,6 +285,34 @@ class NibrsEstimationResponse(BaseModel):
                 if mapping:
                     merged[f"{section}_{dimension}"] = mapping
         return merged
+
+    @property
+    def bounds(self) -> dict[str, dict[str, tuple[float | None, float | None]]]:
+        """``{"<section>_<dimension>": {label: (lower_bound, upper_bound)}}``.
+
+        The FBI publishes each estimate with an interval. Keep it: a ranking of
+        estimates means little without it.
+        """
+        out: dict[str, dict[str, tuple[float | None, float | None]]] = {}
+        for section, dims in self.data.items():
+            if not isinstance(dims, dict):
+                continue
+            for dimension, records in dims.items():
+                if not isinstance(records, list):
+                    continue
+                mapping: dict[str, tuple[float | None, float | None]] = {}
+                for rec in records:
+                    if not isinstance(rec, dict):
+                        continue
+                    lo, hi = rec.get("lower_bound"), rec.get("upper_bound")
+                    for key in rec:
+                        if key not in _NIBRS_EST_BOUNDS:
+                            mapping[str(key)] = (
+                                float(lo) if isinstance(lo, int | float) else None,
+                                float(hi) if isinstance(hi, int | float) else None,
+                            )
+                out[f"{section}_{dimension}"] = mapping
+        return out
 
 
 class PropertyResponse(BaseModel):

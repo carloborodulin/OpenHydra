@@ -6,6 +6,7 @@ import { NavDrawer } from "./components/NavDrawer";
 import { Provenance } from "./components/Provenance";
 import { TopBar } from "./components/TopBar";
 import { useMeta } from "./lib/queries";
+import { ReleaseContext } from "./lib/release";
 import { useUrlState } from "./lib/urlState";
 
 // Each view is its own chunk, so the first load fetches only the open view.
@@ -29,6 +30,9 @@ const PerformanceView = lazy(() =>
 const PropertyView = lazy(() =>
   import("./views/PropertyView").then((m) => ({ default: m.PropertyView })),
 );
+const MethodologyView = lazy(() =>
+  import("./views/MethodologyView").then((m) => ({ default: m.MethodologyView })),
+);
 const UseOfForceView = lazy(() =>
   import("./views/UseOfForceView").then((m) => ({ default: m.UseOfForceView })),
 );
@@ -45,10 +49,11 @@ const VIEWS: NavItem[] = [
   { id: "nibrs-estimation", label: "NIBRS Est." },
   { id: "use-of-force", label: "Use of Force" },
   { id: "lesdc", label: "LESDC" },
+  { id: "methodology", label: "Methodology" },
 ];
 
 // Views with their own controls / no geography don't use the shared region bar.
-const NO_REGION_VIEWS = new Set(["lesdc", "use-of-force", "nibrs-estimation"]);
+const NO_REGION_VIEWS = new Set(["lesdc", "use-of-force", "nibrs-estimation", "methodology"]);
 
 export default function App() {
   const meta = useMeta();
@@ -74,71 +79,74 @@ export default function App() {
   const setOffense = (o: string) => setUrl({ offense: o });
 
   return (
-    <div className="flex min-h-screen flex-col lg:h-screen lg:overflow-hidden">
-      <TopBar
-        snapshot={meta.data?.snapshot}
-        onMenuClick={() => setNavOpen(true)}
-        menuOpen={navOpen}
-      />
-      <NavDrawer
-        items={VIEWS}
-        active={view}
-        open={navOpen}
-        onClose={() => setNavOpen(false)}
-        onSelect={(id) => {
-          setView(id);
-          setNavOpen(false);
-        }}
-      />
-      {/* One <main> landmark holds the filters and the view (a11y: every part of
+    <ReleaseContext.Provider value={meta.data?.snapshot ?? null}>
+      <div className="flex min-h-screen flex-col lg:h-screen lg:overflow-hidden">
+        <TopBar
+          snapshot={meta.data?.snapshot}
+          onMenuClick={() => setNavOpen(true)}
+          menuOpen={navOpen}
+        />
+        <NavDrawer
+          items={VIEWS}
+          active={view}
+          open={navOpen}
+          onClose={() => setNavOpen(false)}
+          onSelect={(id) => {
+            setView(id);
+            setNavOpen(false);
+          }}
+        />
+        {/* One <main> landmark holds the filters and the view (a11y: every part of
           the page is in a landmark). */}
-      <main className="flex min-h-0 flex-1 flex-col">
-        {/* Below lg the inline Nav is hidden; for views without a region/offense
+        <main className="flex min-h-0 flex-1 flex-col">
+          {/* Below lg the inline Nav is hidden; for views without a region/offense
           bar the whole row would be empty, so hide it on mobile in that case. */}
-        <div
-          className={`panel brackets enter mx-3 mt-3 flex-wrap items-center gap-2 px-4 py-2.5 lg:flex lg:gap-4 ${
-            NO_REGION_VIEWS.has(view) ? "hidden" : "flex"
-          }`}
-        >
-          <Nav items={VIEWS} active={view} onSelect={setView} />
-          {!NO_REGION_VIEWS.has(view) && (
-            <>
-              <span className="hidden h-4 w-px bg-line lg:block" />
-              <Controls
-                offenses={offenses}
-                value={active}
-                onChange={setOffense}
-                states={states}
+          <div
+            className={`panel brackets enter mx-3 mt-3 flex-wrap items-center gap-2 px-4 py-2.5 lg:flex lg:gap-4 ${
+              NO_REGION_VIEWS.has(view) ? "hidden" : "flex"
+            }`}
+          >
+            <Nav items={VIEWS} active={view} onSelect={setView} />
+            {!NO_REGION_VIEWS.has(view) && (
+              <>
+                <span className="hidden h-4 w-px bg-line lg:block" />
+                <Controls
+                  offenses={offenses}
+                  value={active}
+                  onChange={setOffense}
+                  states={states}
+                  region={region}
+                  onRegionChange={setRegion}
+                  showOffenses={view === "overview" || view === "performance"}
+                />
+              </>
+            )}
+          </div>
+          <Suspense fallback={<ViewLoading />}>
+            {view === "overview" && (
+              <OverviewView
+                offense={active}
                 region={region}
-                onRegionChange={setRegion}
-                showOffenses={view === "overview" || view === "performance"}
+                agency={agency}
+                onAgencyChange={(ori) => setUrl({ agency: ori })}
+                compare={compare}
+                onCompareChange={(st) => setUrl({ compare: st })}
               />
-            </>
-          )}
-        </div>
-        <Suspense fallback={<ViewLoading />}>
-          {view === "overview" && (
-            <OverviewView
-              offense={active}
-              region={region}
-              agency={agency}
-              onAgencyChange={(ori) => setUrl({ agency: ori })}
-              compare={compare}
-              onCompareChange={(st) => setUrl({ compare: st })}
-            />
-          )}
-          {view === "performance" && <PerformanceView offense={active} region={region} />}
-          {view === "hate-crime" && <HateCrimeView region={region} />}
-          {view === "homicide" && <HomicideView region={region} />}
-          {view === "property" && <PropertyView region={region} />}
-          {view === "nibrs" && <NibrsView region={region} />}
-          {view === "nibrs-estimation" && <NibrsEstimationView />}
-          {view === "use-of-force" && <UseOfForceView />}
-          {view === "lesdc" && <LesdcView />}
-        </Suspense>
-      </main>
-      <Provenance snapshot={meta.data?.snapshot} view={view} />
-    </div>
+            )}
+            {view === "performance" && <PerformanceView offense={active} region={region} />}
+            {view === "hate-crime" && <HateCrimeView region={region} />}
+            {view === "homicide" && <HomicideView region={region} />}
+            {view === "property" && <PropertyView region={region} />}
+            {view === "nibrs" && <NibrsView region={region} />}
+            {view === "nibrs-estimation" && <NibrsEstimationView />}
+            {view === "use-of-force" && <UseOfForceView />}
+            {view === "lesdc" && <LesdcView />}
+            {view === "methodology" && <MethodologyView />}
+          </Suspense>
+        </main>
+        <Provenance snapshot={meta.data?.snapshot} view={view} />
+      </div>
+    </ReleaseContext.Provider>
   );
 }
 

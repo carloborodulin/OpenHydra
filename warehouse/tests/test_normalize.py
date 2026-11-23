@@ -5,6 +5,7 @@ from datetime import date
 from typing import Any
 
 import polars as pl
+import pytest
 from cdeclient.models import (
     Agency,
     ArrestTotalsResponse,
@@ -156,6 +157,12 @@ def test_nibrs_estimation_to_frame(sample: Callable[[str], Any]) -> None:
     cats = set(df["category"].unique())
     assert {"Victim_Victim race", "Offense_Location type"} <= cats
     assert df["value"].null_count() == 0
+    # The FBI interval is kept, and it contains the estimate.
+    white = df.filter((pl.col("category") == "Victim_Victim race") & (pl.col("label") == "White"))
+    assert white.select("value", "lower", "upper").row(0) == pytest.approx(
+        (530626.0, 454835.466181853, 606417.241813674)
+    )
+    assert df.filter(~pl.col("value").is_between(pl.col("lower"), pl.col("upper"))).height == 0
 
 
 def test_pe_to_frame(sample: Callable[[str], Any]) -> None:
