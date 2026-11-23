@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { AgencySearch } from "../components/AgencySearch";
 import { DeltaIndicator } from "../components/DeltaIndicator";
 import { Empty } from "../components/Empty";
 import { MapPanel } from "../components/MapPanel";
@@ -36,16 +37,13 @@ function Legend() {
   return (
     <div className="mono flex items-center gap-3 text-[0.55rem] tracking-wider text-muted uppercase">
       <span className="flex items-center gap-1">
-        <span
-          className="inline-block h-2 w-2 rounded-full bg-good"
-          style={{ boxShadow: "0 0 6px var(--color-good)" }}
-        />
+        <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-accent" />
         NIBRS
       </span>
       <span className="flex items-center gap-1">
         <span
-          className="inline-block h-2 w-2 rounded-full bg-alert"
-          style={{ boxShadow: "0 0 6px var(--color-alert)" }}
+          aria-hidden
+          className="inline-block h-2 w-2 rounded-full border-2 border-warn bg-transparent"
         />
         SRS
       </span>
@@ -165,7 +163,7 @@ export function OverviewView({ offense, region }: { offense: string; region: str
     arrestOffense && (selectedAgency || availableSet.has(arrestOffense)) ? arrestOffense : "";
 
   return (
-    <main className="grid flex-1 grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:[grid-template-rows:auto_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid flex-1 grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:[grid-template-rows:auto_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Latest Rate /100k"
@@ -261,7 +259,15 @@ export function OverviewView({ offense, region }: { offense: string; region: str
         bodyClass="relative overflow-hidden p-0"
       >
         {ag.length ? (
-          <MapPanel agencies={ag} onSelectAgency={(o, name) => setSelectedAgency({ ori: o, name })} />
+          <div className="flex h-full flex-col">
+            <AgencySearch agencies={ag} onSelect={(o, name) => setSelectedAgency({ ori: o, name })} />
+            <div className="min-h-0 flex-1">
+              <MapPanel
+                agencies={ag}
+                onSelectAgency={(o, name) => setSelectedAgency({ ori: o, name })}
+              />
+            </div>
+          </div>
         ) : (
           <Empty state={agencies} />
         )}
@@ -318,6 +324,6 @@ export function OverviewView({ offense, region }: { offense: string; region: str
       >
         {hasPe ? <PoliceEmploymentChart data={pe.data ?? []} /> : <Empty state={pe} />}
       </Panel>
-    </main>
+    </div>
   );
 }

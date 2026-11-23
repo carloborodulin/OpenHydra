@@ -67,7 +67,7 @@ export function UseOfForceView() {
         </a>
       </p>
 
-      <main className="grid flex-1 grid-cols-1 gap-3 p-3 [grid-auto-rows:minmax(240px,auto)] sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:overflow-auto lg:[grid-auto-rows:minmax(240px,1fr)]">
+      <div className="grid flex-1 grid-cols-1 gap-3 p-3 [grid-auto-rows:minmax(240px,auto)] sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:overflow-auto lg:[grid-auto-rows:minmax(240px,1fr)]">
         {QUESTS.map((qd) => {
           const data = (questions.data ?? []).filter((r) => r.category === qd.key);
           return (
@@ -80,7 +80,7 @@ export function UseOfForceView() {
             </Panel>
           );
         })}
-      </main>
+      </div>
     </>
   );
 }

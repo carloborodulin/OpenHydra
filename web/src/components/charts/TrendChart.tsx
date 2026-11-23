@@ -1,3 +1,5 @@
+import { ANIMATE } from "../../lib/motion";
+import { ChartFrame } from "./ChartFrame";
 import {
   Area,
   CartesianGrid,
@@ -56,57 +58,67 @@ export function TrendChart({
   });
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart data={rows} margin={{ top: 6, right: 14, bottom: 0, left: -10 }}>
-        <defs>
-          <linearGradient id="g-rate" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={c.accent} stopOpacity={0.5} />
-            <stop offset="100%" stopColor={c.accent} stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid stroke={c.grid} vertical={false} />
-        <XAxis dataKey="period" tick={tick} minTickGap={mobile ? 64 : 48} stroke={c.axis} />
-        <YAxis tick={tick} width={42} stroke={c.axis} domain={baseline ? ["auto", "auto"] : undefined} />
-        <Tooltip content={<DarkTooltip unit={mode === "rate" ? " /100k" : ""} />} cursor={{ stroke: c.axis }} />
-        {showNational && (
-          <Legend wrapperStyle={{ fontFamily: c.font, fontSize: 10, color: c.muted }} />
-        )}
-        {baseline && (
-          <ReferenceLine
-            y={100}
+    <ChartFrame label={`Offense trend (${key}) by month`} rows={rows}>
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={rows} margin={{ top: 6, right: 14, bottom: 0, left: -10 }}>
+          <defs>
+            <linearGradient id="g-rate" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={c.accent} stopOpacity={0.5} />
+              <stop offset="100%" stopColor={c.accent} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke={c.grid} vertical={false} />
+          <XAxis dataKey="period" tick={tick} minTickGap={mobile ? 64 : 48} stroke={c.axis} />
+          <YAxis
+            tick={tick}
+            width={42}
             stroke={c.axis}
-            strokeDasharray="4 4"
-            label={{
-              value: mode === "index" ? "Dec 2019" : "US",
-              fill: c.muted,
-              fontSize: 9,
-              position: "insideTopLeft",
-            }}
+            domain={baseline ? ["auto", "auto"] : undefined}
           />
-        )}
-        <Area
-          type="monotone"
-          dataKey={key}
-          stroke={c.accent}
-          strokeWidth={2}
-          fill="url(#g-rate)"
-          dot={false}
-          activeDot={{ r: 4, fill: c.accent, stroke: c.bg }}
-          isAnimationActive
-        />
-        {showNational && (
-          <Line
+          <Tooltip
+            content={<DarkTooltip unit={mode === "rate" ? " /100k" : ""} />}
+            cursor={{ stroke: c.axis }}
+          />
+          {showNational && (
+            <Legend wrapperStyle={{ fontFamily: c.font, fontSize: 10, color: c.muted }} />
+          )}
+          {baseline && (
+            <ReferenceLine
+              y={100}
+              stroke={c.axis}
+              strokeDasharray="4 4"
+              label={{
+                value: mode === "index" ? "Dec 2019" : "US",
+                fill: c.muted,
+                fontSize: 9,
+                position: "insideTopLeft",
+              }}
+            />
+          )}
+          <Area
+            isAnimationActive={ANIMATE}
             type="monotone"
-            dataKey="National"
-            stroke={c.violet}
-            strokeWidth={1.5}
-            strokeDasharray="5 4"
+            dataKey={key}
+            stroke={c.accent}
+            strokeWidth={2}
+            fill="url(#g-rate)"
             dot={false}
-            connectNulls
-            isAnimationActive={false}
+            activeDot={{ r: 4, fill: c.accent, stroke: c.bg }}
           />
-        )}
-      </ComposedChart>
-    </ResponsiveContainer>
+          {showNational && (
+            <Line
+              type="monotone"
+              dataKey="National"
+              stroke={c.violet}
+              strokeWidth={1.5}
+              strokeDasharray="5 4"
+              dot={false}
+              connectNulls
+              isAnimationActive={false}
+            />
+          )}
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartFrame>
   );
 }

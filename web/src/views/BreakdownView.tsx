@@ -64,16 +64,16 @@ export function BreakdownView({
   // No dimensions yet (loading / no data) — show a single placeholder.
   if (!dims.length) {
     return (
-      <main className="flex min-h-[20rem] flex-1 p-3 lg:min-h-0">
+      <div className="flex min-h-[20rem] flex-1 p-3 lg:min-h-0">
         <div className="panel brackets enter flex-1">
           <Empty state={query} />
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="grid flex-1 grid-cols-1 gap-3 p-3 [grid-auto-rows:minmax(240px,auto)] sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:overflow-auto lg:[grid-auto-rows:minmax(240px,1fr)]">
+    <div className="grid flex-1 grid-cols-1 gap-3 p-3 [grid-auto-rows:minmax(240px,auto)] sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:overflow-auto lg:[grid-auto-rows:minmax(240px,1fr)]">
       {dims.map((d) => {
         const data = byCategory.get(d.key) ?? [];
         return (
@@ -95,6 +95,6 @@ export function BreakdownView({
         );
       })}
       {extra}
-    </main>
+    </div>
   );
 }

@@ -81,7 +81,7 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
   );
 
   return (
-    <main className="grid flex-1 grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:[grid-template-rows:auto_minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid flex-1 grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:[grid-template-rows:auto_minmax(0,1fr)_minmax(0,1fr)]">
       <div className="col-span-1 lg:col-span-3">
         <StatTile
           label="Staffing /1k"
@@ -145,6 +145,6 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
       >
         {adoption.length ? <NibrsAdoptionChart data={adoption} /> : <Empty state={agencies} />}
       </Panel>
-    </main>
+    </div>
   );
 }
