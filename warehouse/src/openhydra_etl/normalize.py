@@ -73,7 +73,7 @@ ARRESTS_SCHEMA: dict[str, pl.DataType] = {
 HATE_CRIME_SCHEMA: dict[str, pl.DataType] = {
     "level": pl.String(),
     "area": pl.String(),
-    "category": pl.String(),  # dimension (e.g. bias_category, offender_race, victim_type)
+    "category": pl.String(),  # dimension (for example bias_category, offender_race)
     "label": pl.String(),  # e.g. Religion, Anti-Jewish, White
     "value": pl.Float64(),  # incident/offense count
 }

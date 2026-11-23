@@ -7,11 +7,15 @@ Charts, the plotted values ([`outputs/values.csv`](outputs/values.csv)) and the
 provenance ([`outputs/provenance.json`](outputs/provenance.json)) are in
 [`outputs/`](outputs).
 
-> **Inputs.** Data release `2026-06-11-reconstructed` (FBI CDE extracts of
-> 9–11 June 2026; the dates come from the project history). Observation window:
-> January 2015 to December 2024. The notebook stops if the warehouse holds
-> another release. The FBI revises past months, so a later release can change
-> these numbers.
+> **Inputs.** Data release `20261123T130946Z` (FBI CDE extract of 23 November
+> 2026). The Use of Force files stay from the release of June 2026, because the
+> FBI removed the national participation routes. Observation window: January 2015
+> to December 2024. The notebook stops if the warehouse holds another release.
+> The FBI revises past months, so a later release can change these numbers.
+> [`deploy/seed/revisions.md`](../deploy/seed/revisions.md) lists the revisions
+> since the June 2026 release. In this analysis, the index changes by 0.5 points
+> or less, the clearance by 0.3 percentage points or less, and the arrest counts
+> by less than 0.1%.
 >
 > **Definitions.** National figures. Offense series are FBI UCR rates per 100k.
 > The index is the trailing-12-month rate ÷ the mean monthly rate of 2019 × 100
@@ -47,14 +51,14 @@ crime and burglary continued their long-run decline.
   recovered to **about 49%**.
 - **Motor-vehicle theft** clearance fell from **about 14% (2019)** to **about
   8.4% (2023)**, fewer than 1 in 11 cleared, while the offense surged (chart 1).
-  It was **about 9.3%** in 2024.
+  It was **about 9.4%** in 2024.
 
 ## 3. Arrests by race
 
 ![Arrests by race](outputs/03_arrests_by_race.png)
 
 Totals for all offenses, January 2015 to December 2024: White about 51.0M and
-Black or African American about 20.8M. Each other group is below 1.8M. The chart
+Black or African American about 20.8M. Each other group is about 1.8M or less. The chart
 uses the offense `all` only. The previous version of this chart added the rows of
 all offenses together, so it counted many arrests more than once.
 

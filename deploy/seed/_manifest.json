@@ -1,137 +1,140 @@
 {
   "domains": {
     "agencies": {
-      "extracted_at": "2026-06-09T00:00:00Z",
+      "extracted_at": "2026-11-23T07:31:52Z",
       "file": "agencies.parquet",
-      "note": "from git history (4299875)",
-      "partitions": 51,
-      "rows": 19619,
-      "run_id": null,
-      "sha256": "af87a5df53a5f02d5d182bdabb1d1b730ae76a7d4aebe9f29c7e938ffe7511e3",
-      "status": "reconstructed",
-      "window": null
+      "merged": false,
+      "partitions": 53,
+      "rows": 19725,
+      "run_id": "20261123T064001Z",
+      "sha256": "2aaef827adc88d2db707e9ed611410ff058705e6fb63e9dbc72c1e66d0eab5fb",
+      "status": "ok",
+      "window": {
+        "from": "01-2015",
+        "to": "12-2024"
+      }
     },
     "arrests": {
-      "extracted_at": "2026-06-11T00:00:00Z",
+      "extracted_at": "2026-11-23T17:57:40Z",
       "file": "arrests.parquet",
-      "note": "from git history (01ab3b1; schema migrated in 1ea5153)",
-      "partitions": 495,
-      "rows": 86625,
-      "run_id": null,
-      "sha256": "68617e85c6afa396d68beb9bd3302f977fa581ba708a400a5765e3a8996ba7e7",
-      "status": "reconstructed",
+      "merged": false,
+      "partitions": 2640,
+      "rows": 462000,
+      "run_id": "20261123T064001Z",
+      "sha256": "e39b8b6cb1428fb277b6215de4133d9039a269a62cf7d1086cdb5e1ead6b51ed",
+      "status": "ok",
       "window": {
         "from": "01-2015",
         "to": "12-2024"
       }
     },
     "hate_crime": {
-      "extracted_at": "2026-06-11T00:00:00Z",
+      "extracted_at": "2026-11-23T09:11:54Z",
       "file": "hate_crime.parquet",
-      "note": "from git history (01ab3b1)",
+      "merged": false,
       "partitions": 55,
-      "rows": 15125,
-      "run_id": null,
-      "sha256": "2abc703d674ebc3dc7643fb78ea362517d936fe7a9f24a88f68ab0eb127af5ff",
-      "status": "reconstructed",
+      "rows": 15675,
+      "run_id": "20261123T064001Z",
+      "sha256": "ad2b74bd4642725eb6cc4a7e82b05218a734e707de1660dc75db45552ee2d9f6",
+      "status": "ok",
       "window": {
         "from": "01-2015",
         "to": "12-2024"
       }
     },
     "lesdc": {
-      "extracted_at": "2026-06-10T00:00:00Z",
+      "extracted_at": "2026-11-23T13:12:12Z",
       "file": "lesdc.parquet",
-      "note": "from git history (f6775cd)",
+      "merged": false,
       "partitions": 32,
       "rows": 908,
-      "run_id": null,
-      "sha256": "357e8ff843d7e904eb1459988066f1408e29aa358f5deb19d6fa279ff0c027ba",
-      "status": "reconstructed",
+      "run_id": "20261123T064001Z",
+      "sha256": "7598893f7b5db273ade784e0891b01a262230110e91652bca27db897054752c9",
+      "status": "ok",
       "window": {
-        "from": "2022",
-        "to": "2023"
+        "from": "01-2015",
+        "to": "12-2024"
       }
     },
     "nibrs": {
-      "extracted_at": "2026-06-11T00:00:00Z",
+      "extracted_at": "2026-11-23T14:44:42Z",
       "file": "nibrs.parquet",
-      "note": "from git history (01ab3b1)",
+      "merged": false,
       "partitions": 636,
-      "rows": 154548,
-      "run_id": null,
-      "sha256": "8d0e98eb0d45d9fc4067877b9d71b53759c9858589588750ea3324595d8b49e1",
-      "status": "reconstructed",
+      "rows": 165360,
+      "run_id": "20261123T064001Z",
+      "sha256": "f3757c329a19bb0cc2e990b7e169f009790d817b1e15cd69905452b977cd7fac",
+      "status": "ok",
       "window": {
         "from": "01-2015",
         "to": "12-2024"
       }
     },
     "nibrs_estimation": {
-      "extracted_at": "2026-06-10T00:00:00Z",
+      "extracted_at": "2026-11-23T13:21:35Z",
       "file": "nibrs_estimation.parquet",
-      "note": "from git history (a24029f)",
+      "merged": true,
       "partitions": 48,
       "rows": 2949,
-      "run_id": null,
-      "sha256": "df6529eee88cd21cf47b5f45c40fa369d797429e8dfbfa385d2ebb4f1ef51d66",
-      "status": "reconstructed",
+      "run_id": "20261123T130946Z",
+      "sha256": "6774e5363d400aebb37ec103ffaf946f778c49fc33e67b095ee0a79392b98b95",
+      "status": "ok",
       "window": {
-        "from": "2022",
-        "to": "2022"
+        "from": "01-2015",
+        "to": "12-2024"
       }
     },
     "pe": {
-      "extracted_at": "2026-06-11T00:00:00Z",
+      "extracted_at": "2026-11-23T09:07:10Z",
       "file": "pe.parquet",
-      "note": "from git history (01ab3b1)",
+      "merged": false,
       "partitions": 55,
       "rows": 2750,
-      "run_id": null,
-      "sha256": "379df6f769e15b9b8bbf5d02ec287353fab24019bc2cbe00b42fd86d21910490",
-      "status": "reconstructed",
+      "run_id": "20261123T064001Z",
+      "sha256": "bdd83162aa33b167c92b608c29d760ee3d8a8ecec99de58528d593b31ae718d0",
+      "status": "ok",
       "window": {
-        "from": "2015",
-        "to": "2024"
+        "from": "01-2015",
+        "to": "12-2024"
       }
     },
     "property": {
-      "extracted_at": "2026-06-11T00:00:00Z",
+      "extracted_at": "2026-11-23T15:41:16Z",
       "file": "property.parquet",
-      "note": "from git history (01ab3b1)",
-      "partitions": 217,
-      "rows": 7890,
-      "run_id": null,
-      "sha256": "a04ba3d23ec0da6d7c975a3c617316a6025903c2620e4fd6ff3977207d378e07",
-      "status": "reconstructed",
+      "merged": false,
+      "partitions": 2143,
+      "rows": 75700,
+      "run_id": "20261123T064001Z",
+      "sha256": "ba38c8835d20a28fb4a6680dea1ab72579870f9ca369b03f2cfd94031568d5a1",
+      "status": "ok",
       "window": {
         "from": "01-2015",
         "to": "12-2024"
       }
     },
     "shr": {
-      "extracted_at": "2026-06-11T00:00:00Z",
+      "extracted_at": "2026-11-23T09:16:37Z",
       "file": "shr.parquet",
-      "note": "from git history (01ab3b1)",
+      "merged": false,
       "partitions": 55,
       "rows": 7260,
-      "run_id": null,
-      "sha256": "38904bcf3414bcc42333d8b5e220b1f2f9d51deaa8d890111f20d99fe33fa3f9",
-      "status": "reconstructed",
+      "run_id": "20261123T064001Z",
+      "sha256": "ed8ebc082e9891248899205e0d6b7c1fc8b90d91d068b9a8427864a4887528fb",
+      "status": "ok",
       "window": {
         "from": "01-2015",
         "to": "12-2024"
       }
     },
     "summarized": {
-      "extracted_at": "2026-06-11T00:00:00Z",
+      "extracted_at": "2026-11-23T07:27:14Z",
       "file": "summarized.parquet",
-      "note": "from git history (01ab3b1)",
+      "merged": false,
       "partitions": 540,
       "rows": 259200,
-      "run_id": null,
-      "sha256": "f07791507182f5b4fcc3dbfdbdb80308715b051e88e2856b772e8b91e5adb273",
-      "status": "reconstructed",
+      "run_id": "20261123T064001Z",
+      "sha256": "9bf619b3c097d217d01d668b0ca49344669c45ddc7847556708bae95720cadb7",
+      "status": "ok",
       "window": {
         "from": "01-2015",
         "to": "12-2024"
@@ -144,7 +147,7 @@
       "partitions": 5,
       "rows": 5,
       "run_id": null,
-      "sha256": "cc4dcb8a39b414e689cdc4d1af0a732911c3af459b52fb1a96b86da825e62343",
+      "sha256": "69bb4fa51221f9bd83c23551b578f377ad634b7c437ca00b2df407bfcaf848a6",
       "status": "reconstructed",
       "window": {
         "from": "2019",
@@ -158,7 +161,7 @@
       "partitions": 3,
       "rows": 105,
       "run_id": null,
-      "sha256": "5d3eda6f67a9128652003a5df9b21e6aedca8ec58ba103e04bccb74516470103",
+      "sha256": "5b12a8ebe1e83124b851c86ce53fcbdd8f7c16525fc9f18c685505a7bc46f041",
       "status": "reconstructed",
       "window": {
         "from": "2019",
@@ -166,13 +169,13 @@
       }
     }
   },
-  "extracted_at_max": "2026-06-11T00:00:00Z",
-  "extracted_at_min": "2026-06-09T00:00:00Z",
+  "extracted_at_max": "2026-11-23T17:57:40Z",
+  "extracted_at_min": "2026-06-10T00:00:00Z",
   "kind": "release",
-  "previous_release_id": null,
-  "promoted_at": "2026-11-23T07:29:11Z",
-  "reconstructed": true,
-  "release_id": "2026-06-11-reconstructed",
+  "previous_release_id": "20261123T064001Z",
+  "promoted_at": "2026-11-23T17:59:10Z",
+  "reconstructed": false,
+  "release_id": "20261123T130946Z",
   "schema_version": 1,
   "source": "FBI Crime Data Explorer API (api.usa.gov/crime/fbi/cde)",
   "window": {
