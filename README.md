@@ -54,7 +54,7 @@ FBI Crime Data Explorer API
 | Web | `React`, `Vite`, `TypeScript`, `TanStack Query`, `Tailwind CSS`, `Recharts`, `MapLibre GL` | The dashboard. |
 | Delivery | `Docker`, `GitHub Actions`, `Railway` | The container image, CI and the hosted service. |
 
-The project uses Python 3.12, managed by `uv`, and Node.js 22.
+The project uses Python 3.12, managed by `uv`, and Node.js 26 (LTS).
 
 ## Repository structure
 
@@ -112,7 +112,7 @@ An upstream failure gives an error status (502, 503 or 504) with a stable `code`
 
 ## Getting started
 
-You need [uv](https://docs.astral.sh/uv/) and Node.js 22. The committed snapshot builds the whole warehouse, so you do not need an API key for the national and state views.
+You need [uv](https://docs.astral.sh/uv/) and Node.js 26 (LTS). The committed snapshot builds the whole warehouse, so you do not need an API key for the national and state views.
 
 ### 1. Build and run from the snapshot
 
