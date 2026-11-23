@@ -49,7 +49,7 @@ OUT.mkdir(exist_ok=True)
 
 # The release and the window that FINDINGS.md describes. Change them together
 # with FINDINGS.md. Set OPENHYDRA_ANY_RELEASE=1 to explore another release.
-EXPECTED_RELEASE = "2026-06-11-reconstructed"
+EXPECTED_RELEASE = "20261123T130946Z"
 WINDOW = ("2015-01-01", "2024-12-01")  # first and last month, inclusive
 WINDOW_LABEL = f"{WINDOW[0][:4]}–{WINDOW[1][:4]}"
 

@@ -255,7 +255,7 @@ export const api = {
   population: (level = "national", area = "US") =>
     get<PopulationRow[]>(`/api/v1/population?${qs({ level, area })}`),
   // Hate crime breakdowns share the ArrestRow {category, label, value} shape;
-  // `category` is the dimension (bias_category, offender_race, victim_type, …).
+  // `category` is the dimension (bias_category, offender_race, location_type, …).
   hateCrime: (category?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/v1/hate-crime?${qs({ level, area, category })}`),
   // Expanded homicide (SHR); `category` is section_dimension (victim_age,

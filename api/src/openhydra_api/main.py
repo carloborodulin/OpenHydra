@@ -441,7 +441,7 @@ def hate_crime(
     category: str | None = None,
 ) -> list[dict[str, Any]]:
     # Same tidy (category, label, value) shape as arrests; `category` is the
-    # breakdown dimension (bias_category, offender_race, victim_type, …).
+    # breakdown dimension (bias_category, offender_race, location_type, …).
     sql = "select category, label, value from fct_hate_crime where level = ? and area = ?"
     params: list[Any] = [level, area]
     if category:

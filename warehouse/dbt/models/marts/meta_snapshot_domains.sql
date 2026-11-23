@@ -3,7 +3,7 @@
 -- example LESDC covers 2022 to 2023 only).
 select
     je.key as domain,
-    cast(je.value ->> '$.extracted_at' as timestamp) as extracted_at,
+    cast(je.value ->> '$.extracted_at' as timestamptz) at time zone 'UTC' as extracted_at,
     je.value -> '$.window' ->> '$.from' as window_from,
     je.value -> '$.window' ->> '$.to' as window_to,
     cast(je.value ->> '$.rows' as bigint) as row_count,

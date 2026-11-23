@@ -107,9 +107,10 @@ class ArrestTotalsResponse(_Envelope):
 class HateCrimeResponse(BaseModel):
     """/hate-crime/* (type=totals, and the state/agency variants).
 
-    Two sections of dimensional breakdowns: ``bias_section`` (victim_type,
-    offense_type, location_type, offender_race, offender_ethnicity,
-    judicial_district) and ``incident_section`` (bias, bias_category). Each
+    Two sections of dimensional breakdowns: ``bias_section`` (offense_type,
+    location_type, offender_race, offender_ethnicity, judicial_district; the
+    FBI removed victim_type in 2026-11) and ``incident_section`` (bias,
+    bias_category). Each
     dimension maps a label to a count; access them merged — one entry per
     dimension — via :attr:`breakdowns`, the same shape as
     :attr:`ArrestTotalsResponse.breakdowns`.
