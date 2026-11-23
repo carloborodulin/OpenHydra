@@ -1,0 +1,27 @@
+# Weekly dependency updates. Each ecosystem sends one grouped PR.
+# Security updates are separate and arrive when an advisory is published.
+version: 2
+updates:
+  - package-ecosystem: uv
+    directories: ["/cdeclient", "/warehouse", "/api", "/analysis"]
+    schedule: { interval: weekly, day: monday }
+    groups:
+      python:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: npm
+    directories: ["/web", "/.railway"]
+    schedule: { interval: weekly, day: monday }
+    groups:
+      web:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule: { interval: weekly, day: monday }
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: docker
+    directory: "/"
+    schedule: { interval: weekly, day: monday }

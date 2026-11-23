@@ -5,6 +5,18 @@ on:
     branches: [main]
   pull_request:
 
+# The jobs only read the repository.
+permissions:
+  contents: read
+
+# Stop an old run when a new commit arrives on the same branch.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  UV_VERSION: "0.11.19"
+
 jobs:
   check:
     name: ${{ matrix.package }} — lint, types, tests
@@ -17,27 +29,33 @@ jobs:
       run:
         working-directory: ${{ matrix.package }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
+          version: ${{ env.UV_VERSION }}
           enable-cache: true
+
+      - name: Check that the lockfile matches pyproject.toml
+        run: uv lock --check
 
       - name: Sync dependencies (locked)
         run: uv sync --frozen
 
       - name: Lint (ruff)
-        run: uv run ruff check
+        run: uv run --frozen ruff check
 
       - name: Format check (ruff)
-        run: uv run ruff format --check
+        run: uv run --frozen ruff format --check
 
       - name: Type-check (mypy, strict)
-        run: uv run mypy
+        run: uv run --frozen mypy
 
       - name: Test (pytest)
-        run: uv run pytest -q
+        run: uv run --frozen pytest -q
 
   web:
     name: web — lint, build
@@ -46,8 +64,10 @@ jobs:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
           cache: npm
@@ -55,3 +75,31 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+
+  secrets:
+    name: secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+  # One required check for branch protection. It passes only when all jobs pass.
+  gate:
+    name: ci-gate
+    if: always()
+    needs: [check, web, secrets]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require success from all jobs
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for r in $RESULTS; do test "$r" = success; done
