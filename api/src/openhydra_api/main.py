@@ -5,13 +5,22 @@ from __future__ import annotations
 import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from enum import Enum
 from pathlib import Path
 from typing import Annotated, Any
 
 import duckdb
-from cdeclient.constants import ARREST_OFFENSES, arrest_code
+from cdeclient.constants import (
+    ARREST_CODE_TO_SLUG,
+    ARREST_OFFENSES,
+    EXPANDED_PROPERTY_OFFENSES,
+    NIBRS_OFFENSE_CODES,
+    Offense,
+    arrest_code,
+)
 from cdeclient.models import ArrestTotalsResponse
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Path as FastPath
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -384,102 +393,147 @@ def nibrs_estimation(
 # -- agency drill-down (live, proxied from the CDE API) --------------------
 # The warehouse only holds national + state rows. Per-agency data for ~19,619
 # agencies can't be pre-materialized, so these routes fetch live via cdeclient
-# and normalize to the same row shapes the warehouse routes return, with a small
-# TTL cache in front (see agency_live).
+# and normalize to the same row shapes the warehouse routes return.
+#
+# Every input is checked before any upstream call: the ORI must exist in the
+# snapshot and each offense must be in the API's own list. The cache key uses
+# the canonical values and holds the unfiltered rows; the category filter runs
+# after the cache. See agency_live (cache) and live_guard (limits).
+
+OriParam = Annotated[
+    str,
+    FastPath(
+        pattern=r"^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+        description="A 9-character NCIC ORI, for example NY0303000.",
+    ),
+]
+CategoryParam = Annotated[str | None, Query(max_length=80)]
+
+
+def known_ori(ori: OriParam, conn: Conn) -> str:
+    """Upper-case the ORI and require it in the agency list of the snapshot."""
+    canonical = ori.upper()
+    found = conn.execute("select 1 from dim_agencies where ori = ? limit 1", [canonical])
+    if found.fetchone() is None:
+        raise HTTPException(status_code=404, detail=f"Unknown agency ORI {canonical}.")
+    return canonical
+
+
+Ori = Annotated[str, Depends(known_ori)]
+
+
+def _arrest_code_or_422(offense: str | None) -> str:
+    if offense is None or offense == "":
+        return "all"
+    if offense in ARREST_OFFENSES or offense in ARREST_CODE_TO_SLUG:
+        return arrest_code(offense)
+    if offense in {o.value for o in Offense}:
+        return arrest_code(offense)
+    raise HTTPException(status_code=422, detail=f"Unknown arrest offense {offense!r}.")
 
 
 @app.get("/api/agency/{ori}/offenses", response_model=list[OffenseMonthly])
-def agency_offenses(ori: str, offense: str, client: Cde) -> list[dict[str, Any]]:
+def agency_offenses(ori: Ori, offense: Offense, client: Cde) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
-        resp = client().summarized_agency(ori, offense, LIVE_FROM, LIVE_TO)
+        resp = client().summarized_agency(ori, offense.value, LIVE_FROM, LIVE_TO)
         return agency_live.offenses_to_rows(resp)
 
-    return agency_live.cached(agency_live.cache_key("offenses", ori, offense), produce)
+    return agency_live.fetch(agency_live.cache_key("offenses", ori, offense.value), produce)
 
 
 @app.get("/api/agency/{ori}/arrests", response_model=list[ArrestRow])
 def agency_arrests(
-    ori: str,
+    ori: Ori,
     client: Cde,
-    category: str | None = None,
-    offense: str | None = None,
+    category: CategoryParam = None,
+    offense: Annotated[str | None, Query(max_length=40)] = None,
 ) -> list[dict[str, Any]]:
-    # Arrests use a numeric offense code, not a slug (same resolver the ETL uses):
-    # an arrest slug, a summarized slug, or a raw code all resolve; unknown -> "all".
-    code = arrest_code(offense)
+    # Arrests use a numeric offense code, not a slug: an arrest slug, a
+    # summarized slug or a raw code all resolve. Anything else is a 422.
+    code = _arrest_code_or_422(offense)
 
     def produce() -> list[dict[str, Any]]:
         resp = client().arrests_agency(ori, code, from_=LIVE_FROM, to=LIVE_TO)
         if not isinstance(resp, ArrestTotalsResponse):  # type=totals -> totals shape
             return []
-        return agency_live.arrests_to_rows(resp, category)
+        return agency_live.arrests_to_rows(resp)
 
-    return agency_live.cached(agency_live.cache_key("arrests", ori, code, category), produce)
+    rows = agency_live.fetch(agency_live.cache_key("arrests", ori, code), produce)
+    return agency_live.filter_category(rows, category)
 
 
 @app.get("/api/agency/{ori}/police-employment", response_model=list[PoliceEmploymentRow])
-def agency_police_employment(ori: str, client: Cde) -> list[dict[str, Any]]:
+def agency_police_employment(ori: Ori, client: Cde) -> list[dict[str, Any]]:
     state = ori[:2]  # NCIC ORIs are state-prefixed; /pe needs {state}/{ori}
 
     def produce() -> list[dict[str, Any]]:
         resp = client().police_employment_agency(state, ori, LIVE_FROM_YEAR, LIVE_TO_YEAR)
         return agency_live.pe_to_rows(resp)
 
-    return agency_live.cached(agency_live.cache_key("pe", ori), produce)
+    return agency_live.fetch(agency_live.cache_key("pe", ori), produce)
 
 
 @app.get("/api/agency/{ori}/hate-crime", response_model=list[ArrestRow])
 def agency_hate_crime(
-    ori: str,
-    client: Cde,
-    category: str | None = None,
+    ori: Ori, client: Cde, category: CategoryParam = None
 ) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
         resp = client().hate_crime_agency(ori, LIVE_FROM, LIVE_TO)
-        return agency_live.breakdowns_to_rows(resp.breakdowns, category)
+        return agency_live.breakdowns_to_rows(resp.breakdowns)
 
-    return agency_live.cached(agency_live.cache_key("hate-crime", ori, category), produce)
+    rows = agency_live.fetch(agency_live.cache_key("hate-crime", ori), produce)
+    return agency_live.filter_category(rows, category)
 
 
 @app.get("/api/agency/{ori}/shr", response_model=list[ArrestRow])
-def agency_shr(
-    ori: str,
-    client: Cde,
-    category: str | None = None,
-) -> list[dict[str, Any]]:
+def agency_shr(ori: Ori, client: Cde, category: CategoryParam = None) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
         resp = client().shr_agency(ori, LIVE_FROM, LIVE_TO)
-        return agency_live.breakdowns_to_rows(resp.breakdowns, category)
+        return agency_live.breakdowns_to_rows(resp.breakdowns)
 
-    return agency_live.cached(agency_live.cache_key("shr", ori, category), produce)
+    rows = agency_live.fetch(agency_live.cache_key("shr", ori), produce)
+    return agency_live.filter_category(rows, category)
+
+
+PropertyOffense = Enum(  # type: ignore[misc]
+    "PropertyOffense", {code: code for code in EXPANDED_PROPERTY_OFFENSES}, type=str
+)
 
 
 @app.get("/api/agency/{ori}/property", response_model=list[ArrestRow])
 def agency_property(
-    ori: str,
+    ori: Ori,
     client: Cde,
-    offense: str = "NB",
-    category: str | None = None,
+    offense: PropertyOffense = PropertyOffense("NB"),  # noqa: B008
+    category: CategoryParam = None,
 ) -> list[dict[str, Any]]:
-    def produce() -> list[dict[str, Any]]:
-        resp = client().property_agency(ori, offense, LIVE_FROM, LIVE_TO)
-        return agency_live.breakdowns_to_rows(resp.breakdowns, category)
+    code = str(offense.value)
 
-    return agency_live.cached(agency_live.cache_key("property", ori, offense, category), produce)
+    def produce() -> list[dict[str, Any]]:
+        resp = client().property_agency(ori, code, LIVE_FROM, LIVE_TO)
+        return agency_live.breakdowns_to_rows(resp.breakdowns)
+
+    rows = agency_live.fetch(agency_live.cache_key("property", ori, code), produce)
+    return agency_live.filter_category(rows, category)
 
 
 @app.get("/api/agency/{ori}/nibrs", response_model=list[ArrestRow])
 def agency_nibrs(
-    ori: str,
+    ori: Ori,
     client: Cde,
-    offense: str = "13A",
-    category: str | None = None,
+    offense: Annotated[str, Query(max_length=4)] = "13A",
+    category: CategoryParam = None,
 ) -> list[dict[str, Any]]:
-    def produce() -> list[dict[str, Any]]:
-        resp = client().nibrs_agency(ori, offense, LIVE_FROM, LIVE_TO)
-        return agency_live.breakdowns_to_rows(resp.breakdowns, category)
+    code = offense.upper()
+    if code not in NIBRS_OFFENSE_CODES:
+        raise HTTPException(status_code=422, detail=f"Unknown NIBRS offense code {offense!r}.")
 
-    return agency_live.cached(agency_live.cache_key("nibrs", ori, offense, category), produce)
+    def produce() -> list[dict[str, Any]]:
+        resp = client().nibrs_agency(ori, code, LIVE_FROM, LIVE_TO)
+        return agency_live.breakdowns_to_rows(resp.breakdowns)
+
+    rows = agency_live.fetch(agency_live.cache_key("nibrs", ori, code), produce)
+    return agency_live.filter_category(rows, category)
 
 
 # In production the built frontend is mounted at the root (path set via env in
