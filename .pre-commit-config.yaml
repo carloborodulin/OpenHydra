@@ -1,0 +1,20 @@
+# Fast checks before each commit. CI runs the full checks.
+# Install once: uvx pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uvx ruff@0.15.16 check --fix
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: uvx ruff@0.15.16 format
+        language: system
+        types: [python]
+      - id: eslint
+        name: eslint (web)
+        entry: bash -c 'cd web && npx --no-install eslint --fix "${@/#web\//}"' --
+        language: system
+        files: ^web/src/.*\.(ts|tsx)$

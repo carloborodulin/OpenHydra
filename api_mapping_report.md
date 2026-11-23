@@ -174,7 +174,7 @@ The DuckDB warehouse currently fetches and stores a comprehensive set of arrest 
 
 ### 3. Underutilized Arrest Codes
 
-The codebase contains a mapping dictionary `ARREST_OFFENSE_CODES` in [constants.py](file:///Users/carlo/Documents/Development/personal/OpenHydra/cdeclient/src/cdeclient/constants.py) that only links the **10 core offenses** (such as homicide, robbery, larceny) to their corresponding codes. 
+The codebase contains a mapping dictionary `ARREST_OFFENSE_CODES` in [constants.py](cdeclient/src/cdeclient/constants.py) that only links the **10 core offenses** (such as homicide, robbery, larceny) to their corresponding codes. 
 
 This leaves **38 functional arrest offense codes** (plus the unmapped code `23` for revised Rape definition) completely unused by the application. These codes are never fetched by the ETL, exposed as distinct metrics, or selectable as filter options in the UI.
 

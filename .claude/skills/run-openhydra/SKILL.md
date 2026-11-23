@@ -26,9 +26,10 @@ cd web && npm ci && npm run build && cd ..   # → web/dist (tsc -b && vite buil
 
 ## Serve (API + built SPA, one supervised process)
 
-The committed warehouse `warehouse/openhydra.duckdb` already holds data for every
-domain, so no ETL is needed to run the app. (To rebuild it from the committed
-seeds: `cd warehouse/dbt && uv run --group dbt dbt build --profiles-dir .`.)
+The warehouse file `warehouse/openhydra.duckdb` is not in git (it is ignored).
+Build it from the committed seed with `make data` (no ETL and no API key). The
+root Makefile also has `make smoke`, which starts the server, checks the main
+routes and stops it.
 
 ```bash
 # FBI_CDE_API_KEY is only needed for live agency drill-down; the warehouse views
@@ -49,25 +50,25 @@ The SPA is now at <http://127.0.0.1:8146/>; the API is under `/api/*`.
 
 ## Drive (agent path — browser walkthrough)
 
-`chromium-cli` isn't installed, but Playwright's Chromium is cached
-(`~/Library/Caches/ms-playwright/chromium-1223`). Install `playwright-core` in a
-temp dir (never `$HOME`) and point `PW_DIR` at it; the driver resolves
-`playwright-core` from there and drives the cached Chromium by default.
+Install a pinned `playwright-core` in a temp dir (never `$HOME`) and point
+`PW_DIR` at it. Install the matching Chromium with
+`npx playwright-core@1.59.0 install chromium` if it is not in the cache. The
+driver resolves `playwright-core` from `PW_DIR`.
 
 ```bash
-mkdir -p /tmp/oh-pw && (cd /tmp/oh-pw && npm init -y >/dev/null && npm install playwright-core@latest >/dev/null)
+mkdir -p /tmp/oh-pw && (cd /tmp/oh-pw && npm init -y >/dev/null && npm install playwright-core@1.59.0 >/dev/null)
 PW_DIR=/tmp/oh-pw BASE=http://127.0.0.1:8146 SHOTS=/tmp/openhydra-shots \
   node .claude/skills/run-openhydra/driver.mjs
 ```
 
-The driver clicks through all 8 tabs (Overview, Hate Crime, Homicide, Property,
+The driver clicks through all 9 tabs (Overview, Performance, Hate Crime, Homicide, Property,
 NIBRS, NIBRS Est., Use of Force, LESDC), waits for each chart, and writes one PNG
 per tab to `$SHOTS`. It prints `OK`/`!!` per tab and **exits non-zero** if any tab
 has no chart, shows "No Data", or logs a console error — so it doubles as a smoke
 test. **Look at the screenshots** (e.g. `$SHOTS/overview.png`); a blank frame is a
 failure even if the count looks fine.
 
-Verified result (this machine): all 8 tabs `OK`, `console errors: none`.
+Verified result (this machine): all 9 tabs `OK`, `console errors: none`.
 
 ## Run (human path)
 

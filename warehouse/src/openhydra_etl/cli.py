@@ -27,6 +27,23 @@ def _split(csv: str) -> list[str]:
     return [x.strip() for x in csv.split(",") if x.strip()]
 
 
+# Every domain the dbt project reads. dbt needs all of them, so a first pull
+# uses the default "all".
+DOMAINS: tuple[str, ...] = (
+    "summarized",
+    "agencies",
+    "arrests",
+    "pe",
+    "hate-crime",
+    "shr",
+    "property",
+    "nibrs",
+    "lesdc",
+    "uof",
+    "nibrs-estimation",
+)
+
+
 @app.command()
 def pull(
     from_: Annotated[str, typer.Option("--from", help="Start month, MM-YYYY.")] = "01-2015",
@@ -48,8 +65,12 @@ def pull(
         ),
     ] = "",
     domains: Annotated[
-        str, typer.Option("--domains", help="Which domains to pull.")
-    ] = "summarized,agencies,arrests,pe",
+        str,
+        typer.Option(
+            "--domains",
+            help=f"Comma domains, or 'all'. Choices: {', '.join(DOMAINS)}.",
+        ),
+    ] = "all",
 ) -> None:
     """Pull data and land tidy Parquet under data/raw/."""
     st = list(STATES) if states.strip().lower() == "all" else [s.upper() for s in _split(states)]
@@ -59,7 +80,12 @@ def pull(
     else:
         # The Part I codes let dbt build the violent/property rollups.
         aoffs = [a.lower() for a in _split(arrest_offenses)] or DEFAULT_ARREST_OFFENSES
-    doms = [d.lower() for d in _split(domains)]
+    doms = (
+        list(DOMAINS) if domains.strip().lower() == "all" else [d.lower() for d in _split(domains)]
+    )
+    unknown = [d for d in doms if d not in DOMAINS]
+    if unknown:
+        raise typer.BadParameter(f"unknown domains: {', '.join(unknown)}", param_hint="--domains")
 
     # Generous retries + a longer read timeout: a bulk pull makes many calls and
     # the gateway throws intermittent 503 spells and slow responses (notably the
