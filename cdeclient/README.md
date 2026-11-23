@@ -16,8 +16,8 @@ uv sync          # creates .venv, installs deps (Python pinned to 3.12)
 ```python
 from cdeclient import CdeClient, Offense
 
-with CdeClient() as cde:                      # reads FBI_CDE_API_KEY from env/.env
-    agencies = cde.agencies_by_state("NY")    # {county: [Agency, ...]}
+with CdeClient() as cde:  # reads FBI_CDE_API_KEY from env/.env
+    agencies = cde.agencies_by_state("NY")  # {county: [Agency, ...]}
     homicide = cde.summarized_national(Offense.HOMICIDE, "01-2020", "12-2022")
     print(homicide.offenses.rates["United States Offenses"])
 ```
