@@ -8,7 +8,8 @@ from typing import Annotated, Any
 
 import typer
 
-from .client import CdeClient, CdeError
+from .client import CdeClient
+from .errors import CdeError
 from .constants import ArrestType, Offense
 
 app = typer.Typer(
@@ -103,7 +104,9 @@ def pe_state(state: str, from_: YearFrom, to: YearTo) -> None:
 def main() -> None:
     try:
         app()
-    except CdeError as exc:
+    except (CdeError, ValueError) as exc:
+        # CdeError messages never hold the request URL or the key. ValueError
+        # comes from a bad date argument.
         typer.secho(f"error: {exc}", fg=typer.colors.RED, err=True)
         sys.exit(1)
 

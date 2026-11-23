@@ -40,4 +40,5 @@ ENV OPENHYDRA_DUCKDB=/app/warehouse/openhydra.duckdb \
     OPENHYDRA_STATIC_DIR=/app/web/dist
 EXPOSE 8000
 # Railway injects $PORT; bind all interfaces.
-CMD uv run --no-dev uvicorn openhydra_api.main:app --host 0.0.0.0 --port ${PORT:-8000}
+# The app writes its own JSON access log (openhydra_api.obs), so uvicorn does not.
+CMD uv run --no-dev uvicorn openhydra_api.main:app --host 0.0.0.0 --port ${PORT:-8000} --no-access-log

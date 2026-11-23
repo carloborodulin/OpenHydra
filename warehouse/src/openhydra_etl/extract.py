@@ -6,7 +6,6 @@ import sys
 from datetime import date
 from pathlib import Path
 
-import httpx
 import polars as pl
 from cdeclient import CdeClient, CdeError
 from cdeclient.constants import (
@@ -261,7 +260,7 @@ class Extractor:
                         if code is None
                         else self.client.nibrs_estimation_region(code, off, year)
                     )
-                except (CdeError, httpx.HTTPError):
+                except CdeError:
                     skipped.append(f"{area}/{off}")
                     continue
                 frames.append(

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .client import CdeClient, CdeError, CdeServerError
+from .client import CdeClient
 from .config import Settings
 from .constants import (
     ARREST_OFFENSE_CODES,
@@ -17,6 +17,19 @@ from .constants import (
     ArrestType,
     Offense,
     arrest_code,
+)
+from .errors import (
+    CdeAuthError,
+    CdeConfigError,
+    CdeDecodeError,
+    CdeError,
+    CdeHttpError,
+    CdeNotFound,
+    CdeRateLimited,
+    CdeServerError,
+    CdeTimeout,
+    CdeTransportError,
+    CdeUpstreamError,
 )
 from .models import (
     Agency,
@@ -34,6 +47,7 @@ from .models import (
     UofParticipation,
     UofQuestionItem,
 )
+from .policy import BULK, INTERACTIVE, RetryPolicy, redact
 
 __all__ = [
     "ARREST_OFFENSES",
@@ -45,8 +59,21 @@ __all__ = [
     "ArrestTotalsResponse",
     "ArrestType",
     "arrest_code",
+    "BULK",
+    "CdeAuthError",
     "CdeClient",
+    "CdeConfigError",
+    "CdeDecodeError",
     "CdeError",
+    "CdeHttpError",
+    "CdeNotFound",
+    "CdeRateLimited",
+    "CdeTimeout",
+    "CdeTransportError",
+    "CdeUpstreamError",
+    "INTERACTIVE",
+    "RetryPolicy",
+    "redact",
     "CdeProperties",
     "CdeServerError",
     "ChartResponse",

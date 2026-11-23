@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_BASE_URL = "https://api.usa.gov/crime/fbi/cde"
@@ -17,5 +18,6 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    api_key: str | None = None
+    # SecretStr keeps the key out of repr(), str() and validation errors.
+    api_key: SecretStr | None = None
     base_url: str = DEFAULT_BASE_URL

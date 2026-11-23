@@ -3,20 +3,20 @@
 from __future__ import annotations
 
 import os
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Any
 
 import duckdb
-from cdeclient import CdeClient, CdeError
 from cdeclient.constants import ARREST_OFFENSES, arrest_code
 from cdeclient.models import ArrestTotalsResponse
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import ValidationError
 
-from . import agency_live
-from .cde import get_cde_client
+from . import agency_live, obs
+from .cde import ClientProvider, close_shared_client, get_cde_client
 from .db import get_conn
 from .models import (
     AgencyFeature,
@@ -33,23 +33,32 @@ from .models import (
 
 # Request-scoped read-only DuckDB connection (FastAPI Annotated dependency).
 Conn = Annotated[duckdb.DuckDBPyConnection, Depends(get_conn)]
-# Request-scoped live CDE client for agency drill-down.
-Cde = Annotated[CdeClient, Depends(get_cde_client)]
+# Live CDE client provider for agency drill-down. Routes call it only on a
+# cache miss (see cde.py).
+Cde = Annotated[ClientProvider, Depends(get_cde_client)]
 
 # Window for live agency calls (mirrors the ETL defaults). Most endpoints take
 # MM-YYYY; /pe takes 4-digit years.
 LIVE_FROM, LIVE_TO = "01-2015", "12-2024"
 LIVE_FROM_YEAR, LIVE_TO_YEAR = "2015", "2024"
 
-# Live agency calls degrade to empty rows on these: gateway/network hiccups
-# (CdeError) or an unexpected/sparse response shape (ValidationError).
-LIVE_ERRORS = (CdeError, ValidationError)
+# An upstream failure is not an empty result. The handlers in obs.py turn each
+# CdeError into a 502, 503 or 504 response, and the cache does not keep it.
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    yield
+    close_shared_client()
+
 
 app = FastAPI(
     title="OpenHydra API",
     version="0.1.0",
     description="Read-only access to FBI UCR crime marts (DuckDB).",
+    lifespan=lifespan,
 )
+obs.install(app)
 
 # The browser talks to this service, never to the upstream API, so the API key
 # is never exposed. Open CORS is fine for a public read-only dataset.
@@ -382,10 +391,7 @@ def nibrs_estimation(
 @app.get("/api/agency/{ori}/offenses", response_model=list[OffenseMonthly])
 def agency_offenses(ori: str, offense: str, client: Cde) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
-        try:
-            resp = client.summarized_agency(ori, offense, LIVE_FROM, LIVE_TO)
-        except LIVE_ERRORS:
-            return []
+        resp = client().summarized_agency(ori, offense, LIVE_FROM, LIVE_TO)
         return agency_live.offenses_to_rows(resp)
 
     return agency_live.cached(agency_live.cache_key("offenses", ori, offense), produce)
@@ -403,10 +409,7 @@ def agency_arrests(
     code = arrest_code(offense)
 
     def produce() -> list[dict[str, Any]]:
-        try:
-            resp = client.arrests_agency(ori, code, from_=LIVE_FROM, to=LIVE_TO)
-        except LIVE_ERRORS:
-            return []
+        resp = client().arrests_agency(ori, code, from_=LIVE_FROM, to=LIVE_TO)
         if not isinstance(resp, ArrestTotalsResponse):  # type=totals -> totals shape
             return []
         return agency_live.arrests_to_rows(resp, category)
@@ -419,10 +422,7 @@ def agency_police_employment(ori: str, client: Cde) -> list[dict[str, Any]]:
     state = ori[:2]  # NCIC ORIs are state-prefixed; /pe needs {state}/{ori}
 
     def produce() -> list[dict[str, Any]]:
-        try:
-            resp = client.police_employment_agency(state, ori, LIVE_FROM_YEAR, LIVE_TO_YEAR)
-        except LIVE_ERRORS:
-            return []
+        resp = client().police_employment_agency(state, ori, LIVE_FROM_YEAR, LIVE_TO_YEAR)
         return agency_live.pe_to_rows(resp)
 
     return agency_live.cached(agency_live.cache_key("pe", ori), produce)
@@ -435,10 +435,7 @@ def agency_hate_crime(
     category: str | None = None,
 ) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
-        try:
-            resp = client.hate_crime_agency(ori, LIVE_FROM, LIVE_TO)
-        except LIVE_ERRORS:
-            return []
+        resp = client().hate_crime_agency(ori, LIVE_FROM, LIVE_TO)
         return agency_live.breakdowns_to_rows(resp.breakdowns, category)
 
     return agency_live.cached(agency_live.cache_key("hate-crime", ori, category), produce)
@@ -451,10 +448,7 @@ def agency_shr(
     category: str | None = None,
 ) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
-        try:
-            resp = client.shr_agency(ori, LIVE_FROM, LIVE_TO)
-        except LIVE_ERRORS:
-            return []
+        resp = client().shr_agency(ori, LIVE_FROM, LIVE_TO)
         return agency_live.breakdowns_to_rows(resp.breakdowns, category)
 
     return agency_live.cached(agency_live.cache_key("shr", ori, category), produce)
@@ -468,10 +462,7 @@ def agency_property(
     category: str | None = None,
 ) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
-        try:
-            resp = client.property_agency(ori, offense, LIVE_FROM, LIVE_TO)
-        except LIVE_ERRORS:
-            return []
+        resp = client().property_agency(ori, offense, LIVE_FROM, LIVE_TO)
         return agency_live.breakdowns_to_rows(resp.breakdowns, category)
 
     return agency_live.cached(agency_live.cache_key("property", ori, offense, category), produce)
@@ -485,10 +476,7 @@ def agency_nibrs(
     category: str | None = None,
 ) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
-        try:
-            resp = client.nibrs_agency(ori, offense, LIVE_FROM, LIVE_TO)
-        except LIVE_ERRORS:
-            return []
+        resp = client().nibrs_agency(ori, offense, LIVE_FROM, LIVE_TO)
         return agency_live.breakdowns_to_rows(resp.breakdowns, category)
 
     return agency_live.cached(agency_live.cache_key("nibrs", ori, offense, category), produce)
@@ -505,4 +493,9 @@ if _static_dir and Path(_static_dir).is_dir():
 def run() -> None:
     import uvicorn
 
-    uvicorn.run("openhydra_api.main:app", host="127.0.0.1", port=int(os.getenv("PORT", "8000")))
+    uvicorn.run(
+        "openhydra_api.main:app",
+        host="127.0.0.1",
+        port=int(os.getenv("PORT", "8000")),
+        access_log=False,  # obs.RequestContextMiddleware writes the access log.
+    )
