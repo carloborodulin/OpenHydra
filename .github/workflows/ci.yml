@@ -16,6 +16,8 @@ concurrency:
 
 env:
   UV_VERSION: "0.11.19"
+  NODE_VERSION: "22"
+  NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:
   check:
@@ -69,7 +71,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
@@ -78,6 +80,144 @@ jobs:
       - run: npm run build
       - name: Check the startup JavaScript budget (300 kB gzip)
         run: npm run check:bundle
+
+  contract:
+    name: contract — OpenAPI types, DuckDB versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: The warehouse writer and the API reader lock the same DuckDB
+        run: python3 scripts/check_duckdb_versions.py
+      - name: Export the OpenAPI document
+        working-directory: api
+        run: uv sync --frozen && uv run --frozen python scripts/export_openapi.py ../web/openapi.json
+      - name: Generate the TypeScript API types and fail on drift
+        working-directory: web
+        run: |
+          npm ci
+          npm run gen:api
+          git diff --exit-code -- openapi.json src/lib/api.gen.ts || {
+            echo "::error::The API changed. Run the export and 'npm run gen:api', then commit the result."
+            exit 1
+          }
+
+  data:
+    name: data — dbt build, API smoke, notebook
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+      - name: Build the warehouse from the committed release (dbt build, all tests)
+        run: make data
+      - name: Start the API and check the main routes
+        run: (cd api && uv sync --frozen) && make smoke
+      - name: Run the analysis notebook
+        run: (cd analysis && uv sync --frozen) && make notebook
+      - name: Keep the notebook output
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: notebook-outputs
+          path: analysis/outputs/
+          retention-days: 7
+
+  e2e:
+    name: e2e — browser, axe, two viewports, two themes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build the warehouse and the dashboard
+        run: |
+          make data
+          (cd api && uv sync --frozen)
+          (cd web && npm ci && npm run build)
+      - name: Install the Playwright browser
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+      - name: Run the browser tests against the real server
+        run: |
+          OPENHYDRA_STATIC_DIR="$PWD/web/dist" api/.venv/bin/uvicorn openhydra_api.main:app \
+            --app-dir api/src --host 127.0.0.1 --port 8146 --no-access-log > server.log 2>&1 &
+          SERVER=$!
+          trap 'kill $SERVER' EXIT
+          curl -sf --retry 30 --retry-delay 1 --retry-connrefused -o /dev/null http://127.0.0.1:8146/health
+          cd web && BASE_URL=http://127.0.0.1:8146 npx playwright test
+      - name: Keep the report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            web/playwright-report/
+            server.log
+          retention-days: 7
+
+  container:
+    name: container — build, non-root, PID 1, SIGTERM, PORT, offline start
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build the production image
+        run: docker build --tag openhydra:ci .
+      - name: Check the running container
+        run: |
+          set -eu
+          docker image ls openhydra:ci --format 'image size: {{.Size}}'
+          # A non-default port, as Railway sets it.
+          docker run -d --name oh -e PORT=9000 -p 9000:9000 openhydra:ci
+          curl -sf --retry 30 --retry-delay 1 --retry-connrefused -o /dev/null http://127.0.0.1:9000/health
+          curl -sf http://127.0.0.1:9000/ | grep -q '<div id="root">'
+          curl -sf -o /dev/null "http://127.0.0.1:9000/api/offenses/monthly?offense=homicide"
+          # uvicorn is PID 1 (exec), and it runs as the user without privileges.
+          docker exec oh sh -c 'tr "\0" " " < /proc/1/cmdline' | grep -q 'uvicorn openhydra_api.main:app'
+          test "$(docker exec oh id -u)" = 10001
+          # SIGTERM stops it cleanly and quickly.
+          start=$(date +%s)
+          docker stop --time 20 oh
+          test $(( $(date +%s) - start )) -lt 15
+          test "$(docker inspect oh --format '{{.State.ExitCode}}')" = 0
+          # It starts with no network at all (no package download at start).
+          docker run -d --name oh-offline --network none openhydra:ci
+          ok=0
+          for i in $(seq 1 30); do
+            if docker exec oh-offline python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"; then
+              ok=1; break
+            fi
+            sleep 1
+          done
+          test "$ok" = 1
+      - name: Show the logs on failure
+        if: failure()
+        run: docker logs oh || true; docker logs oh-offline || true
 
   secrets:
     name: secret scan (gitleaks)
@@ -97,7 +237,7 @@ jobs:
   gate:
     name: ci-gate
     if: always()
-    needs: [check, web, secrets]
+    needs: [check, web, contract, data, e2e, container, secrets]
     runs-on: ubuntu-latest
     steps:
       - name: Require success from all jobs

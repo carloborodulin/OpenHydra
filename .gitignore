@@ -44,3 +44,7 @@ warehouse/dbt/.user.yml
 
 # Local agent skill for running the app (not part of the project)
 .claude/skills/run-openhydra/
+
+# Browser test output
+web/test-results/
+web/playwright-report/
