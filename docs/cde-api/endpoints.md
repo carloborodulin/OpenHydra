@@ -5,62 +5,16 @@
 - **Spec:** OpenAPI 3.0.1 — CDE-PRD-API-Gateway (2022-10-13T17:58:35Z)
 - **Server:** `https://api.usa.gov/crime/fbi/cde/{basePath}`
 - **Auth:** append `?API_KEY=<key>` to every request
-- **Totals:** 39 paths across 11 groups
+- **Totals:** 32 paths across 11 groups
 
 ## Use Of Force
 
-### `GET /participation/national/{collection}/{query}`
+### `GET /uof`
 
 | param | in | required | type | values |
 |---|---|---|---|---|
-| `collection` | path | yes | participation-federal_collections |  |
-| `query` | path | yes | participation-federal_queries |  |
 | `year` | query | yes | string |  |
-| `quarter` | query | yes | quarter |  |
-| `ori` | query | no |  |  |
-
-Responses: `200`
-
-### `GET /participation/national/uof/{query}`
-
-| param | in | required | type | values |
-|---|---|---|---|---|
-| `query` | path | yes | participation-national_queries |  |
-| `year` | query | no | string |  |
-| `quarter` | query | no | quarter |  |
-
-Responses: `200`
-
-### `GET /participation/state/{state}/{collection}/{query}`
-
-| param | in | required | type | values |
-|---|---|---|---|---|
-| `collection` | path | yes | string | `uof` |
-| `query` | path | yes | string | `states` |
-| `year` | query | yes | string |  |
-| `quarter` | query | yes | quarter |  |
-| `state` | path | yes | states |  |
-
-Responses: `200`
-
-### `GET /uof/questions/{grp}/{year}/{quarter}`
-
-| param | in | required | type | values |
-|---|---|---|---|---|
-| `grp` | path | yes | string | `A` |
-| `year` | path | yes | string |  |
-| `quarter` | path | yes | quarter |  |
-
-Responses: `200`
-
-### `GET /uof/reports/{grp}/{spec}`
-
-| param | in | required | type | values |
-|---|---|---|---|---|
-| `grp` | path | yes | string | `A, F, D, S` |
-| `spec` | path | no |  |  |
-| `year` | query | yes | string |  |
-| `quarter` | query | yes | quarter |  |
+| `location` | query | yes | string |  |
 
 Responses: `200`
 
@@ -253,31 +207,12 @@ Responses: `200`
 
 ## Hate Crime
 
-### `GET /hate-crime/agency/{ori}`
-
-| param | in | required | type | values |
-|---|---|---|---|---|
-| `from` | query | yes | string |  |
-| `to` | query | yes | string |  |
-| `ori` | path | yes | string |  |
-
-Responses: `200`, `400`, `500`
-
 ### `GET /hate-crime/agency/{ori}/{bias}`
 
 | param | in | required | type | values |
 |---|---|---|---|---|
-| `bias` | path | yes | hate_crime_query_options |  |
-| `from` | query | yes | string |  |
-| `to` | query | yes | string |  |
 | `ori` | path | yes | string |  |
-
-Responses: `200`, `400`, `500`
-
-### `GET /hate-crime/national`
-
-| param | in | required | type | values |
-|---|---|---|---|---|
+| `bias` | path | yes | hate_crime_query_options |  |
 | `type` | query | yes | type |  |
 | `from` | query | yes | string |  |
 | `to` | query | yes | string |  |
@@ -289,17 +224,7 @@ Responses: `200`, `400`, `500`
 | param | in | required | type | values |
 |---|---|---|---|---|
 | `bias` | path | yes | hate_crime_query_options |  |
-| `from` | query | yes | string |  |
-| `to` | query | yes | string |  |
-
-Responses: `200`, `400`, `500`
-
-### `GET /hate-crime/state/{state}`
-
-| param | in | required | type | values |
-|---|---|---|---|---|
 | `type` | query | yes | type |  |
-| `state` | path | yes | states |  |
 | `from` | query | yes | string |  |
 | `to` | query | yes | string |  |
 
@@ -309,8 +234,9 @@ Responses: `200`, `400`, `500`
 
 | param | in | required | type | values |
 |---|---|---|---|---|
-| `bias` | path | yes | hate_crime_query_options |  |
 | `state` | path | yes | states |  |
+| `bias` | path | yes | hate_crime_query_options |  |
+| `type` | query | yes | type |  |
 | `from` | query | yes | string |  |
 | `to` | query | yes | string |  |
 
