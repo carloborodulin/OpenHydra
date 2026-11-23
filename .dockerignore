@@ -21,7 +21,9 @@ data/raw
 data/staging
 data/samples
 deploy/.seed.*
-analysis
+# The workspace needs each member manifest, not the notebook files.
+analysis/*
+!analysis/pyproject.toml
 docs
 .env
 .env.local

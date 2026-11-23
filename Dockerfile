@@ -17,36 +17,44 @@ RUN npm run build      # -> /app/web/dist
 
 # ---- 2. build the DuckDB marts from the committed seed --------------------
 FROM ${UV_IMAGE} AS data
-WORKDIR /app/warehouse
-# Install dbt from the warehouse lock first (a cached layer). The lock pins the
-# DuckDB writer to the same version as the API reader.
-COPY warehouse/pyproject.toml warehouse/uv.lock ./
-RUN uv sync --frozen --only-group dbt --no-install-project
-COPY warehouse/dbt/ ./dbt/
+WORKDIR /app
+# The uv workspace: the root manifest, the one lock, and each member manifest.
+# One lock means the DuckDB that writes the file is the DuckDB that reads it.
+COPY pyproject.toml uv.lock ./
+COPY cdeclient/pyproject.toml cdeclient/
+COPY warehouse/pyproject.toml warehouse/
+COPY api/pyproject.toml api/
+COPY analysis/pyproject.toml analysis/
+# Install dbt first (a cached layer that changes only with the lock).
+RUN uv sync --frozen --package openhydra-etl --only-group dbt
+COPY warehouse/dbt/ ./warehouse/dbt/
 COPY deploy/seed/ /app/data/raw/
 # Committed reference seeds read directly by dbt (the Census population CSV).
 COPY data/seeds/ /app/data/seeds/
 WORKDIR /app/warehouse/dbt
 # dbt reads ../../data/raw/*.parquet (relative to CWD) and writes ../openhydra.duckdb
-RUN ../.venv/bin/dbt build --profiles-dir .
+RUN /app/.venv/bin/dbt build --profiles-dir .
 
 # ---- 3. API runtime --------------------------------------------------------
 FROM ${UV_IMAGE} AS final
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PYTHON_DOWNLOADS=never
-WORKDIR /app/api
-# Third-party dependencies first (a cached layer that changes only with the lock).
-COPY api/pyproject.toml api/uv.lock ./
-COPY cdeclient/pyproject.toml /app/cdeclient/pyproject.toml
-RUN uv sync --frozen --no-dev --no-install-project --no-install-local
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+COPY cdeclient/pyproject.toml cdeclient/
+COPY warehouse/pyproject.toml warehouse/
+COPY api/pyproject.toml api/
+COPY analysis/pyproject.toml analysis/
+# Third-party dependencies of the API first (a cached layer).
+RUN uv sync --frozen --no-dev --package openhydra-api --no-install-workspace
 # Then the two local packages, installed into the venv (not editable), so the
 # runtime needs no source tree and no uv.
-COPY cdeclient/README.md /app/cdeclient/README.md
-COPY cdeclient/src/ /app/cdeclient/src/
-COPY api/README.md ./README.md
-COPY api/src/ ./src/
-RUN uv sync --frozen --no-dev --no-editable
+COPY cdeclient/README.md cdeclient/
+COPY cdeclient/src/ cdeclient/src/
+COPY api/README.md api/
+COPY api/src/ api/src/
+RUN uv sync --frozen --no-dev --package openhydra-api --no-editable
 
 COPY --from=data /app/warehouse/openhydra.duckdb /app/warehouse/openhydra.duckdb
 COPY --from=web /app/web/dist /app/web/dist
@@ -57,7 +65,7 @@ USER app
 
 ENV OPENHYDRA_DUCKDB=/app/warehouse/openhydra.duckdb \
     OPENHYDRA_STATIC_DIR=/app/web/dist \
-    PATH="/app/api/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH"
 EXPOSE 8000
 # Railway sets $PORT. `exec` makes uvicorn PID 1, so it gets SIGTERM directly
 # and stops cleanly. The app writes its own JSON access log.

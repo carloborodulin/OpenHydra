@@ -1,0 +1,10 @@
+# One uv workspace for the four Python projects. They share one lock
+# (uv.lock), so the API, the warehouse and the notebook always use the same
+# version of each package; for example the DuckDB that writes the warehouse
+# file is the DuckDB that reads it. Each project keeps its own dependencies,
+# groups and command-line entry points.
+#
+#   uv sync --all-packages --all-groups   everything (make setup)
+#   cd api && uv sync --frozen            one project and its dev group
+[tool.uv.workspace]
+members = ["cdeclient", "warehouse", "api", "analysis"]
