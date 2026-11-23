@@ -194,6 +194,18 @@ railway config plan --file .railway/railway.ts --environment production
 To change the live service, edit the file and run `railway config apply`.
 Set the `FBI_CDE_API_KEY` variable in the Railway service settings.
 
+## Operations
+
+Scheduled GitHub Actions workflows watch the service and the data:
+
+| Workflow | When | What |
+| :--- | :--- | :--- |
+| `uptime` | every 30 minutes | Checks `/health`, `/api/meta`, a metric route and `/`. A failure opens an issue; a later success closes it. |
+| `fbi contract` | daily | Checks the FBI routes that the extract uses (two requests). |
+| `data refresh` | monthly | Pulls a new extract, promotes it (coverage check and revision report), builds the warehouse, pushes a `data/refresh-<date>` branch and opens an issue with a link to open the pull request. |
+
+The objectives are in [docs/slo.md](docs/slo.md). The FBI key of the scheduled jobs is a secret of the `data-refresh` Environment, which only `main` can use.
+
 ## License
 
 Released under the [MIT License](LICENSE). The data itself originates from the FBI Crime Data Explorer (CDE) and is public domain U.S. Government work; this project is an independent, non-affiliated visualization of it.
