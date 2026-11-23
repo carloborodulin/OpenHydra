@@ -9,7 +9,32 @@ export interface ArrestOffense {
   in_snapshot: boolean;
 }
 
+export interface SnapshotDomain {
+  domain: string;
+  extracted_at: string | null;
+  window_from: string | null;
+  window_to: string | null;
+  row_count: number | null;
+  status: string | null;
+}
+
+/** The data release in the warehouse. Every warehouse view shows these facts. */
+export interface Snapshot {
+  release_id: string;
+  promoted_at: string | null;
+  extracted_at_min: string | null;
+  extracted_at_max: string | null;
+  window_from: string | null;
+  window_to: string | null;
+  source: string | null;
+  // True when the dates come from git history, not from an extract manifest.
+  reconstructed: boolean;
+  domains: SnapshotDomain[];
+}
+
 export interface Meta {
+  snapshot: Snapshot | null;
+  capabilities: { live_agency: boolean };
   offenses: string[];
   states: string[];
   levels: string[];

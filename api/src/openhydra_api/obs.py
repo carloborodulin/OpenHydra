@@ -26,6 +26,7 @@ import uuid
 from contextvars import ContextVar
 from typing import Any
 
+import duckdb
 from cdeclient import (
     CdeAuthError,
     CdeConfigError,
@@ -204,9 +205,16 @@ async def handle_live_limit(request: Request, exc: Exception) -> JSONResponse:
     return _error(request, exc.status, exc.code, exc.detail, {"Retry-After": str(exc.retry_after)})
 
 
+async def handle_warehouse_error(request: Request, exc: Exception) -> JSONResponse:
+    # The message can hold a file path, so it stays in the log only.
+    log.warning(json.dumps({"request_id": current_request_id(), "warehouse_error": str(exc)}))
+    return _error(request, 503, "warehouse_unavailable", "The data warehouse is not available.")
+
+
 def install(app: FastAPI) -> None:
     configure_logging()
     app.add_middleware(RequestContextMiddleware)
     app.add_exception_handler(CdeError, handle_cde_error)
     app.add_exception_handler(ValidationError, handle_cde_error)
     app.add_exception_handler(LiveLimitError, handle_live_limit)
+    app.add_exception_handler(duckdb.Error, handle_warehouse_error)

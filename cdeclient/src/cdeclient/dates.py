@@ -34,3 +34,30 @@ def to_year(value: str | int | date) -> str:
     if _YYYY.match(s):
         return s
     raise ValueError(f"Expected a 4-digit year, got {value!r}")
+
+
+def year_of(value: str | date) -> str:
+    """The four-digit year of a month value (``MM-YYYY``, ``YYYY-MM`` or a date).
+
+    This replaces string slicing, which gave "12" for "2024-12" and the day for a
+    date object.
+    """
+    return to_month(value).split("-")[1]
+
+
+def month_key(value: str | date) -> tuple[int, int]:
+    """A sortable (year, month) pair for a month value."""
+    mm, yyyy = to_month(value).split("-")
+    return int(yyyy), int(mm)
+
+
+def parse_window(from_: str | date, to: str | date) -> tuple[str, str]:
+    """Normalize a month window to ``MM-YYYY`` and check its order.
+
+    Raises:
+        ValueError: when a value is not a month, or when ``from_`` is after ``to``.
+    """
+    start, end = to_month(from_), to_month(to)
+    if month_key(start) > month_key(end):
+        raise ValueError(f"The window starts after it ends: {start} > {end}")
+    return start, end

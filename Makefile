@@ -29,7 +29,7 @@ setup:
 # warehouse/openhydra.duckdb.
 data:
 	mkdir -p $(RAW)
-	cp $(SEED)/*.parquet $(RAW)/
+	cp $(SEED)/*.parquet $(SEED)/_manifest.json $(RAW)/
 	cd warehouse && uv sync --frozen --group dbt
 	cd warehouse/dbt && ../.venv/bin/dbt build --profiles-dir .
 

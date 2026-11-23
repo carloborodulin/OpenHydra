@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import duckdb
+from cdeclient import Settings
 from cdeclient.constants import (
     ARREST_CODE_TO_SLUG,
     ARREST_OFFENSES,
@@ -24,6 +25,7 @@ from cdeclient.models import ArrestTotalsResponse
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi import Path as FastPath
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import agency_live, obs
@@ -36,11 +38,14 @@ from .models import (
     ArrestOffense,
     ArrestRow,
     BenchmarkRow,
+    Capabilities,
     LesdcRow,
     Meta,
     OffenseMonthly,
     PoliceEmploymentRow,
     PopulationRow,
+    Snapshot,
+    SnapshotDomain,
     UofParticipationRow,
 )
 
@@ -91,10 +96,66 @@ def _dicts(
     return [dict(zip(cols, row, strict=True)) for row in cur.fetchall()]
 
 
-@app.get("/health")
-def health(conn: Conn) -> dict[str, Any]:
-    row = conn.execute("select count(*) from fct_offenses_monthly").fetchone()
-    return {"status": "ok", "offense_rows": row[0] if row else 0}
+# The tables a valid snapshot must hold, each with at least one row. The
+# readiness probe checks them, so a deploy with a missing or empty mart fails
+# its health check and the previous deployment keeps serving.
+REQUIRED_TABLES: tuple[str, ...] = (
+    "meta_snapshot",
+    "meta_snapshot_domains",
+    "fct_offenses_monthly",
+    "dim_agencies",
+    "dim_population",
+    "fct_arrests",
+    "fct_police_employment",
+    "fct_hate_crime",
+    "fct_shr",
+    "fct_property",
+    "fct_nibrs",
+    "fct_nibrs_estimation",
+    "fct_lesdc",
+    "fct_uof_participation",
+    "fct_uof_questions",
+)
+
+
+def snapshot_problems(conn: duckdb.DuckDBPyConnection) -> list[str]:
+    present = {
+        r[0] for r in conn.execute("select table_name from information_schema.tables").fetchall()
+    }
+    problems = []
+    for table in REQUIRED_TABLES:
+        if table not in present:
+            problems.append(f"{table}: missing")
+            continue
+        row = conn.execute(f"select count(*) from {table}").fetchone()  # noqa: S608 - fixed names
+        if not row or row[0] == 0:
+            problems.append(f"{table}: no rows")
+    return problems
+
+
+@app.get("/health", response_model=None)
+def health(conn: Conn) -> dict[str, Any] | JSONResponse:
+    """Readiness: the warehouse opens and every required mart has rows."""
+    problems = snapshot_problems(conn)
+    if problems:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "invalid_snapshot", "problems": problems},
+            headers={"Cache-Control": "no-store"},
+        )
+    row = conn.execute("select release_id from meta_snapshot").fetchone()
+    return {"status": "ok", "release_id": row[0] if row else None}
+
+
+def _snapshot(conn: duckdb.DuckDBPyConnection) -> Snapshot | None:
+    try:
+        rows = _dicts(conn, "select * from meta_snapshot limit 1")
+        domains = _dicts(conn, "select * from meta_snapshot_domains order by domain")
+    except duckdb.CatalogException:
+        return None
+    if not rows:
+        return None
+    return Snapshot(**rows[0], domains=[SnapshotDomain(**d) for d in domains])
 
 
 @app.get("/api/meta", response_model=Meta)
@@ -145,6 +206,8 @@ def meta(conn: Conn) -> Meta:
         for slug, info in ARREST_OFFENSES.items()
     ]
     return Meta(
+        snapshot=_snapshot(conn),
+        capabilities=Capabilities(live_agency=Settings().api_key is not None),
         offenses=offenses,
         states=states,
         levels=["national", "state", "agency"],

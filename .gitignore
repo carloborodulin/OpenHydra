@@ -25,6 +25,9 @@ build/
 
 # Large / regenerable data pulls (sample data is kept under data/samples/)
 data/raw/
+data/staging/
+deploy/.seed.next/
+deploy/.seed.prev/
 *.tmp
 
 # dbt / DuckDB build artifacts (regenerable)

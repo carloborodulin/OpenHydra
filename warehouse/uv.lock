@@ -742,7 +742,6 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "cdeclient" },
-    { name = "duckdb" },
     { name = "polars" },
     { name = "typer" },
 ]
@@ -760,7 +759,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cdeclient", editable = "../cdeclient" },
-    { name = "duckdb", specifier = ">=1.0" },
     { name = "polars", specifier = ">=1.0" },
     { name = "typer", specifier = ">=0.12" },
 ]
