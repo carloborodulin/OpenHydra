@@ -41,3 +41,6 @@ warehouse/dbt/.user.yml
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Local agent skill for running the app (not part of the project)
+.claude/skills/run-openhydra/
