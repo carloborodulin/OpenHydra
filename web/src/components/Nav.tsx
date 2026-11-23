@@ -16,11 +16,12 @@ interface Props {
 // …) register by adding an entry to the items list in App.tsx.
 export function Nav({ items, active, onSelect }: Props) {
   return (
-    <nav className="hidden flex-wrap items-center gap-1.5 lg:flex">
+    <nav aria-label="Views" className="hidden flex-wrap items-center gap-1.5 lg:flex">
       {items.map((it) => (
         <button
           key={it.id}
           type="button"
+          aria-current={it.id === active ? "page" : undefined}
           onClick={() => onSelect(it.id)}
           className={`mono cursor-pointer border px-3 py-1 text-[0.62rem] tracking-wider uppercase transition ${hudState(
             it.id === active,

@@ -12,7 +12,7 @@
   --color-good: #3df5b0; /* green */
   --color-violet: #a78bfa;
   --color-ink: #cfe9f5;
-  --color-muted: #5f7d92;
+  --color-muted: #6f8ea3; /* 5.4:1 on bg2 (WCAG AA for small text) */
   --color-grid: rgba(45, 212, 238, 0.08); /* chart gridlines */
   --color-axis: rgba(45, 212, 238, 0.25); /* chart axis lines */
 
@@ -29,12 +29,14 @@
   --color-bg: #f1f3f4; /* page */
   --color-bg2: #ffffff; /* cards */
   --color-line: #e8eaed; /* faint border */
-  --color-line-strong: #dadce0; /* border */
-  --color-accent: #1a73e8; /* google blue */
-  --color-warn: #f9ab00; /* amber */
-  --color-alert: #d93025; /* red */
-  --color-good: #1e8e3e; /* green */
-  --color-violet: #9334e6; /* purple */
+  /* Each text color has at least 4.5:1 on white, the page and the 6% tinted
+     fills; line-strong has 3:1 for control borders (WCAG 1.4.3 and 1.4.11). */
+  --color-line-strong: #80868b; /* control border */
+  --color-accent: #1558b0; /* blue */
+  --color-warn: #a14f00; /* amber, dark enough for text */
+  --color-alert: #c5221f; /* red */
+  --color-good: #137333; /* green */
+  --color-violet: #8430ce; /* purple */
   --color-ink: #202124; /* primary text */
   --color-muted: #5f6368; /* secondary text */
   --color-grid: #e8eaed;
@@ -70,7 +72,7 @@
   color: var(--color-muted); /* GA card labels are gray, not accent */
 }
 [data-theme="light"] .live-dot {
-  box-shadow: 0 0 0 3px rgba(30, 142, 62, 0.16);
+  box-shadow: 0 0 0 3px rgba(19, 115, 51, 0.16);
 }
 [data-theme="light"] .maplibregl-ctrl-attrib {
   background: rgba(255, 255, 255, 0.7) !important;
@@ -212,6 +214,29 @@
 .maplibregl-ctrl-attrib a {
   color: var(--color-muted) !important;
 }
-.maplibregl-canvas {
+/* A visible ring when the map canvas has keyboard focus. */
+.maplibregl-canvas:focus {
   outline: none;
+}
+.maplibregl-canvas:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* One focus ring for every control that the keyboard reaches. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Honor the system setting: no pulse, no entry animation, no slides. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

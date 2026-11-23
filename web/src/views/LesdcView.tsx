@@ -67,7 +67,7 @@ export function LesdcView() {
         />
       </div>
 
-      <main className="grid flex-1 grid-cols-1 gap-3 p-3 [grid-auto-rows:minmax(280px,auto)] sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:overflow-auto lg:[grid-auto-rows:minmax(280px,1fr)]">
+      <div className="grid flex-1 grid-cols-1 gap-3 p-3 [grid-auto-rows:minmax(280px,auto)] sm:grid-cols-2 lg:min-h-0 lg:grid-cols-12 lg:overflow-auto lg:[grid-auto-rows:minmax(280px,1fr)]">
         <Panel title={`Suicides · ${label} · ${year}`} className="col-span-1 lg:col-span-6">
           {suicide.length ? (
             <HBarChart data={suicide} measure={count("Suicides")} />
@@ -82,7 +82,7 @@ export function LesdcView() {
             <Empty state={query} />
           )}
         </Panel>
-      </main>
+      </div>
     </>
   );
 }

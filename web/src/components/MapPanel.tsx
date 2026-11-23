@@ -6,6 +6,7 @@ import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import type { Feature, FeatureCollection } from "geojson";
 import { useEffect, useRef, useState } from "react";
 import type { AgencyFeature } from "../lib/api";
+import { ANIMATE } from "../lib/motion";
 import { useChartColors, useTheme, type ChartColors } from "../lib/theme";
 
 setWorkerUrl(workerUrl);
@@ -36,7 +37,11 @@ function toFeatures(agencies: AgencyFeature[]): Feature[] {
     out.push({
       type: "Feature",
       geometry: { type: "Point", coordinates: [a.longitude, a.latitude] },
-      properties: { nibrs: a.is_nibrs ? 1 : 0, name: a.agency_name, ori: a.ori },
+      properties: {
+        nibrs: a.is_nibrs ? 1 : 0,
+        name: a.agency_name,
+        ori: a.ori,
+      },
     });
   }
   return out;
@@ -55,7 +60,12 @@ function bounds(features: Feature[]): [[number, number], [number, number]] | nul
     if (y < minY) minY = y;
     if (y > maxY) maxY = y;
   }
-  return Number.isFinite(minX) ? [[minX, minY], [maxX, maxY]] : null;
+  return Number.isFinite(minX)
+    ? [
+        [minX, minY],
+        [maxX, maxY],
+      ]
+    : null;
 }
 
 /** Add the agency source and layers, or update the data when they exist. */
@@ -74,25 +84,27 @@ function applyLayers(m: MapLibreMap, data: FeatureCollection, c: ChartColors) {
       "circle-radius": 16,
       "circle-blur": 1,
       "circle-opacity": 0.5,
-      "circle-color": ["case", ["==", ["get", "nibrs"], 1], c.accent, c.violet],
+      "circle-color": ["case", ["==", ["get", "nibrs"], 1], c.accent, c.warn],
     },
   });
   m.addLayer({
     id: "agencies-core",
     type: "circle",
     source: "agencies",
+    // Blue vs orange stays distinct for common color vision deficiencies, and
+    // the shape differs too: NIBRS is a filled dot, SRS a hollow ring.
     paint: {
-      "circle-radius": 4,
-      "circle-color": ["case", ["==", ["get", "nibrs"], 1], c.good, c.alert],
-      "circle-stroke-color": c.bg,
-      "circle-stroke-width": 0.6,
+      "circle-radius": ["case", ["==", ["get", "nibrs"], 1], 4, 3.5],
+      "circle-color": ["case", ["==", ["get", "nibrs"], 1], c.accent, c.bg],
+      "circle-stroke-color": ["case", ["==", ["get", "nibrs"], 1], c.bg, c.warn],
+      "circle-stroke-width": ["case", ["==", ["get", "nibrs"], 1], 0.6, 2],
     },
   });
 }
 
 function fitTo(m: MapLibreMap, data: FeatureCollection) {
   const b = bounds(data.features);
-  if (b) m.fitBounds(b, { padding: 48, duration: 900, maxZoom: 8 });
+  if (b) m.fitBounds(b, { padding: 48, duration: ANIMATE ? 900 : 0, maxZoom: 8 });
 }
 
 export function MapPanel({
@@ -123,7 +135,10 @@ function MapCanvas({
   // close over stale values (the refs update in an effect, not during render).
   const onSelect = useRef(onSelectAgency);
   const colors = useRef(c);
-  const data = useRef<FeatureCollection>({ type: "FeatureCollection", features: [] });
+  const data = useRef<FeatureCollection>({
+    type: "FeatureCollection",
+    features: [],
+  });
   const pendingFit = useRef(false);
   useEffect(() => {
     onSelect.current = onSelectAgency;
@@ -184,7 +199,10 @@ function MapCanvas({
 
   useEffect(() => {
     const m = map.current;
-    data.current = { type: "FeatureCollection", features: toFeatures(agencies) };
+    data.current = {
+      type: "FeatureCollection",
+      features: toFeatures(agencies),
+    };
     if (!m || agencies.length === 0) return;
     // Re-fit on every data change so switching region re-centers the map.
     if (m.isStyleLoaded()) {

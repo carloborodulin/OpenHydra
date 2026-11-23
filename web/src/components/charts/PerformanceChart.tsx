@@ -1,3 +1,5 @@
+import { ANIMATE } from "../../lib/motion";
+import { ChartFrame } from "./ChartFrame";
 import {
   Area,
   AreaChart,
@@ -41,35 +43,51 @@ export function VolumeClearanceChart({ data }: { data: PerfYear[] }) {
     "Clearance %": d.clearance == null ? null : +(d.clearance * 100).toFixed(1),
   }));
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart data={rows} margin={{ top: 6, right: 8, bottom: 0, left: -6 }}>
-        <CartesianGrid stroke={c.grid} vertical={false} />
-        <XAxis dataKey="year" tick={tick} stroke={c.axis} />
-        <YAxis yAxisId="vol" tick={tick} width={mobile ? 38 : 46} stroke={c.axis} tickFormatter={compact} />
-        <YAxis
-          yAxisId="clr"
-          orientation="right"
-          tick={tick}
-          width={mobile ? 34 : 40}
-          stroke={c.axis}
-          domain={[0, "auto"]}
-          tickFormatter={(v: number) => `${v}%`}
-        />
-        <Tooltip content={<DarkTooltip />} cursor={{ fill: c.grid, fillOpacity: 0.4 }} />
-        <Legend wrapperStyle={{ fontFamily: c.font, fontSize: 10, color: c.muted }} />
-        <Bar yAxisId="vol" dataKey="Volume" fill={c.accent} fillOpacity={0.35} maxBarSize={40} />
-        <Line
-          yAxisId="clr"
-          type="monotone"
-          dataKey="Clearance %"
-          stroke={c.warn}
-          strokeWidth={2}
-          dot={false}
-          connectNulls
-          activeDot={{ r: 4, fill: c.warn, stroke: c.bg }}
-        />
-      </ComposedChart>
-    </ResponsiveContainer>
+    <ChartFrame label={"Offense volume and clearance by year"} rows={rows}>
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={rows} margin={{ top: 6, right: 8, bottom: 0, left: -6 }}>
+          <CartesianGrid stroke={c.grid} vertical={false} />
+          <XAxis dataKey="year" tick={tick} stroke={c.axis} />
+          <YAxis
+            yAxisId="vol"
+            tick={tick}
+            width={mobile ? 38 : 46}
+            stroke={c.axis}
+            tickFormatter={compact}
+          />
+          <YAxis
+            yAxisId="clr"
+            orientation="right"
+            tick={tick}
+            width={mobile ? 34 : 40}
+            stroke={c.axis}
+            domain={[0, "auto"]}
+            tickFormatter={(v: number) => `${v}%`}
+          />
+          <Tooltip content={<DarkTooltip />} cursor={{ fill: c.grid, fillOpacity: 0.4 }} />
+          <Legend wrapperStyle={{ fontFamily: c.font, fontSize: 10, color: c.muted }} />
+          <Bar
+            isAnimationActive={ANIMATE}
+            yAxisId="vol"
+            dataKey="Volume"
+            fill={c.accent}
+            fillOpacity={0.35}
+            maxBarSize={40}
+          />
+          <Line
+            isAnimationActive={ANIMATE}
+            yAxisId="clr"
+            type="monotone"
+            dataKey="Clearance %"
+            stroke={c.warn}
+            strokeWidth={2}
+            dot={false}
+            connectNulls
+            activeDot={{ r: 4, fill: c.warn, stroke: c.bg }}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
@@ -78,7 +96,9 @@ function ScatterTip({
   payload,
 }: {
   active?: boolean;
-  payload?: Array<{ payload: { year: number; x: number | null; y: number | null } }>;
+  payload?: Array<{
+    payload: { year: number; x: number | null; y: number | null };
+  }>;
 }) {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
@@ -97,31 +117,43 @@ export function NibrsAdoptionChart({ data }: { data: { year: number; pct: number
   const c = useChartColors();
   const mobile = useIsMobile();
   const tick = { fill: c.muted, fontSize: 10, fontFamily: c.font };
-  const rows = data.map((d) => ({ year: String(d.year), "NIBRS %": +d.pct.toFixed(1) }));
+  const rows = data.map((d) => ({
+    year: String(d.year),
+    "NIBRS %": +d.pct.toFixed(1),
+  }));
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={rows} margin={{ top: 6, right: 14, bottom: 0, left: -10 }}>
-        <defs>
-          <linearGradient id="g-nibrs" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={c.good} stopOpacity={0.5} />
-            <stop offset="100%" stopColor={c.good} stopOpacity={0} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid stroke={c.grid} vertical={false} />
-        <XAxis dataKey="year" tick={tick} stroke={c.axis} />
-        <YAxis tick={tick} width={mobile ? 34 : 40} stroke={c.axis} domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} />
-        <Tooltip content={<DarkTooltip unit="%" />} cursor={{ stroke: c.axis }} />
-        <Area
-          type="monotone"
-          dataKey="NIBRS %"
-          stroke={c.good}
-          strokeWidth={2}
-          fill="url(#g-nibrs)"
-          dot={false}
-          activeDot={{ r: 4, fill: c.good, stroke: c.bg }}
-        />
-      </AreaChart>
-    </ResponsiveContainer>
+    <ChartFrame label={"Share of agencies reporting through NIBRS by year"} rows={rows}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={rows} margin={{ top: 6, right: 14, bottom: 0, left: -10 }}>
+          <defs>
+            <linearGradient id="g-nibrs" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={c.good} stopOpacity={0.5} />
+              <stop offset="100%" stopColor={c.good} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke={c.grid} vertical={false} />
+          <XAxis dataKey="year" tick={tick} stroke={c.axis} />
+          <YAxis
+            tick={tick}
+            width={mobile ? 34 : 40}
+            stroke={c.axis}
+            domain={[0, 100]}
+            tickFormatter={(v: number) => `${v}%`}
+          />
+          <Tooltip content={<DarkTooltip unit="%" />} cursor={{ stroke: c.axis }} />
+          <Area
+            isAnimationActive={ANIMATE}
+            type="monotone"
+            dataKey="NIBRS %"
+            stroke={c.good}
+            strokeWidth={2}
+            fill="url(#g-nibrs)"
+            dot={false}
+            activeDot={{ r: 4, fill: c.good, stroke: c.bg }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
@@ -133,38 +165,44 @@ export function StaffingClearanceScatter({ data }: { data: PerfYear[] }) {
   const tick = { fill: c.muted, fontSize: 10, fontFamily: c.font };
   const points = data
     .filter((d) => d.staffing != null && d.clearance != null)
-    .map((d) => ({ year: d.year, x: d.staffing, y: +((d.clearance as number) * 100).toFixed(1) }));
+    .map((d) => ({
+      year: d.year,
+      x: d.staffing,
+      y: +((d.clearance as number) * 100).toFixed(1),
+    }));
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <ScatterChart margin={{ top: 10, right: 16, bottom: 4, left: -6 }}>
-        <CartesianGrid stroke={c.grid} />
-        <XAxis
-          type="number"
-          dataKey="x"
-          name="Staffing /1k"
-          tick={tick}
-          stroke={c.axis}
-          domain={["auto", "auto"]}
-          tickFormatter={(v: number) => v.toFixed(1)}
-        />
-        <YAxis
-          type="number"
-          dataKey="y"
-          name="Clearance %"
-          tick={tick}
-          width={mobile ? 34 : 40}
-          stroke={c.axis}
-          tickFormatter={(v: number) => `${v}%`}
-        />
-        <Tooltip content={<ScatterTip />} cursor={{ stroke: c.axis, strokeDasharray: "3 3" }} />
-        <Scatter data={points} fill={c.accent}>
-          <LabelList
-            dataKey="year"
-            position="top"
-            style={{ fill: c.muted, fontSize: 9, fontFamily: c.font }}
+    <ChartFrame label={"Staffing and clearance by year"} rows={points}>
+      <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart margin={{ top: 10, right: 16, bottom: 4, left: -6 }}>
+          <CartesianGrid stroke={c.grid} />
+          <XAxis
+            type="number"
+            dataKey="x"
+            name="Staffing /1k"
+            tick={tick}
+            stroke={c.axis}
+            domain={["auto", "auto"]}
+            tickFormatter={(v: number) => v.toFixed(1)}
           />
-        </Scatter>
-      </ScatterChart>
-    </ResponsiveContainer>
+          <YAxis
+            type="number"
+            dataKey="y"
+            name="Clearance %"
+            tick={tick}
+            width={mobile ? 34 : 40}
+            stroke={c.axis}
+            tickFormatter={(v: number) => `${v}%`}
+          />
+          <Tooltip content={<ScatterTip />} cursor={{ stroke: c.axis, strokeDasharray: "3 3" }} />
+          <Scatter isAnimationActive={ANIMATE} data={points} fill={c.accent}>
+            <LabelList
+              dataKey="year"
+              position="top"
+              style={{ fill: c.muted, fontSize: 9, fontFamily: c.font }}
+            />
+          </Scatter>
+        </ScatterChart>
+      </ResponsiveContainer>
+    </ChartFrame>
   );
 }

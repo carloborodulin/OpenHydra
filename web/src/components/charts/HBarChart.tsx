@@ -1,3 +1,4 @@
+import { ANIMATE } from "../../lib/motion";
 import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { ArrestRow } from "../../lib/api";
 import type { Measure } from "../../lib/measures";
@@ -53,9 +54,17 @@ export function HBarChart({
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-1">
-      <div className="min-h-0 flex-1" role="img" aria-label={`${label ?? measure.name}: ${shownNote}`}>
+      <div
+        className="min-h-0 flex-1"
+        role="img"
+        aria-label={`${label ?? measure.name}: ${shownNote}`}
+      >
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} layout="vertical" margin={{ top: 2, right: 16, bottom: 2, left: 8 }}>
+          <BarChart
+            data={rows}
+            layout="vertical"
+            margin={{ top: 2, right: 16, bottom: 2, left: 8 }}
+          >
             <XAxis type="number" tick={tick} stroke={c.axis} tickFormatter={measure.axis} />
             <YAxis
               type="category"
@@ -68,7 +77,13 @@ export function HBarChart({
               }
             />
             <Tooltip content={<Tip measure={measure} />} cursor={{ fill: c.grid }} />
-            <Bar dataKey="value" name={measure.name} radius={[0, 2, 2, 0]} barSize={14}>
+            <Bar
+              isAnimationActive={ANIMATE}
+              dataKey="value"
+              name={measure.name}
+              radius={[0, 2, 2, 0]}
+              barSize={14}
+            >
               {rows.map((_, i) => (
                 <Cell key={i} fill={c.palette[i % c.palette.length]} />
               ))}

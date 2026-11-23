@@ -45,7 +45,11 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen flex-col lg:h-screen lg:overflow-hidden">
-      <TopBar snapshot={meta.data?.snapshot} onMenuClick={() => setNavOpen(true)} />
+      <TopBar
+        snapshot={meta.data?.snapshot}
+        onMenuClick={() => setNavOpen(true)}
+        menuOpen={navOpen}
+      />
       <NavDrawer
         items={VIEWS}
         active={view}
@@ -56,38 +60,42 @@ export default function App() {
           setNavOpen(false);
         }}
       />
-      {/* Below lg the inline Nav is hidden; for views without a region/offense
+      {/* One <main> landmark holds the filters and the view (a11y: every part of
+          the page is in a landmark). */}
+      <main className="flex min-h-0 flex-1 flex-col">
+        {/* Below lg the inline Nav is hidden; for views without a region/offense
           bar the whole row would be empty, so hide it on mobile in that case. */}
-      <div
-        className={`panel brackets enter mx-3 mt-3 flex-wrap items-center gap-2 px-4 py-2.5 lg:flex lg:gap-4 ${
-          NO_REGION_VIEWS.has(view) ? "hidden" : "flex"
-        }`}
-      >
-        <Nav items={VIEWS} active={view} onSelect={setView} />
-        {!NO_REGION_VIEWS.has(view) && (
-          <>
-            <span className="hidden h-4 w-px bg-line lg:block" />
-            <Controls
-              offenses={offenses}
-              value={active}
-              onChange={setOffense}
-              states={states}
-              region={region}
-              onRegionChange={setRegion}
-              showOffenses={view === "overview" || view === "performance"}
-            />
-          </>
-        )}
-      </div>
-      {view === "overview" && <OverviewView offense={active} region={region} />}
-      {view === "performance" && <PerformanceView offense={active} region={region} />}
-      {view === "hate-crime" && <HateCrimeView region={region} />}
-      {view === "homicide" && <HomicideView region={region} />}
-      {view === "property" && <PropertyView region={region} />}
-      {view === "nibrs" && <NibrsView region={region} />}
-      {view === "nibrs-estimation" && <NibrsEstimationView />}
-      {view === "use-of-force" && <UseOfForceView />}
-      {view === "lesdc" && <LesdcView />}
+        <div
+          className={`panel brackets enter mx-3 mt-3 flex-wrap items-center gap-2 px-4 py-2.5 lg:flex lg:gap-4 ${
+            NO_REGION_VIEWS.has(view) ? "hidden" : "flex"
+          }`}
+        >
+          <Nav items={VIEWS} active={view} onSelect={setView} />
+          {!NO_REGION_VIEWS.has(view) && (
+            <>
+              <span className="hidden h-4 w-px bg-line lg:block" />
+              <Controls
+                offenses={offenses}
+                value={active}
+                onChange={setOffense}
+                states={states}
+                region={region}
+                onRegionChange={setRegion}
+                showOffenses={view === "overview" || view === "performance"}
+              />
+            </>
+          )}
+        </div>
+        {view === "overview" && <OverviewView offense={active} region={region} />}
+        {view === "performance" && <PerformanceView offense={active} region={region} />}
+        {view === "hate-crime" && <HateCrimeView region={region} />}
+        {view === "homicide" && <HomicideView region={region} />}
+        {view === "property" && <PropertyView region={region} />}
+        {view === "nibrs" && <NibrsView region={region} />}
+        {view === "nibrs-estimation" && <NibrsEstimationView />}
+        {view === "use-of-force" && <UseOfForceView />}
+        {view === "lesdc" && <LesdcView />}
+      </main>
       <Provenance snapshot={meta.data?.snapshot} view={view} />
     </div>
   );

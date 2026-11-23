@@ -1,5 +1,6 @@
 import type { Snapshot } from "../lib/api";
 import { fmtDay, fmtWindow } from "../lib/snapshot";
+import { NAV_DRAWER_ID } from "./NavDrawer";
 import { ThemeToggle } from "./ThemeToggle";
 
 /**
@@ -9,9 +10,11 @@ import { ThemeToggle } from "./ThemeToggle";
 export function TopBar({
   snapshot,
   onMenuClick,
+  menuOpen = false,
 }: {
   snapshot?: Snapshot | null;
   onMenuClick?: () => void;
+  menuOpen?: boolean;
 }) {
   return (
     <header className="panel flex items-center justify-between border-x-0 border-t-0 px-3 py-2 lg:px-5 lg:py-2.5">
@@ -21,6 +24,8 @@ export function TopBar({
             type="button"
             onClick={onMenuClick}
             aria-label="Open navigation menu"
+            aria-expanded={menuOpen}
+            aria-controls={NAV_DRAWER_ID}
             className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center border border-line text-accent transition hover:border-line-strong lg:hidden"
           >
             <svg
@@ -38,9 +43,9 @@ export function TopBar({
           </button>
         )}
         <div className="flex min-w-0 items-baseline gap-4">
-          <span className="display glow text-xl font-black tracking-[0.18em] text-accent lg:text-2xl lg:tracking-[0.32em]">
+          <h1 className="display glow text-xl font-black tracking-[0.18em] text-accent lg:text-2xl lg:tracking-[0.32em]">
             OPENHYDRA
-          </span>
+          </h1>
           <span className="mono hidden text-[0.6rem] tracking-[0.28em] text-muted uppercase md:block">
             UCR Command · FBI Crime Data Explorer
           </span>
