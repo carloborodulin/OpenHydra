@@ -70,3 +70,20 @@ def test_points_are_compact_and_immutable_for_the_release(client: TestClient, re
 def test_agency_detail(client: TestClient) -> None:
     assert client.get("/api/agencies/NY0303000").status_code == 404
     assert client.get("/api/agencies/bad").status_code == 422
+
+
+def test_v1_is_the_documented_api_and_old_paths_are_aliases(client: TestClient) -> None:
+    v1 = client.get("/api/v1/meta")
+    old = client.get("/api/meta")
+    assert v1.status_code == old.status_code == 200
+    assert v1.json() == old.json()
+    assert "deprecation" not in v1.headers
+    assert old.headers["deprecation"] == "true"
+    assert old.headers["link"] == '</api/v1/meta>; rel="successor-version"'
+    paths = client.get("/openapi.json").json()["paths"]
+    assert "/api/v1/meta" in paths and "/api/meta" not in paths
+
+
+def test_v1_live_routes_keep_their_cache_policy(client: TestClient) -> None:
+    r = client.get("/api/v1/agency/ZZ9999999/offenses", params={"offense": "homicide"})
+    assert r.headers["cache-control"] == "no-store"

@@ -1084,9 +1084,9 @@
   },
   "openapi": "3.1.0",
   "paths": {
-    "/api/agencies": {
+    "/api/v1/agencies": {
       "get": {
-        "operationId": "agencies_api_agencies_get",
+        "operationId": "agencies_api_v1_agencies_get",
         "parameters": [
           {
             "in": "query",
@@ -1113,7 +1113,7 @@
                   "items": {
                     "$ref": "#/components/schemas/AgencyFeature"
                   },
-                  "title": "Response Agencies Api Agencies Get",
+                  "title": "Response Agencies Api V1 Agencies Get",
                   "type": "array"
                 }
               }
@@ -1134,10 +1134,10 @@
         "summary": "Agencies"
       }
     },
-    "/api/agencies/points": {
+    "/api/v1/agencies/points": {
       "get": {
         "description": "The agency list in a compact column form, for the map and the search.\n\nEach field is one array, so a key is not repeated about 19,600 times.\nClients pass ?v=<release ID>; with the current release the answer is\ncached as immutable (see headers.py). Details: /api/agencies/{ori}.",
-        "operationId": "agency_points_api_agencies_points_get",
+        "operationId": "agency_points_api_v1_agencies_points_get",
         "parameters": [
           {
             "in": "query",
@@ -1197,10 +1197,10 @@
         "summary": "Agency Points"
       }
     },
-    "/api/agencies/{ori}": {
+    "/api/v1/agencies/{ori}": {
       "get": {
         "description": "One agency of the snapshot, by ORI.",
-        "operationId": "agency_detail_api_agencies__ori__get",
+        "operationId": "agency_detail_api_v1_agencies__ori__get",
         "parameters": [
           {
             "description": "A 9-character NCIC ORI, for example NY0303000.",
@@ -1240,9 +1240,9 @@
         "summary": "Agency Detail"
       }
     },
-    "/api/agency/{ori}/arrests": {
+    "/api/v1/agency/{ori}/arrests": {
       "get": {
-        "operationId": "agency_arrests_api_agency__ori__arrests_get",
+        "operationId": "agency_arrests_api_v1_agency__ori__arrests_get",
         "parameters": [
           {
             "description": "A 9-character NCIC ORI, for example NY0303000.",
@@ -1299,7 +1299,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestBreakdownRow"
                   },
-                  "title": "Response Agency Arrests Api Agency  Ori  Arrests Get",
+                  "title": "Response Agency Arrests Api V1 Agency  Ori  Arrests Get",
                   "type": "array"
                 }
               }
@@ -1320,9 +1320,9 @@
         "summary": "Agency Arrests"
       }
     },
-    "/api/agency/{ori}/hate-crime": {
+    "/api/v1/agency/{ori}/hate-crime": {
       "get": {
-        "operationId": "agency_hate_crime_api_agency__ori__hate_crime_get",
+        "operationId": "agency_hate_crime_api_v1_agency__ori__hate_crime_get",
         "parameters": [
           {
             "description": "A 9-character NCIC ORI, for example NY0303000.",
@@ -1362,7 +1362,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestRow"
                   },
-                  "title": "Response Agency Hate Crime Api Agency  Ori  Hate Crime Get",
+                  "title": "Response Agency Hate Crime Api V1 Agency  Ori  Hate Crime Get",
                   "type": "array"
                 }
               }
@@ -1383,9 +1383,9 @@
         "summary": "Agency Hate Crime"
       }
     },
-    "/api/agency/{ori}/nibrs": {
+    "/api/v1/agency/{ori}/nibrs": {
       "get": {
-        "operationId": "agency_nibrs_api_agency__ori__nibrs_get",
+        "operationId": "agency_nibrs_api_v1_agency__ori__nibrs_get",
         "parameters": [
           {
             "description": "A 9-character NCIC ORI, for example NY0303000.",
@@ -1436,7 +1436,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestRow"
                   },
-                  "title": "Response Agency Nibrs Api Agency  Ori  Nibrs Get",
+                  "title": "Response Agency Nibrs Api V1 Agency  Ori  Nibrs Get",
                   "type": "array"
                 }
               }
@@ -1457,9 +1457,9 @@
         "summary": "Agency Nibrs"
       }
     },
-    "/api/agency/{ori}/offenses": {
+    "/api/v1/agency/{ori}/offenses": {
       "get": {
-        "operationId": "agency_offenses_api_agency__ori__offenses_get",
+        "operationId": "agency_offenses_api_v1_agency__ori__offenses_get",
         "parameters": [
           {
             "description": "A 9-character NCIC ORI, for example NY0303000.",
@@ -1490,7 +1490,7 @@
                   "items": {
                     "$ref": "#/components/schemas/OffenseMonthly"
                   },
-                  "title": "Response Agency Offenses Api Agency  Ori  Offenses Get",
+                  "title": "Response Agency Offenses Api V1 Agency  Ori  Offenses Get",
                   "type": "array"
                 }
               }
@@ -1511,9 +1511,9 @@
         "summary": "Agency Offenses"
       }
     },
-    "/api/agency/{ori}/police-employment": {
+    "/api/v1/agency/{ori}/police-employment": {
       "get": {
-        "operationId": "agency_police_employment_api_agency__ori__police_employment_get",
+        "operationId": "agency_police_employment_api_v1_agency__ori__police_employment_get",
         "parameters": [
           {
             "description": "A 9-character NCIC ORI, for example NY0303000.",
@@ -1536,7 +1536,7 @@
                   "items": {
                     "$ref": "#/components/schemas/PoliceEmploymentRow"
                   },
-                  "title": "Response Agency Police Employment Api Agency  Ori  Police Employment Get",
+                  "title": "Response Agency Police Employment Api V1 Agency  Ori  Police Employment Get",
                   "type": "array"
                 }
               }
@@ -1557,9 +1557,9 @@
         "summary": "Agency Police Employment"
       }
     },
-    "/api/agency/{ori}/property": {
+    "/api/v1/agency/{ori}/property": {
       "get": {
-        "operationId": "agency_property_api_agency__ori__property_get",
+        "operationId": "agency_property_api_v1_agency__ori__property_get",
         "parameters": [
           {
             "description": "A 9-character NCIC ORI, for example NY0303000.",
@@ -1608,7 +1608,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestRow"
                   },
-                  "title": "Response Agency Property Api Agency  Ori  Property Get",
+                  "title": "Response Agency Property Api V1 Agency  Ori  Property Get",
                   "type": "array"
                 }
               }
@@ -1629,9 +1629,9 @@
         "summary": "Agency Property"
       }
     },
-    "/api/agency/{ori}/shr": {
+    "/api/v1/agency/{ori}/shr": {
       "get": {
-        "operationId": "agency_shr_api_agency__ori__shr_get",
+        "operationId": "agency_shr_api_v1_agency__ori__shr_get",
         "parameters": [
           {
             "description": "A 9-character NCIC ORI, for example NY0303000.",
@@ -1671,7 +1671,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestRow"
                   },
-                  "title": "Response Agency Shr Api Agency  Ori  Shr Get",
+                  "title": "Response Agency Shr Api V1 Agency  Ori  Shr Get",
                   "type": "array"
                 }
               }
@@ -1692,10 +1692,10 @@
         "summary": "Agency Shr"
       }
     },
-    "/api/arrests": {
+    "/api/v1/arrests": {
       "get": {
         "description": "Arrest breakdowns for one offense. The default offense is \"all\" (every\noffense together). Each row carries its offense, so totals never mix codes.",
-        "operationId": "arrests_api_arrests_get",
+        "operationId": "arrests_api_v1_arrests_get",
         "parameters": [
           {
             "in": "query",
@@ -1752,7 +1752,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestBreakdownRow"
                   },
-                  "title": "Response Arrests Api Arrests Get",
+                  "title": "Response Arrests Api V1 Arrests Get",
                   "type": "array"
                 }
               }
@@ -1773,10 +1773,10 @@
         "summary": "Arrests"
       }
     },
-    "/api/arrests/available": {
+    "/api/v1/arrests/available": {
       "get": {
         "description": "The arrest offenses that have rows in the snapshot for one scope.",
-        "operationId": "arrests_available_api_arrests_available_get",
+        "operationId": "arrests_available_api_v1_arrests_available_get",
         "parameters": [
           {
             "in": "query",
@@ -1824,9 +1824,9 @@
         "summary": "Arrests Available"
       }
     },
-    "/api/hate-crime": {
+    "/api/v1/hate-crime": {
       "get": {
-        "operationId": "hate_crime_api_hate_crime_get",
+        "operationId": "hate_crime_api_v1_hate_crime_get",
         "parameters": [
           {
             "in": "query",
@@ -1873,7 +1873,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestRow"
                   },
-                  "title": "Response Hate Crime Api Hate Crime Get",
+                  "title": "Response Hate Crime Api V1 Hate Crime Get",
                   "type": "array"
                 }
               }
@@ -1894,9 +1894,9 @@
         "summary": "Hate Crime"
       }
     },
-    "/api/lesdc": {
+    "/api/v1/lesdc": {
       "get": {
-        "operationId": "lesdc_api_lesdc_get",
+        "operationId": "lesdc_api_v1_lesdc_get",
         "parameters": [
           {
             "in": "query",
@@ -1943,7 +1943,7 @@
                   "items": {
                     "$ref": "#/components/schemas/LesdcRow"
                   },
-                  "title": "Response Lesdc Api Lesdc Get",
+                  "title": "Response Lesdc Api V1 Lesdc Get",
                   "type": "array"
                 }
               }
@@ -1964,9 +1964,9 @@
         "summary": "Lesdc"
       }
     },
-    "/api/meta": {
+    "/api/v1/meta": {
       "get": {
-        "operationId": "meta_api_meta_get",
+        "operationId": "meta_api_v1_meta_get",
         "responses": {
           "200": {
             "content": {
@@ -1982,9 +1982,9 @@
         "summary": "Meta"
       }
     },
-    "/api/nibrs": {
+    "/api/v1/nibrs": {
       "get": {
-        "operationId": "nibrs_api_nibrs_get",
+        "operationId": "nibrs_api_v1_nibrs_get",
         "parameters": [
           {
             "in": "query",
@@ -2047,7 +2047,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestRow"
                   },
-                  "title": "Response Nibrs Api Nibrs Get",
+                  "title": "Response Nibrs Api V1 Nibrs Get",
                   "type": "array"
                 }
               }
@@ -2068,9 +2068,9 @@
         "summary": "Nibrs"
       }
     },
-    "/api/nibrs-estimation": {
+    "/api/v1/nibrs-estimation": {
       "get": {
-        "operationId": "nibrs_estimation_api_nibrs_estimation_get",
+        "operationId": "nibrs_estimation_api_v1_nibrs_estimation_get",
         "parameters": [
           {
             "in": "query",
@@ -2133,7 +2133,7 @@
                   "items": {
                     "$ref": "#/components/schemas/EstimateRow"
                   },
-                  "title": "Response Nibrs Estimation Api Nibrs Estimation Get",
+                  "title": "Response Nibrs Estimation Api V1 Nibrs Estimation Get",
                   "type": "array"
                 }
               }
@@ -2154,10 +2154,10 @@
         "summary": "Nibrs Estimation"
       }
     },
-    "/api/offenses/benchmark": {
+    "/api/v1/offenses/benchmark": {
       "get": {
         "description": "The area's monthly offense rate alongside the national rate for the same\noffense, plus a relative index (area / national * 100; 100 = national average).",
-        "operationId": "offenses_benchmark_api_offenses_benchmark_get",
+        "operationId": "offenses_benchmark_api_v1_offenses_benchmark_get",
         "parameters": [
           {
             "in": "query",
@@ -2197,7 +2197,7 @@
                   "items": {
                     "$ref": "#/components/schemas/BenchmarkRow"
                   },
-                  "title": "Response Offenses Benchmark Api Offenses Benchmark Get",
+                  "title": "Response Offenses Benchmark Api V1 Offenses Benchmark Get",
                   "type": "array"
                 }
               }
@@ -2218,9 +2218,9 @@
         "summary": "Offenses Benchmark"
       }
     },
-    "/api/offenses/monthly": {
+    "/api/v1/offenses/monthly": {
       "get": {
-        "operationId": "offenses_monthly_api_offenses_monthly_get",
+        "operationId": "offenses_monthly_api_v1_offenses_monthly_get",
         "parameters": [
           {
             "in": "query",
@@ -2260,7 +2260,7 @@
                   "items": {
                     "$ref": "#/components/schemas/OffenseMonthly"
                   },
-                  "title": "Response Offenses Monthly Api Offenses Monthly Get",
+                  "title": "Response Offenses Monthly Api V1 Offenses Monthly Get",
                   "type": "array"
                 }
               }
@@ -2281,9 +2281,9 @@
         "summary": "Offenses Monthly"
       }
     },
-    "/api/police-employment": {
+    "/api/v1/police-employment": {
       "get": {
-        "operationId": "police_employment_api_police_employment_get",
+        "operationId": "police_employment_api_v1_police_employment_get",
         "parameters": [
           {
             "in": "query",
@@ -2314,7 +2314,7 @@
                   "items": {
                     "$ref": "#/components/schemas/PoliceEmploymentRow"
                   },
-                  "title": "Response Police Employment Api Police Employment Get",
+                  "title": "Response Police Employment Api V1 Police Employment Get",
                   "type": "array"
                 }
               }
@@ -2335,10 +2335,10 @@
         "summary": "Police Employment"
       }
     },
-    "/api/population": {
+    "/api/v1/population": {
       "get": {
         "description": "U.S. Census population by year \u2014 the denominator for per-capita metrics.",
-        "operationId": "population_api_population_get",
+        "operationId": "population_api_v1_population_get",
         "parameters": [
           {
             "in": "query",
@@ -2369,7 +2369,7 @@
                   "items": {
                     "$ref": "#/components/schemas/PopulationRow"
                   },
-                  "title": "Response Population Api Population Get",
+                  "title": "Response Population Api V1 Population Get",
                   "type": "array"
                 }
               }
@@ -2390,10 +2390,10 @@
         "summary": "Population"
       }
     },
-    "/api/property": {
+    "/api/v1/property": {
       "get": {
         "description": "Expanded property (supplemental) breakdowns for one year.\n\n`offense` is NB/NL/NMVT/NROB and `category` the value or count dimension.\nWithout `year`, the route uses the latest year. When the data has no years\n(an older snapshot), the rows are totals over the whole window (year null).",
-        "operationId": "expanded_property_api_property_get",
+        "operationId": "expanded_property_api_v1_property_get",
         "parameters": [
           {
             "in": "query",
@@ -2472,7 +2472,7 @@
                   "items": {
                     "$ref": "#/components/schemas/PropertyRow"
                   },
-                  "title": "Response Expanded Property Api Property Get",
+                  "title": "Response Expanded Property Api V1 Property Get",
                   "type": "array"
                 }
               }
@@ -2493,10 +2493,10 @@
         "summary": "Expanded Property"
       }
     },
-    "/api/property/years": {
+    "/api/v1/property/years": {
       "get": {
         "description": "The calendar years of expanded property data for one scope and offense.",
-        "operationId": "property_years_api_property_years_get",
+        "operationId": "property_years_api_v1_property_years_get",
         "parameters": [
           {
             "in": "query",
@@ -2554,9 +2554,9 @@
         "summary": "Property Years"
       }
     },
-    "/api/shr": {
+    "/api/v1/shr": {
       "get": {
-        "operationId": "shr_api_shr_get",
+        "operationId": "shr_api_v1_shr_get",
         "parameters": [
           {
             "in": "query",
@@ -2603,7 +2603,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestRow"
                   },
-                  "title": "Response Shr Api Shr Get",
+                  "title": "Response Shr Api V1 Shr Get",
                   "type": "array"
                 }
               }
@@ -2624,9 +2624,9 @@
         "summary": "Shr"
       }
     },
-    "/api/uof/participation": {
+    "/api/v1/uof/participation": {
       "get": {
-        "operationId": "uof_participation_api_uof_participation_get",
+        "operationId": "uof_participation_api_v1_uof_participation_get",
         "responses": {
           "200": {
             "content": {
@@ -2635,7 +2635,7 @@
                   "items": {
                     "$ref": "#/components/schemas/UofParticipationRow"
                   },
-                  "title": "Response Uof Participation Api Uof Participation Get",
+                  "title": "Response Uof Participation Api V1 Uof Participation Get",
                   "type": "array"
                 }
               }
@@ -2646,9 +2646,9 @@
         "summary": "Uof Participation"
       }
     },
-    "/api/uof/questions": {
+    "/api/v1/uof/questions": {
       "get": {
-        "operationId": "uof_questions_api_uof_questions_get",
+        "operationId": "uof_questions_api_v1_uof_questions_get",
         "parameters": [
           {
             "in": "query",
@@ -2685,7 +2685,7 @@
                   "items": {
                     "$ref": "#/components/schemas/ArrestRow"
                   },
-                  "title": "Response Uof Questions Api Uof Questions Get",
+                  "title": "Response Uof Questions Api V1 Uof Questions Get",
                   "type": "array"
                 }
               }

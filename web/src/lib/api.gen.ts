@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/api/agencies": {
+    "/api/v1/agencies": {
         parameters: {
             query?: never;
             header?: never;
@@ -12,7 +12,7 @@ export interface paths {
             cookie?: never;
         };
         /** Agencies */
-        get: operations["agencies_api_agencies_get"];
+        get: operations["agencies_api_v1_agencies_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -21,7 +21,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agencies/points": {
+    "/api/v1/agencies/points": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,7 +36,7 @@ export interface paths {
          *     Clients pass ?v=<release ID>; with the current release the answer is
          *     cached as immutable (see headers.py). Details: /api/agencies/{ori}.
          */
-        get: operations["agency_points_api_agencies_points_get"];
+        get: operations["agency_points_api_v1_agencies_points_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -45,7 +45,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agencies/{ori}": {
+    "/api/v1/agencies/{ori}": {
         parameters: {
             query?: never;
             header?: never;
@@ -56,7 +56,7 @@ export interface paths {
          * Agency Detail
          * @description One agency of the snapshot, by ORI.
          */
-        get: operations["agency_detail_api_agencies__ori__get"];
+        get: operations["agency_detail_api_v1_agencies__ori__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -65,7 +65,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agency/{ori}/arrests": {
+    "/api/v1/agency/{ori}/arrests": {
         parameters: {
             query?: never;
             header?: never;
@@ -73,7 +73,7 @@ export interface paths {
             cookie?: never;
         };
         /** Agency Arrests */
-        get: operations["agency_arrests_api_agency__ori__arrests_get"];
+        get: operations["agency_arrests_api_v1_agency__ori__arrests_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -82,7 +82,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agency/{ori}/hate-crime": {
+    "/api/v1/agency/{ori}/hate-crime": {
         parameters: {
             query?: never;
             header?: never;
@@ -90,7 +90,7 @@ export interface paths {
             cookie?: never;
         };
         /** Agency Hate Crime */
-        get: operations["agency_hate_crime_api_agency__ori__hate_crime_get"];
+        get: operations["agency_hate_crime_api_v1_agency__ori__hate_crime_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -99,7 +99,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agency/{ori}/nibrs": {
+    "/api/v1/agency/{ori}/nibrs": {
         parameters: {
             query?: never;
             header?: never;
@@ -107,7 +107,7 @@ export interface paths {
             cookie?: never;
         };
         /** Agency Nibrs */
-        get: operations["agency_nibrs_api_agency__ori__nibrs_get"];
+        get: operations["agency_nibrs_api_v1_agency__ori__nibrs_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -116,7 +116,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agency/{ori}/offenses": {
+    "/api/v1/agency/{ori}/offenses": {
         parameters: {
             query?: never;
             header?: never;
@@ -124,7 +124,7 @@ export interface paths {
             cookie?: never;
         };
         /** Agency Offenses */
-        get: operations["agency_offenses_api_agency__ori__offenses_get"];
+        get: operations["agency_offenses_api_v1_agency__ori__offenses_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -133,7 +133,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agency/{ori}/police-employment": {
+    "/api/v1/agency/{ori}/police-employment": {
         parameters: {
             query?: never;
             header?: never;
@@ -141,7 +141,7 @@ export interface paths {
             cookie?: never;
         };
         /** Agency Police Employment */
-        get: operations["agency_police_employment_api_agency__ori__police_employment_get"];
+        get: operations["agency_police_employment_api_v1_agency__ori__police_employment_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -150,7 +150,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agency/{ori}/property": {
+    "/api/v1/agency/{ori}/property": {
         parameters: {
             query?: never;
             header?: never;
@@ -158,7 +158,7 @@ export interface paths {
             cookie?: never;
         };
         /** Agency Property */
-        get: operations["agency_property_api_agency__ori__property_get"];
+        get: operations["agency_property_api_v1_agency__ori__property_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -167,7 +167,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agency/{ori}/shr": {
+    "/api/v1/agency/{ori}/shr": {
         parameters: {
             query?: never;
             header?: never;
@@ -175,7 +175,7 @@ export interface paths {
             cookie?: never;
         };
         /** Agency Shr */
-        get: operations["agency_shr_api_agency__ori__shr_get"];
+        get: operations["agency_shr_api_v1_agency__ori__shr_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -184,7 +184,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/arrests": {
+    "/api/v1/arrests": {
         parameters: {
             query?: never;
             header?: never;
@@ -196,7 +196,7 @@ export interface paths {
          * @description Arrest breakdowns for one offense. The default offense is "all" (every
          *     offense together). Each row carries its offense, so totals never mix codes.
          */
-        get: operations["arrests_api_arrests_get"];
+        get: operations["arrests_api_v1_arrests_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -205,7 +205,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/arrests/available": {
+    "/api/v1/arrests/available": {
         parameters: {
             query?: never;
             header?: never;
@@ -216,7 +216,7 @@ export interface paths {
          * Arrests Available
          * @description The arrest offenses that have rows in the snapshot for one scope.
          */
-        get: operations["arrests_available_api_arrests_available_get"];
+        get: operations["arrests_available_api_v1_arrests_available_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -225,7 +225,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/hate-crime": {
+    "/api/v1/hate-crime": {
         parameters: {
             query?: never;
             header?: never;
@@ -233,7 +233,7 @@ export interface paths {
             cookie?: never;
         };
         /** Hate Crime */
-        get: operations["hate_crime_api_hate_crime_get"];
+        get: operations["hate_crime_api_v1_hate_crime_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -242,7 +242,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/lesdc": {
+    "/api/v1/lesdc": {
         parameters: {
             query?: never;
             header?: never;
@@ -250,7 +250,7 @@ export interface paths {
             cookie?: never;
         };
         /** Lesdc */
-        get: operations["lesdc_api_lesdc_get"];
+        get: operations["lesdc_api_v1_lesdc_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -259,7 +259,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/meta": {
+    "/api/v1/meta": {
         parameters: {
             query?: never;
             header?: never;
@@ -267,7 +267,7 @@ export interface paths {
             cookie?: never;
         };
         /** Meta */
-        get: operations["meta_api_meta_get"];
+        get: operations["meta_api_v1_meta_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -276,7 +276,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/nibrs": {
+    "/api/v1/nibrs": {
         parameters: {
             query?: never;
             header?: never;
@@ -284,7 +284,7 @@ export interface paths {
             cookie?: never;
         };
         /** Nibrs */
-        get: operations["nibrs_api_nibrs_get"];
+        get: operations["nibrs_api_v1_nibrs_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -293,7 +293,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/nibrs-estimation": {
+    "/api/v1/nibrs-estimation": {
         parameters: {
             query?: never;
             header?: never;
@@ -301,7 +301,7 @@ export interface paths {
             cookie?: never;
         };
         /** Nibrs Estimation */
-        get: operations["nibrs_estimation_api_nibrs_estimation_get"];
+        get: operations["nibrs_estimation_api_v1_nibrs_estimation_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -310,7 +310,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/offenses/benchmark": {
+    "/api/v1/offenses/benchmark": {
         parameters: {
             query?: never;
             header?: never;
@@ -322,7 +322,7 @@ export interface paths {
          * @description The area's monthly offense rate alongside the national rate for the same
          *     offense, plus a relative index (area / national * 100; 100 = national average).
          */
-        get: operations["offenses_benchmark_api_offenses_benchmark_get"];
+        get: operations["offenses_benchmark_api_v1_offenses_benchmark_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -331,7 +331,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/offenses/monthly": {
+    "/api/v1/offenses/monthly": {
         parameters: {
             query?: never;
             header?: never;
@@ -339,7 +339,7 @@ export interface paths {
             cookie?: never;
         };
         /** Offenses Monthly */
-        get: operations["offenses_monthly_api_offenses_monthly_get"];
+        get: operations["offenses_monthly_api_v1_offenses_monthly_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -348,7 +348,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/police-employment": {
+    "/api/v1/police-employment": {
         parameters: {
             query?: never;
             header?: never;
@@ -356,7 +356,7 @@ export interface paths {
             cookie?: never;
         };
         /** Police Employment */
-        get: operations["police_employment_api_police_employment_get"];
+        get: operations["police_employment_api_v1_police_employment_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -365,7 +365,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/population": {
+    "/api/v1/population": {
         parameters: {
             query?: never;
             header?: never;
@@ -376,7 +376,7 @@ export interface paths {
          * Population
          * @description U.S. Census population by year — the denominator for per-capita metrics.
          */
-        get: operations["population_api_population_get"];
+        get: operations["population_api_v1_population_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -385,7 +385,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/property": {
+    "/api/v1/property": {
         parameters: {
             query?: never;
             header?: never;
@@ -400,7 +400,7 @@ export interface paths {
          *     Without `year`, the route uses the latest year. When the data has no years
          *     (an older snapshot), the rows are totals over the whole window (year null).
          */
-        get: operations["expanded_property_api_property_get"];
+        get: operations["expanded_property_api_v1_property_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -409,7 +409,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/property/years": {
+    "/api/v1/property/years": {
         parameters: {
             query?: never;
             header?: never;
@@ -420,7 +420,7 @@ export interface paths {
          * Property Years
          * @description The calendar years of expanded property data for one scope and offense.
          */
-        get: operations["property_years_api_property_years_get"];
+        get: operations["property_years_api_v1_property_years_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -429,7 +429,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/shr": {
+    "/api/v1/shr": {
         parameters: {
             query?: never;
             header?: never;
@@ -437,7 +437,7 @@ export interface paths {
             cookie?: never;
         };
         /** Shr */
-        get: operations["shr_api_shr_get"];
+        get: operations["shr_api_v1_shr_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -446,7 +446,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/uof/participation": {
+    "/api/v1/uof/participation": {
         parameters: {
             query?: never;
             header?: never;
@@ -454,7 +454,7 @@ export interface paths {
             cookie?: never;
         };
         /** Uof Participation */
-        get: operations["uof_participation_api_uof_participation_get"];
+        get: operations["uof_participation_api_v1_uof_participation_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -463,7 +463,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/uof/questions": {
+    "/api/v1/uof/questions": {
         parameters: {
             query?: never;
             header?: never;
@@ -471,7 +471,7 @@ export interface paths {
             cookie?: never;
         };
         /** Uof Questions */
-        get: operations["uof_questions_api_uof_questions_get"];
+        get: operations["uof_questions_api_v1_uof_questions_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -843,7 +843,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    agencies_api_agencies_get: {
+    agencies_api_v1_agencies_get: {
         parameters: {
             query?: {
                 state?: string | null;
@@ -874,7 +874,7 @@ export interface operations {
             };
         };
     };
-    agency_points_api_agencies_points_get: {
+    agency_points_api_v1_agencies_points_get: {
         parameters: {
             query?: {
                 state?: string | null;
@@ -906,7 +906,7 @@ export interface operations {
             };
         };
     };
-    agency_detail_api_agencies__ori__get: {
+    agency_detail_api_v1_agencies__ori__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -938,7 +938,7 @@ export interface operations {
             };
         };
     };
-    agency_arrests_api_agency__ori__arrests_get: {
+    agency_arrests_api_v1_agency__ori__arrests_get: {
         parameters: {
             query?: {
                 category?: string | null;
@@ -973,7 +973,7 @@ export interface operations {
             };
         };
     };
-    agency_hate_crime_api_agency__ori__hate_crime_get: {
+    agency_hate_crime_api_v1_agency__ori__hate_crime_get: {
         parameters: {
             query?: {
                 category?: string | null;
@@ -1007,7 +1007,7 @@ export interface operations {
             };
         };
     };
-    agency_nibrs_api_agency__ori__nibrs_get: {
+    agency_nibrs_api_v1_agency__ori__nibrs_get: {
         parameters: {
             query?: {
                 offense?: string;
@@ -1042,7 +1042,7 @@ export interface operations {
             };
         };
     };
-    agency_offenses_api_agency__ori__offenses_get: {
+    agency_offenses_api_v1_agency__ori__offenses_get: {
         parameters: {
             query: {
                 offense: components["schemas"]["Offense"];
@@ -1076,7 +1076,7 @@ export interface operations {
             };
         };
     };
-    agency_police_employment_api_agency__ori__police_employment_get: {
+    agency_police_employment_api_v1_agency__ori__police_employment_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1108,7 +1108,7 @@ export interface operations {
             };
         };
     };
-    agency_property_api_agency__ori__property_get: {
+    agency_property_api_v1_agency__ori__property_get: {
         parameters: {
             query?: {
                 offense?: components["schemas"]["PropertyOffense"];
@@ -1143,7 +1143,7 @@ export interface operations {
             };
         };
     };
-    agency_shr_api_agency__ori__shr_get: {
+    agency_shr_api_v1_agency__ori__shr_get: {
         parameters: {
             query?: {
                 category?: string | null;
@@ -1177,7 +1177,7 @@ export interface operations {
             };
         };
     };
-    arrests_api_arrests_get: {
+    arrests_api_v1_arrests_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1211,7 +1211,7 @@ export interface operations {
             };
         };
     };
-    arrests_available_api_arrests_available_get: {
+    arrests_available_api_v1_arrests_available_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1243,7 +1243,7 @@ export interface operations {
             };
         };
     };
-    hate_crime_api_hate_crime_get: {
+    hate_crime_api_v1_hate_crime_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1276,7 +1276,7 @@ export interface operations {
             };
         };
     };
-    lesdc_api_lesdc_get: {
+    lesdc_api_v1_lesdc_get: {
         parameters: {
             query?: {
                 chart_type?: string;
@@ -1309,7 +1309,7 @@ export interface operations {
             };
         };
     };
-    meta_api_meta_get: {
+    meta_api_v1_meta_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1329,7 +1329,7 @@ export interface operations {
             };
         };
     };
-    nibrs_api_nibrs_get: {
+    nibrs_api_v1_nibrs_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1363,7 +1363,7 @@ export interface operations {
             };
         };
     };
-    nibrs_estimation_api_nibrs_estimation_get: {
+    nibrs_estimation_api_v1_nibrs_estimation_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1397,7 +1397,7 @@ export interface operations {
             };
         };
     };
-    offenses_benchmark_api_offenses_benchmark_get: {
+    offenses_benchmark_api_v1_offenses_benchmark_get: {
         parameters: {
             query: {
                 offense: string;
@@ -1430,7 +1430,7 @@ export interface operations {
             };
         };
     };
-    offenses_monthly_api_offenses_monthly_get: {
+    offenses_monthly_api_v1_offenses_monthly_get: {
         parameters: {
             query: {
                 offense: string;
@@ -1463,7 +1463,7 @@ export interface operations {
             };
         };
     };
-    police_employment_api_police_employment_get: {
+    police_employment_api_v1_police_employment_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1495,7 +1495,7 @@ export interface operations {
             };
         };
     };
-    population_api_population_get: {
+    population_api_v1_population_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1527,7 +1527,7 @@ export interface operations {
             };
         };
     };
-    expanded_property_api_property_get: {
+    expanded_property_api_v1_property_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1562,7 +1562,7 @@ export interface operations {
             };
         };
     };
-    property_years_api_property_years_get: {
+    property_years_api_v1_property_years_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1595,7 +1595,7 @@ export interface operations {
             };
         };
     };
-    shr_api_shr_get: {
+    shr_api_v1_shr_get: {
         parameters: {
             query?: {
                 level?: string;
@@ -1628,7 +1628,7 @@ export interface operations {
             };
         };
     };
-    uof_participation_api_uof_participation_get: {
+    uof_participation_api_v1_uof_participation_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1648,7 +1648,7 @@ export interface operations {
             };
         };
     };
-    uof_questions_api_uof_questions_get: {
+    uof_questions_api_v1_uof_questions_get: {
         parameters: {
             query?: {
                 year?: number;

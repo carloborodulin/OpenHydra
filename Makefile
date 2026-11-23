@@ -52,7 +52,7 @@ smoke:
 	  --host 127.0.0.1 --port $(PORT) --no-access-log > /dev/null 2>&1 & \
 	pid=$$!; trap 'kill $$pid 2>/dev/null' EXIT; \
 	curl -sf --retry 30 --retry-delay 1 --retry-connrefused -o /dev/null http://127.0.0.1:$(PORT)/health && \
-	for path in /health /api/meta "/api/offenses/monthly?offense=violent-crime" /api/arrests/available; do \
+	for path in /health /api/v1/meta "/api/v1/offenses/monthly?offense=violent-crime" /api/v1/arrests/available; do \
 	  code=$$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$(PORT)$$path"); \
 	  echo "$$code $$path"; test "$$code" = 200 || exit 1; \
 	done

@@ -22,7 +22,7 @@ from cdeclient.constants import (
     arrest_components,
 )
 from cdeclient.models import ArrestTotalsResponse
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
 from fastapi import Path as FastPath
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -108,6 +108,11 @@ def current_release() -> str | None:
 app.add_middleware(SecurityAndCacheMiddleware, release=lambda: current_release())
 obs.install(app)
 
+# Every data route is on this router. It is served at /api/v1 (the documented
+# version) and at /api (the old paths, kept as aliases with a Deprecation
+# header; see headers.py). Both prefixes reach the same handlers.
+api = APIRouter()
+
 # The browser talks to this service, never to the upstream API, so the API key
 # is never exposed. Open CORS is fine for a public read-only dataset.
 app.add_middleware(
@@ -188,7 +193,7 @@ def _snapshot(conn: duckdb.DuckDBPyConnection) -> Snapshot | None:
     return Snapshot(**rows[0], domains=[SnapshotDomain(**d) for d in domains])
 
 
-@app.get("/api/meta", response_model=Meta)
+@api.get("/meta", response_model=Meta)
 def meta(conn: Conn) -> Meta:
     offenses = [
         r[0]
@@ -246,7 +251,7 @@ def meta(conn: Conn) -> Meta:
     )
 
 
-@app.get("/api/offenses/monthly", response_model=list[OffenseMonthly])
+@api.get("/offenses/monthly", response_model=list[OffenseMonthly])
 def offenses_monthly(
     conn: Conn,
     offense: str,
@@ -270,7 +275,7 @@ def offenses_monthly(
     return rows
 
 
-@app.get("/api/offenses/benchmark", response_model=list[BenchmarkRow])
+@api.get("/offenses/benchmark", response_model=list[BenchmarkRow])
 def offenses_benchmark(
     conn: Conn,
     offense: str,
@@ -309,7 +314,7 @@ OriParam = Annotated[
 ]
 
 
-@app.get("/api/agencies/points", response_model=AgencyPoints)
+@api.get("/agencies/points", response_model=AgencyPoints)
 def agency_points(conn: Conn, state: str | None = None, v: str | None = None) -> dict[str, Any]:
     """The agency list in a compact column form, for the map and the search.
 
@@ -340,7 +345,7 @@ def agency_points(conn: Conn, state: str | None = None, v: str | None = None) ->
     }
 
 
-@app.get("/api/agencies/{ori}", response_model=AgencyFeature)
+@api.get("/agencies/{ori}", response_model=AgencyFeature)
 def agency_detail(ori: OriParam, conn: Conn) -> dict[str, Any]:
     """One agency of the snapshot, by ORI."""
     rows = _dicts(
@@ -354,7 +359,7 @@ def agency_detail(ori: OriParam, conn: Conn) -> dict[str, Any]:
     return rows[0]
 
 
-@app.get("/api/agencies", response_model=list[AgencyFeature])
+@api.get("/agencies", response_model=list[AgencyFeature])
 def agencies(conn: Conn, state: str | None = None) -> list[dict[str, Any]]:
     sql = (
         "select ori, agency_name, agency_type, county, state_abbr, "
@@ -368,7 +373,7 @@ def agencies(conn: Conn, state: str | None = None) -> list[dict[str, Any]]:
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/arrests", response_model=list[ArrestBreakdownRow])
+@api.get("/arrests", response_model=list[ArrestBreakdownRow])
 def arrests(
     conn: Conn,
     level: str = "national",
@@ -390,7 +395,7 @@ def arrests(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/arrests/available", response_model=ArrestAvailability)
+@api.get("/arrests/available", response_model=ArrestAvailability)
 def arrests_available(conn: Conn, level: str = "national", area: str = "US") -> dict[str, Any]:
     """The arrest offenses that have rows in the snapshot for one scope."""
     rows = conn.execute(
@@ -400,7 +405,7 @@ def arrests_available(conn: Conn, level: str = "national", area: str = "US") -> 
     return {"level": level, "area": area, "offenses": [r[0] for r in rows]}
 
 
-@app.get("/api/police-employment", response_model=list[PoliceEmploymentRow])
+@api.get("/police-employment", response_model=list[PoliceEmploymentRow])
 def police_employment(
     conn: Conn,
     level: str = "national",
@@ -414,7 +419,7 @@ def police_employment(
     )
 
 
-@app.get("/api/population", response_model=list[PopulationRow])
+@api.get("/population", response_model=list[PopulationRow])
 def population(
     conn: Conn,
     level: str = "national",
@@ -428,7 +433,7 @@ def population(
     )
 
 
-@app.get("/api/hate-crime", response_model=list[ArrestRow])
+@api.get("/hate-crime", response_model=list[ArrestRow])
 def hate_crime(
     conn: Conn,
     level: str = "national",
@@ -446,7 +451,7 @@ def hate_crime(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/shr", response_model=list[ArrestRow])
+@api.get("/shr", response_model=list[ArrestRow])
 def shr(
     conn: Conn,
     level: str = "national",
@@ -464,7 +469,7 @@ def shr(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/property/years", response_model=PropertyYears)
+@api.get("/property/years", response_model=PropertyYears)
 def property_years(
     conn: Conn, level: str = "national", area: str = "US", offense: str = "NB"
 ) -> dict[str, Any]:
@@ -477,7 +482,7 @@ def property_years(
     return {"years": years, "window_total": any(r[0] is None for r in rows)}
 
 
-@app.get("/api/property", response_model=list[PropertyRow])
+@api.get("/property", response_model=list[PropertyRow])
 def expanded_property(
     conn: Conn,
     level: str = "national",
@@ -513,7 +518,7 @@ def expanded_property(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/nibrs", response_model=list[ArrestRow])
+@api.get("/nibrs", response_model=list[ArrestRow])
 def nibrs(
     conn: Conn,
     level: str = "national",
@@ -535,7 +540,7 @@ def nibrs(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/lesdc", response_model=list[LesdcRow])
+@api.get("/lesdc", response_model=list[LesdcRow])
 def lesdc(
     conn: Conn,
     chart_type: str = "manner",
@@ -553,7 +558,7 @@ def lesdc(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/uof/participation", response_model=list[UofParticipationRow])
+@api.get("/uof/participation", response_model=list[UofParticipationRow])
 def uof_participation(conn: Conn) -> list[dict[str, Any]]:
     # Use-of-Force national reporting participation, one row per year.
     return _dicts(
@@ -563,7 +568,7 @@ def uof_participation(conn: Conn) -> list[dict[str, Any]]:
     )
 
 
-@app.get("/api/uof/questions", response_model=list[ArrestRow])
+@api.get("/uof/questions", response_model=list[ArrestRow])
 def uof_questions(
     conn: Conn,
     year: int = 2022,
@@ -580,7 +585,7 @@ def uof_questions(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/nibrs-estimation", response_model=list[EstimateRow])
+@api.get("/nibrs-estimation", response_model=list[EstimateRow])
 def nibrs_estimation(
     conn: Conn,
     level: str = "national",
@@ -643,7 +648,7 @@ def _arrest_codes_or_422(offense: str | None) -> tuple[str, tuple[str, ...]]:
     return ARREST_CODE_TO_SLUG[codes[0]], codes
 
 
-@app.get("/api/agency/{ori}/offenses", response_model=list[OffenseMonthly])
+@api.get("/agency/{ori}/offenses", response_model=list[OffenseMonthly])
 def agency_offenses(ori: Ori, offense: Offense, client: Cde) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
         resp = client().summarized_agency(ori, offense.value, LIVE_FROM, LIVE_TO)
@@ -652,7 +657,7 @@ def agency_offenses(ori: Ori, offense: Offense, client: Cde) -> list[dict[str, A
     return agency_live.fetch(agency_live.cache_key("offenses", ori, offense.value), produce)
 
 
-@app.get("/api/agency/{ori}/arrests", response_model=list[ArrestBreakdownRow])
+@api.get("/agency/{ori}/arrests", response_model=list[ArrestBreakdownRow])
 def agency_arrests(
     ori: Ori,
     client: Cde,
@@ -691,7 +696,7 @@ def agency_arrests(
     ]
 
 
-@app.get("/api/agency/{ori}/police-employment", response_model=list[PoliceEmploymentRow])
+@api.get("/agency/{ori}/police-employment", response_model=list[PoliceEmploymentRow])
 def agency_police_employment(ori: Ori, client: Cde) -> list[dict[str, Any]]:
     state = ori[:2]  # NCIC ORIs are state-prefixed; /pe needs {state}/{ori}
 
@@ -702,7 +707,7 @@ def agency_police_employment(ori: Ori, client: Cde) -> list[dict[str, Any]]:
     return agency_live.fetch(agency_live.cache_key("pe", ori), produce)
 
 
-@app.get("/api/agency/{ori}/hate-crime", response_model=list[ArrestRow])
+@api.get("/agency/{ori}/hate-crime", response_model=list[ArrestRow])
 def agency_hate_crime(
     ori: Ori, client: Cde, category: CategoryParam = None
 ) -> list[dict[str, Any]]:
@@ -714,7 +719,7 @@ def agency_hate_crime(
     return agency_live.filter_category(rows, category)
 
 
-@app.get("/api/agency/{ori}/shr", response_model=list[ArrestRow])
+@api.get("/agency/{ori}/shr", response_model=list[ArrestRow])
 def agency_shr(ori: Ori, client: Cde, category: CategoryParam = None) -> list[dict[str, Any]]:
     def produce() -> list[dict[str, Any]]:
         resp = client().shr_agency(ori, LIVE_FROM, LIVE_TO)
@@ -729,7 +734,7 @@ PropertyOffense = Enum(  # type: ignore[misc]
 )
 
 
-@app.get("/api/agency/{ori}/property", response_model=list[ArrestRow])
+@api.get("/agency/{ori}/property", response_model=list[ArrestRow])
 def agency_property(
     ori: Ori,
     client: Cde,
@@ -746,7 +751,7 @@ def agency_property(
     return agency_live.filter_category(rows, category)
 
 
-@app.get("/api/agency/{ori}/nibrs", response_model=list[ArrestRow])
+@api.get("/agency/{ori}/nibrs", response_model=list[ArrestRow])
 def agency_nibrs(
     ori: Ori,
     client: Cde,
@@ -764,6 +769,9 @@ def agency_nibrs(
     rows = agency_live.fetch(agency_live.cache_key("nibrs", ori, code), produce)
     return agency_live.filter_category(rows, category)
 
+
+app.include_router(api, prefix="/api/v1")
+app.include_router(api, prefix="/api", include_in_schema=False, deprecated=True)
 
 # In production the built frontend is mounted at the root (path set via env in
 # the Docker image). The API routes above are registered first, so they take
