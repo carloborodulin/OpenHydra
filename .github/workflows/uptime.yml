@@ -1,0 +1,58 @@
+# Synthetic checks of the public service, every 30 minutes. A failure opens an
+# issue (or adds a comment to the open one); a later success closes it.
+# Objectives: docs/slo.md. The FBI API check is in fbi-contract.yml.
+name: uptime
+
+on:
+  schedule:
+    - cron: "7,37 * * * *" # every 30 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+env:
+  BASE: https://openhydra-production.up.railway.app
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Probe the main routes and record the latency
+        id: probe
+        run: |
+          set +e
+          fail=0
+          : > report.md
+          for path in /health /api/meta "/api/offenses/monthly?offense=violent-crime" /; do
+            out=$(curl -s -o /dev/null -m 20 -w "%{http_code} %{time_total}" "$BASE$path")
+            code=${out%% *}; secs=${out##* }
+            echo "| \`$path\` | $code | ${secs}s |" >> report.md
+            if [ "$code" != 200 ]; then fail=1; fi
+            # Objective: warehouse routes under 0.5 s (p95 over a month); flag a slow sample.
+            awk -v s="$secs" 'BEGIN { exit !(s > 2.0) }' && echo "::warning::$path took ${secs}s"
+          done
+          cat report.md
+          echo "failed=$fail" >> "$GITHUB_OUTPUT"
+      - name: Open, update or close the uptime issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FAILED: ${{ steps.probe.outputs.failed }}
+        run: |
+          open=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title Production check failed" --json number --jq '.[0].number')
+          if [ "$FAILED" = 1 ]; then
+            body=$(printf "Run: %s/%s/actions/runs/%s\n\n| Route | Status | Time |\n|---|---|---|\n%s\n" \
+              "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$(cat report.md)")
+            if [ -n "$open" ]; then gh issue comment "$open" --repo "$GITHUB_REPOSITORY" --body "$body"
+            else gh issue create --repo "$GITHUB_REPOSITORY" --title "Production check failed" --body "$body"; fi
+            exit 1
+          elif [ -n "$open" ]; then
+            gh issue close "$open" --repo "$GITHUB_REPOSITORY" --comment "The checks pass again."
+          fi

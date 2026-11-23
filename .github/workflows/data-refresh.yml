@@ -1,0 +1,115 @@
+# Monthly data refresh. It pulls a new extract from the FBI CDE API, promotes it
+# over the committed release (coverage check, revision report), builds and tests
+# the warehouse, and pushes the result to a branch "data/refresh-<date>". It then
+# opens an issue with the revision summary and a link to open the pull request.
+#
+# The workflow does not open the pull request itself: a pull request from the
+# Actions token would not run CI, and letting that token open pull requests
+# would also let it approve them. A person opens the pull request, CI runs on
+# it, and the person merges it.
+#
+# The API key is the secret FBI_CDE_API_KEY of the "data-refresh" Environment,
+# which only the main branch can use.
+name: data refresh
+
+on:
+  schedule:
+    - cron: "0 9 3 * *" # 09:00 UTC on the 3rd of each month
+  workflow_dispatch:
+    inputs:
+      domains:
+        description: "Domains to pull (comma list, or all)"
+        default: "summarized,arrests,pe,hate-crime,shr,property,nibrs,uof"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: false
+
+env:
+  UV_VERSION: "0.11.19"
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    environment: data-refresh
+    permissions:
+      contents: write # push the data branch
+      issues: write # open the summary issue
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
+      - name: Install the workspace
+        run: uv sync --frozen --all-packages --all-groups
+      - name: Pull an incremental extract (about 2,300 requests at 800 per hour)
+        id: pull
+        env:
+          FBI_CDE_API_KEY: ${{ secrets.FBI_CDE_API_KEY }}
+          DOMAINS: ${{ inputs.domains || 'summarized,arrests,pe,hate-crime,shr,property,nibrs,uof' }}
+        run: |
+          # The FBI publishes a year some months after it ends: pull to the end
+          # of the last complete year. Property values are yearly, so only the
+          # last two years are pulled again; --merge keeps the older years.
+          last=$(( $(date -u +%Y) - 1 ))
+          others=$(echo ",$DOMAINS," | sed 's/,property,/,/; s/^,//; s/,$//')
+          set +e
+          # 800 per hour: a monthly run at night can use 80% of the key quota.
+          .venv/bin/oh-etl pull --states all --domains "$others" --per-hour 800 \
+            --from 01-2015 --to "12-$last" --out data/staging/refresh
+          main_rc=$?
+          if [[ ",$DOMAINS," == *",property,"* ]]; then
+            .venv/bin/oh-etl pull --states all --domains property --per-hour 800 \
+              --from "01-$(( last - 1 ))" --to "12-$last" --out data/staging/refresh-property
+          fi
+          set -e
+          echo "last_year=$last" >> "$GITHUB_OUTPUT"
+          echo "pull_rc=$main_rc" >> "$GITHUB_OUTPUT"
+      - name: Promote the completed domains over the release
+        run: |
+          .venv/bin/oh-etl promote data/staging/refresh --merge
+          if [ -d data/staging/refresh-property ]; then
+            .venv/bin/oh-etl promote data/staging/refresh-property --merge
+          fi
+      - name: Build and test the warehouse from the new release
+        run: make data
+      - name: Push the data branch and open a summary issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_RC: ${{ steps.pull.outputs.pull_rc }}
+        run: |
+          branch="data/refresh-$(date -u +%Y-%m-%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add deploy/seed
+          if git diff --cached --quiet; then
+            echo "The release did not change."
+            exit 0
+          fi
+          git commit -m "data: refresh the release from the FBI CDE API" \
+            -m "The monthly data refresh workflow made this change. See deploy/seed/revisions.md."
+          git push origin "$branch"
+          failed=$(python3 -c "import json;d=json.load(open('data/staging/refresh/_manifest.json'));print(', '.join(k for k,v in d['domains'].items() if v.get('status')=='failed') or 'none')")
+          {
+            echo "A new data release is on the branch \`$branch\`."
+            echo
+            echo "- Window: 01-2015 to 12-${{ steps.pull.outputs.last_year }}."
+            echo "- Failed domains (their old data stays): $failed."
+            echo
+            echo "Open the pull request: https://github.com/${GITHUB_REPOSITORY}/compare/main...$branch?expand=1"
+            echo "CI runs on the pull request. Read the revisions before the merge."
+            echo
+            echo "<details><summary>Revisions</summary>"
+            echo
+            head -c 60000 deploy/seed/revisions.md
+            echo
+            echo "</details>"
+          } > issue.md
+          gh issue create --title "Data release $(date -u +%Y-%m-%d) is ready for review" --body-file issue.md
