@@ -1,0 +1,2727 @@
+{
+  "components": {
+    "schemas": {
+      "AgencyFeature": {
+        "properties": {
+          "agency_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agency Name"
+          },
+          "agency_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agency Type"
+          },
+          "county": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "County"
+          },
+          "is_nibrs": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Nibrs"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "nibrs_start_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nibrs Start Year"
+          },
+          "ori": {
+            "title": "Ori",
+            "type": "string"
+          },
+          "state_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State Abbr"
+          }
+        },
+        "required": [
+          "ori"
+        ],
+        "title": "AgencyFeature",
+        "type": "object"
+      },
+      "AgencyPoints": {
+        "description": "Agencies in column form: item i of each list is one agency.",
+        "properties": {
+          "county": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "County",
+            "type": "array"
+          },
+          "lat": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Lat",
+            "type": "array"
+          },
+          "lon": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Lon",
+            "type": "array"
+          },
+          "name": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Name",
+            "type": "array"
+          },
+          "nibrs": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Nibrs",
+            "type": "array"
+          },
+          "nibrs_start_year": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Nibrs Start Year",
+            "type": "array"
+          },
+          "ori": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ori",
+            "type": "array"
+          },
+          "release_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Release Id"
+          }
+        },
+        "required": [
+          "ori",
+          "name",
+          "county",
+          "lat",
+          "lon",
+          "nibrs",
+          "nibrs_start_year"
+        ],
+        "title": "AgencyPoints",
+        "type": "object"
+      },
+      "ArrestAvailability": {
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "string"
+          },
+          "offenses": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Offenses",
+            "type": "array"
+          }
+        },
+        "required": [
+          "level",
+          "area",
+          "offenses"
+        ],
+        "title": "ArrestAvailability",
+        "type": "object"
+      },
+      "ArrestBreakdownRow": {
+        "description": "An arrest breakdown row with its offense, so a row can never lose it.",
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "is_derived": {
+            "default": false,
+            "title": "Is Derived",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "offense": {
+            "title": "Offense",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "category",
+          "label",
+          "offense"
+        ],
+        "title": "ArrestBreakdownRow",
+        "type": "object"
+      },
+      "ArrestOffense": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "derived": {
+            "default": false,
+            "title": "Derived",
+            "type": "boolean"
+          },
+          "in_snapshot": {
+            "default": false,
+            "title": "In Snapshot",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "code",
+          "name",
+          "category"
+        ],
+        "title": "ArrestOffense",
+        "type": "object"
+      },
+      "ArrestRow": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "category",
+          "label"
+        ],
+        "title": "ArrestRow",
+        "type": "object"
+      },
+      "BenchmarkRow": {
+        "properties": {
+          "area_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area Rate"
+          },
+          "national_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "National Rate"
+          },
+          "period": {
+            "format": "date",
+            "title": "Period",
+            "type": "string"
+          },
+          "relative_index": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relative Index"
+          }
+        },
+        "required": [
+          "period"
+        ],
+        "title": "BenchmarkRow",
+        "type": "object"
+      },
+      "Capabilities": {
+        "properties": {
+          "live_agency": {
+            "default": false,
+            "title": "Live Agency",
+            "type": "boolean"
+          }
+        },
+        "title": "Capabilities",
+        "type": "object"
+      },
+      "EstimateRow": {
+        "description": "A NIBRS estimate with the FBI interval (null in older releases).",
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "lower": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lower"
+          },
+          "upper": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upper"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "category",
+          "label"
+        ],
+        "title": "EstimateRow",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "LesdcRow": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "section": {
+            "title": "Section",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "section",
+          "label"
+        ],
+        "title": "LesdcRow",
+        "type": "object"
+      },
+      "Meta": {
+        "properties": {
+          "arrest_categories": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Arrest Categories",
+            "type": "array"
+          },
+          "arrest_offenses": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ArrestOffense"
+            },
+            "title": "Arrest Offenses",
+            "type": "array"
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/Capabilities",
+            "default": {
+              "live_agency": false
+            }
+          },
+          "levels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Levels",
+            "type": "array"
+          },
+          "offenses": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Offenses",
+            "type": "array"
+          },
+          "snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "states": {
+            "items": {
+              "type": "string"
+            },
+            "title": "States",
+            "type": "array"
+          }
+        },
+        "required": [
+          "offenses",
+          "states",
+          "levels"
+        ],
+        "title": "Meta",
+        "type": "object"
+      },
+      "Offense": {
+        "description": "Offense slugs accepted by the summarized endpoints (hyphenated).",
+        "enum": [
+          "violent-crime",
+          "homicide",
+          "rape",
+          "robbery",
+          "aggravated-assault",
+          "property-crime",
+          "burglary",
+          "larceny",
+          "motor-vehicle-theft",
+          "arson"
+        ],
+        "title": "Offense",
+        "type": "string"
+      },
+      "OffenseMonthly": {
+        "properties": {
+          "clearance_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clearance Ratio"
+          },
+          "clearances_actual": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clearances Actual"
+          },
+          "clearances_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clearances Rate"
+          },
+          "index_2019": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Index 2019"
+          },
+          "offenses_actual": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offenses Actual"
+          },
+          "offenses_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offenses Rate"
+          },
+          "period": {
+            "format": "date",
+            "title": "Period",
+            "type": "string"
+          },
+          "ttm_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ttm Months"
+          },
+          "ttm_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ttm Rate"
+          },
+          "yoy_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yoy Delta"
+          }
+        },
+        "required": [
+          "period"
+        ],
+        "title": "OffenseMonthly",
+        "type": "object"
+      },
+      "PoliceEmploymentRow": {
+        "properties": {
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "section": {
+            "title": "Section",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "section",
+          "metric",
+          "year"
+        ],
+        "title": "PoliceEmploymentRow",
+        "type": "object"
+      },
+      "PopulationRow": {
+        "properties": {
+          "population": {
+            "title": "Population",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "population"
+        ],
+        "title": "PopulationRow",
+        "type": "object"
+      },
+      "PropertyOffense": {
+        "enum": [
+          "NB",
+          "NL",
+          "NMVT",
+          "NROB"
+        ],
+        "title": "PropertyOffense",
+        "type": "string"
+      },
+      "PropertyRow": {
+        "description": "An expanded property row. A null year means a total over the whole window.",
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          }
+        },
+        "required": [
+          "category",
+          "label"
+        ],
+        "title": "PropertyRow",
+        "type": "object"
+      },
+      "PropertyYears": {
+        "properties": {
+          "window_total": {
+            "default": false,
+            "title": "Window Total",
+            "type": "boolean"
+          },
+          "years": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "years"
+        ],
+        "title": "PropertyYears",
+        "type": "object"
+      },
+      "Snapshot": {
+        "description": "The data release that the warehouse holds (from meta_snapshot).",
+        "properties": {
+          "domains": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SnapshotDomain"
+            },
+            "title": "Domains",
+            "type": "array"
+          },
+          "extracted_at_max": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted At Max"
+          },
+          "extracted_at_min": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted At Min"
+          },
+          "promoted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promoted At"
+          },
+          "reconstructed": {
+            "default": false,
+            "title": "Reconstructed",
+            "type": "boolean"
+          },
+          "release_id": {
+            "title": "Release Id",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "window_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window From"
+          },
+          "window_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window To"
+          }
+        },
+        "required": [
+          "release_id"
+        ],
+        "title": "Snapshot",
+        "type": "object"
+      },
+      "SnapshotDomain": {
+        "description": "One file of the release: when it was extracted and the window it covers.",
+        "properties": {
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "extracted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted At"
+          },
+          "row_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Row Count"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "window_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window From"
+          },
+          "window_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window To"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "title": "SnapshotDomain",
+        "type": "object"
+      },
+      "UofParticipationRow": {
+        "properties": {
+          "participating_agencies": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participating Agencies"
+          },
+          "participation_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participation Percent"
+          },
+          "total_agencies": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Agencies"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year"
+        ],
+        "title": "UofParticipationRow",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Read-only access to FBI UCR crime marts (DuckDB).",
+    "title": "OpenHydra API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/agencies": {
+      "get": {
+        "operationId": "agencies_api_agencies_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AgencyFeature"
+                  },
+                  "title": "Response Agencies Api Agencies Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agencies"
+      }
+    },
+    "/api/agencies/points": {
+      "get": {
+        "description": "The agency list in a compact column form, for the map and the search.\n\nEach field is one array, so a key is not repeated about 19,600 times.\nClients pass ?v=<release ID>; with the current release the answer is\ncached as immutable (see headers.py). Details: /api/agencies/{ori}.",
+        "operationId": "agency_points_api_agencies_points_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "in": "query",
+            "name": "v",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "V"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyPoints"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Points"
+      }
+    },
+    "/api/agencies/{ori}": {
+      "get": {
+        "description": "One agency of the snapshot, by ORI.",
+        "operationId": "agency_detail_api_agencies__ori__get",
+        "parameters": [
+          {
+            "description": "A 9-character NCIC ORI, for example NY0303000.",
+            "in": "path",
+            "name": "ori",
+            "required": true,
+            "schema": {
+              "description": "A 9-character NCIC ORI, for example NY0303000.",
+              "pattern": "^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+              "title": "Ori",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgencyFeature"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Detail"
+      }
+    },
+    "/api/agency/{ori}/arrests": {
+      "get": {
+        "operationId": "agency_arrests_api_agency__ori__arrests_get",
+        "parameters": [
+          {
+            "description": "A 9-character NCIC ORI, for example NY0303000.",
+            "in": "path",
+            "name": "ori",
+            "required": true,
+            "schema": {
+              "description": "A 9-character NCIC ORI, for example NY0303000.",
+              "pattern": "^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+              "title": "Ori",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 40,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offense"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestBreakdownRow"
+                  },
+                  "title": "Response Agency Arrests Api Agency  Ori  Arrests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Arrests"
+      }
+    },
+    "/api/agency/{ori}/hate-crime": {
+      "get": {
+        "operationId": "agency_hate_crime_api_agency__ori__hate_crime_get",
+        "parameters": [
+          {
+            "description": "A 9-character NCIC ORI, for example NY0303000.",
+            "in": "path",
+            "name": "ori",
+            "required": true,
+            "schema": {
+              "description": "A 9-character NCIC ORI, for example NY0303000.",
+              "pattern": "^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+              "title": "Ori",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestRow"
+                  },
+                  "title": "Response Agency Hate Crime Api Agency  Ori  Hate Crime Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Hate Crime"
+      }
+    },
+    "/api/agency/{ori}/nibrs": {
+      "get": {
+        "operationId": "agency_nibrs_api_agency__ori__nibrs_get",
+        "parameters": [
+          {
+            "description": "A 9-character NCIC ORI, for example NY0303000.",
+            "in": "path",
+            "name": "ori",
+            "required": true,
+            "schema": {
+              "description": "A 9-character NCIC ORI, for example NY0303000.",
+              "pattern": "^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+              "title": "Ori",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": false,
+            "schema": {
+              "default": "13A",
+              "maxLength": 4,
+              "title": "Offense",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestRow"
+                  },
+                  "title": "Response Agency Nibrs Api Agency  Ori  Nibrs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Nibrs"
+      }
+    },
+    "/api/agency/{ori}/offenses": {
+      "get": {
+        "operationId": "agency_offenses_api_agency__ori__offenses_get",
+        "parameters": [
+          {
+            "description": "A 9-character NCIC ORI, for example NY0303000.",
+            "in": "path",
+            "name": "ori",
+            "required": true,
+            "schema": {
+              "description": "A 9-character NCIC ORI, for example NY0303000.",
+              "pattern": "^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+              "title": "Ori",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Offense"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OffenseMonthly"
+                  },
+                  "title": "Response Agency Offenses Api Agency  Ori  Offenses Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Offenses"
+      }
+    },
+    "/api/agency/{ori}/police-employment": {
+      "get": {
+        "operationId": "agency_police_employment_api_agency__ori__police_employment_get",
+        "parameters": [
+          {
+            "description": "A 9-character NCIC ORI, for example NY0303000.",
+            "in": "path",
+            "name": "ori",
+            "required": true,
+            "schema": {
+              "description": "A 9-character NCIC ORI, for example NY0303000.",
+              "pattern": "^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+              "title": "Ori",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PoliceEmploymentRow"
+                  },
+                  "title": "Response Agency Police Employment Api Agency  Ori  Police Employment Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Police Employment"
+      }
+    },
+    "/api/agency/{ori}/property": {
+      "get": {
+        "operationId": "agency_property_api_agency__ori__property_get",
+        "parameters": [
+          {
+            "description": "A 9-character NCIC ORI, for example NY0303000.",
+            "in": "path",
+            "name": "ori",
+            "required": true,
+            "schema": {
+              "description": "A 9-character NCIC ORI, for example NY0303000.",
+              "pattern": "^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+              "title": "Ori",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/PropertyOffense",
+              "default": "NB"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestRow"
+                  },
+                  "title": "Response Agency Property Api Agency  Ori  Property Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Property"
+      }
+    },
+    "/api/agency/{ori}/shr": {
+      "get": {
+        "operationId": "agency_shr_api_agency__ori__shr_get",
+        "parameters": [
+          {
+            "description": "A 9-character NCIC ORI, for example NY0303000.",
+            "in": "path",
+            "name": "ori",
+            "required": true,
+            "schema": {
+              "description": "A 9-character NCIC ORI, for example NY0303000.",
+              "pattern": "^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+              "title": "Ori",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestRow"
+                  },
+                  "title": "Response Agency Shr Api Agency  Ori  Shr Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Agency Shr"
+      }
+    },
+    "/api/arrests": {
+      "get": {
+        "description": "Arrest breakdowns for one offense. The default offense is \"all\" (every\noffense together). Each row carries its offense, so totals never mix codes.",
+        "operationId": "arrests_api_arrests_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": false,
+            "schema": {
+              "default": "all",
+              "title": "Offense",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestBreakdownRow"
+                  },
+                  "title": "Response Arrests Api Arrests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Arrests"
+      }
+    },
+    "/api/arrests/available": {
+      "get": {
+        "description": "The arrest offenses that have rows in the snapshot for one scope.",
+        "operationId": "arrests_available_api_arrests_available_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArrestAvailability"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Arrests Available"
+      }
+    },
+    "/api/hate-crime": {
+      "get": {
+        "operationId": "hate_crime_api_hate_crime_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestRow"
+                  },
+                  "title": "Response Hate Crime Api Hate Crime Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Hate Crime"
+      }
+    },
+    "/api/lesdc": {
+      "get": {
+        "operationId": "lesdc_api_lesdc_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "chart_type",
+            "required": false,
+            "schema": {
+              "default": "manner",
+              "title": "Chart Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "default": 2023,
+              "title": "Year",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "section",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Section"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LesdcRow"
+                  },
+                  "title": "Response Lesdc Api Lesdc Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lesdc"
+      }
+    },
+    "/api/meta": {
+      "get": {
+        "operationId": "meta_api_meta_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meta"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Meta"
+      }
+    },
+    "/api/nibrs": {
+      "get": {
+        "operationId": "nibrs_api_nibrs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offense"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestRow"
+                  },
+                  "title": "Response Nibrs Api Nibrs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Nibrs"
+      }
+    },
+    "/api/nibrs-estimation": {
+      "get": {
+        "operationId": "nibrs_estimation_api_nibrs_estimation_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offense"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EstimateRow"
+                  },
+                  "title": "Response Nibrs Estimation Api Nibrs Estimation Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Nibrs Estimation"
+      }
+    },
+    "/api/offenses/benchmark": {
+      "get": {
+        "description": "The area's monthly offense rate alongside the national rate for the same\noffense, plus a relative index (area / national * 100; 100 = national average).",
+        "operationId": "offenses_benchmark_api_offenses_benchmark_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offense",
+            "required": true,
+            "schema": {
+              "title": "Offense",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "state",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BenchmarkRow"
+                  },
+                  "title": "Response Offenses Benchmark Api Offenses Benchmark Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Offenses Benchmark"
+      }
+    },
+    "/api/offenses/monthly": {
+      "get": {
+        "operationId": "offenses_monthly_api_offenses_monthly_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offense",
+            "required": true,
+            "schema": {
+              "title": "Offense",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OffenseMonthly"
+                  },
+                  "title": "Response Offenses Monthly Api Offenses Monthly Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Offenses Monthly"
+      }
+    },
+    "/api/police-employment": {
+      "get": {
+        "operationId": "police_employment_api_police_employment_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PoliceEmploymentRow"
+                  },
+                  "title": "Response Police Employment Api Police Employment Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Police Employment"
+      }
+    },
+    "/api/population": {
+      "get": {
+        "description": "U.S. Census population by year \u2014 the denominator for per-capita metrics.",
+        "operationId": "population_api_population_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PopulationRow"
+                  },
+                  "title": "Response Population Api Population Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Population"
+      }
+    },
+    "/api/property": {
+      "get": {
+        "description": "Expanded property (supplemental) breakdowns for one year.\n\n`offense` is NB/NL/NMVT/NROB and `category` the value or count dimension.\nWithout `year`, the route uses the latest year. When the data has no years\n(an older snapshot), the rows are totals over the whole window (year null).",
+        "operationId": "expanded_property_api_property_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offense"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyRow"
+                  },
+                  "title": "Response Expanded Property Api Property Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Expanded Property"
+      }
+    },
+    "/api/property/years": {
+      "get": {
+        "description": "The calendar years of expanded property data for one scope and offense.",
+        "operationId": "property_years_api_property_years_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offense",
+            "required": false,
+            "schema": {
+              "default": "NB",
+              "title": "Offense",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyYears"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Property Years"
+      }
+    },
+    "/api/shr": {
+      "get": {
+        "operationId": "shr_api_shr_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "default": "national",
+              "title": "Level",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "default": "US",
+              "title": "Area",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestRow"
+                  },
+                  "title": "Response Shr Api Shr Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Shr"
+      }
+    },
+    "/api/uof/participation": {
+      "get": {
+        "operationId": "uof_participation_api_uof_participation_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UofParticipationRow"
+                  },
+                  "title": "Response Uof Participation Api Uof Participation Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Uof Participation"
+      }
+    },
+    "/api/uof/questions": {
+      "get": {
+        "operationId": "uof_questions_api_uof_questions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "default": 2022,
+              "title": "Year",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ArrestRow"
+                  },
+                  "title": "Response Uof Questions Api Uof Questions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Uof Questions"
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Readiness: the warehouse opens and every required mart has rows.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    }
+  }
+}

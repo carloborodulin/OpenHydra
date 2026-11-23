@@ -125,6 +125,13 @@ make serve   # open http://127.0.0.1:8000
 
 `make smoke` starts the server, checks the main routes and stops it. `make check` runs the linters, type checks and tests.
 
+The browser tests (Playwright and axe, two viewports, two themes) run against a running server:
+
+```bash
+make serve PORT=8146        # in one terminal
+cd web && npx playwright install chromium && BASE_URL=http://127.0.0.1:8146 npm run e2e
+```
+
 ### 2. Add an API key for live agency data
 
 Get a key at [api.data.gov](https://api.data.gov/signup/). Then copy the template and add the key:
