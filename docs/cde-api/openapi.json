@@ -671,15 +671,6 @@
           "byDistCode"
         ]
       },
-      "participation_query_types": {
-        "type": "string",
-        "enum": [
-          "national",
-          "fed",
-          "fed-agency",
-          "state"
-        ]
-      },
       "nibrs_estimations_types": {
         "type": "string",
         "enum": [
@@ -959,27 +950,6 @@
           "Larceny",
           "Motor Vehicle Theft",
           "Robbery"
-        ]
-      },
-      "participation-federal_collections": {
-        "type": "string",
-        "enum": [
-          "uof-fed",
-          "uof-fed-agency"
-        ]
-      },
-      "participation-federal_queries": {
-        "type": "string",
-        "enum": [
-          "federalByYear",
-          "federalAgencyParticipationByOri"
-        ]
-      },
-      "participation-national_queries": {
-        "type": "string",
-        "enum": [
-          "allYears",
-          "nationalByYear"
         ]
       },
       "quarter": {
@@ -1711,65 +1681,6 @@
         }
       }
     },
-    "/hate-crime/agency/{ori}": {
-      "get": {
-        "tags": [
-          "Hate Crime"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "from",
-            "required": true,
-            "description": "Starting year range to be used with 'to'. Date Format mm-yyyy",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
-            }
-          },
-          {
-            "name": "to",
-            "description": "Ending year range to be used with 'from'. Date Format mm-yyyy",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
-            }
-          },
-          {
-            "name": "ori",
-            "required": true,
-            "in": "path",
-            "description": "Unique agency identifier. Found under Agency /agency/{query}/{value} for each state. ex. 'VA0010100'",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Empty"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "400 response"
-          },
-          "500": {
-            "description": "500 response"
-          }
-        }
-      }
-    },
     "/hate-crime/agency/{ori}/{bias}": {
       "get": {
         "tags": [
@@ -1780,34 +1691,6 @@
         ],
         "parameters": [
           {
-            "name": "bias",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/hate_crime_query_options"
-            }
-          },
-          {
-            "name": "from",
-            "required": true,
-            "description": "Starting year range to be used with 'to'. Date Format mm-yyyy",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
-            }
-          },
-          {
-            "name": "to",
-            "description": "Ending year range to be used with 'from'. Date Format mm-yyyy",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
-            }
-          },
-          {
             "name": "ori",
             "required": true,
             "in": "path",
@@ -1815,37 +1698,15 @@
             "schema": {
               "type": "string"
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Empty"
-                }
-              }
+          },
+          {
+            "name": "bias",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/hate_crime_query_options"
             }
           },
-          "400": {
-            "description": "400 response"
-          },
-          "500": {
-            "description": "500 response"
-          }
-        }
-      }
-    },
-    "/hate-crime/national": {
-      "get": {
-        "tags": [
-          "Hate Crime"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
           {
             "name": "type",
             "required": true,
@@ -1858,8 +1719,8 @@
           {
             "name": "from",
             "required": true,
-            "in": "query",
             "description": "Starting year range to be used with 'to'. Date Format mm-yyyy",
+            "in": "query",
             "schema": {
               "type": "string",
               "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
@@ -1914,56 +1775,6 @@
             }
           },
           {
-            "name": "from",
-            "required": true,
-            "in": "query",
-            "description": "Starting year range to be used with 'to'. Date Format mm-yyyy",
-            "schema": {
-              "type": "string",
-              "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
-            }
-          },
-          {
-            "name": "to",
-            "description": "Ending year range to be used with 'from'. Date Format mm-yyyy",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Empty"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "400 response"
-          },
-          "500": {
-            "description": "500 response"
-          }
-        }
-      }
-    },
-    "/hate-crime/state/{state}": {
-      "get": {
-        "tags": [
-          "Hate Crime"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
             "name": "type",
             "required": true,
             "in": "query",
@@ -1973,19 +1784,10 @@
             }
           },
           {
-            "name": "state",
-            "in": "path",
-            "required": true,
-            "description": "State abbreviation",
-            "schema": {
-              "$ref": "#/components/schemas/states"
-            }
-          },
-          {
             "name": "from",
-            "description": "Starting year range to be used with 'to'. Date Format mm-yyyy",
-            "in": "query",
             "required": true,
+            "in": "query",
+            "description": "Starting year range to be used with 'to'. Date Format mm-yyyy",
             "schema": {
               "type": "string",
               "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
@@ -1994,8 +1796,8 @@
           {
             "name": "to",
             "description": "Ending year range to be used with 'from'. Date Format mm-yyyy",
-            "in": "query",
             "required": true,
+            "in": "query",
             "schema": {
               "type": "string",
               "pattern": "^(0[1-9]|1[0-2])-[0-9]{4}$"
@@ -2032,6 +1834,15 @@
         ],
         "parameters": [
           {
+            "name": "state",
+            "in": "path",
+            "required": true,
+            "description": "State abbreviation",
+            "schema": {
+              "$ref": "#/components/schemas/states"
+            }
+          },
+          {
             "name": "bias",
             "in": "path",
             "required": true,
@@ -2040,12 +1851,12 @@
             }
           },
           {
-            "name": "state",
-            "in": "path",
+            "name": "type",
             "required": true,
-            "description": "State abbreviation",
+            "in": "query",
+            "description": "Overall rates/counts or total numbers",
             "schema": {
-              "$ref": "#/components/schemas/states"
+              "$ref": "#/components/schemas/type"
             }
           },
           {
@@ -3103,7 +2914,7 @@
         }
       }
     },
-    "/participation/national/{collection}/{query}": {
+    "/uof": {
       "get": {
         "tags": [
           "Use Of Force"
@@ -3112,22 +2923,6 @@
           "application/json"
         ],
         "parameters": [
-          {
-            "name": "collection",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/participation-federal_collections"
-            }
-          },
-          {
-            "name": "query",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/participation-federal_queries"
-            }
-          },
           {
             "name": "year",
             "in": "query",
@@ -3138,271 +2933,31 @@
             }
           },
           {
-            "name": "quarter",
+            "name": "location",
             "in": "query",
             "required": true,
+            "description": "State abbreviation or Agency ORI",
             "schema": {
-              "$ref": "#/components/schemas/quarter"
+              "type": "string"
             }
-          },
-          {
-            "name": "ori",
-            "description": "Found on National Use-of-Force Data page under Agency Select for Location 'All Federal'",
-            "in": "query",
-            "required": false,
-            "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "200 response",
+            "description": "Returns UOF data for a specific location and year",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Empty"
                 }
               }
-            }
-          }
-        }
-      }
-    },
-    "/participation/national/uof/{query}": {
-      "get": {
-        "tags": [
-          "Use Of Force"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "query",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/participation-national_queries"
-            }
-          },
-          {
-            "name": "year",
-            "description": "Add if nationalByYear selected above",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9]{4}$"
-            }
-          },
-          {
-            "name": "quarter",
-            "description": "Add if nationalByYear selected above",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "$ref": "#/components/schemas/quarter"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Empty"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/participation/state/{state}/{collection}/{query}": {
-      "get": {
-        "tags": [
-          "Use Of Force"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "collection",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "uof"
-              ]
-            }
-          },
-          {
-            "name": "query",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "states"
-              ]
-            }
-          },
-          {
-            "name": "year",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9]{4}$"
-            }
-          },
-          {
-            "name": "quarter",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/quarter"
-            }
-          },
-          {
-            "name": "state",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/states"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Empty"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/uof/questions/{grp}/{year}/{quarter}": {
-      "get": {
-        "tags": [
-          "Use Of Force"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "grp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "A"
-              ]
-            }
-          },
-          {
-            "name": "year",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9]{4}$"
-            }
-          },
-          {
-            "name": "quarter",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/quarter"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "schema": {
-              "$ref": "#/components/schemas/Empty"
-            }
-          }
-        }
-      }
-    },
-    "/uof/reports/{grp}/{spec}": {
-      "get": {
-        "tags": [
-          "Use Of Force"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "grp",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "A",
-                "F",
-                "D",
-                "S"
-              ],
-              "x-enum-varnames": [
-                "National",
-                "Federal",
-                "Federal Agency",
-                "State"
-              ]
-            }
-          },
-          {
-            "name": "spec",
-            "description": "Enter ORI for Federal agency, enter State abbreviation for State",
-            "in": "path",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "year",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "pattern": "^[0-9]{4}$"
-            }
-          },
-          {
-            "name": "quarter",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/quarter"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "200 response",
-            "schema": {
-              "$ref": "#/components/schemas/Empty"
             }
           }
         }
       }
     }
   },
-  "x-amazon-apigateway-documentation": {
+  "apigateway-documentation": {
     "version": "0.0.1",
     "createdDate": "2022-05-18T13:35:31Z",
     "documentationParts": [
@@ -3498,17 +3053,6 @@
         "location": {
           "type": "RESPONSE",
           "path": "/arrest/agency/{ori}/{offense}",
-          "method": "GET",
-          "statusCode": "200"
-        },
-        "properties": {
-          "description": "200 response"
-        }
-      },
-      {
-        "location": {
-          "type": "RESPONSE",
-          "path": "/arrest/national/budquery/{offense}/{category}",
           "method": "GET",
           "statusCode": "200"
         },
@@ -3816,72 +3360,6 @@
       {
         "location": {
           "type": "RESPONSE",
-          "path": "/participation/agency/{ori}/{collection}/{query}",
-          "method": "GET",
-          "statusCode": "200"
-        },
-        "properties": {
-          "description": "200 response"
-        }
-      },
-      {
-        "location": {
-          "type": "RESPONSE",
-          "path": "/participation/dl/{collection}/{query}",
-          "method": "GET",
-          "statusCode": "200"
-        },
-        "properties": {
-          "description": "200 response"
-        }
-      },
-      {
-        "location": {
-          "type": "RESPONSE",
-          "path": "/participation/national/{collection}/{query}",
-          "method": "GET",
-          "statusCode": "200"
-        },
-        "properties": {
-          "description": "200 response"
-        }
-      },
-      {
-        "location": {
-          "type": "RESPONSE",
-          "path": "/participation/region/{query}",
-          "method": "GET",
-          "statusCode": "200"
-        },
-        "properties": {
-          "description": "200 response"
-        }
-      },
-      {
-        "location": {
-          "type": "RESPONSE",
-          "path": "/participation/state/{state}/fed/{type}",
-          "method": "GET",
-          "statusCode": "200"
-        },
-        "properties": {
-          "description": "200 response"
-        }
-      },
-      {
-        "location": {
-          "type": "RESPONSE",
-          "path": "/participation/state/{state}/{collection}/{query}",
-          "method": "GET",
-          "statusCode": "200"
-        },
-        "properties": {
-          "description": "200 response"
-        }
-      },
-      {
-        "location": {
-          "type": "RESPONSE",
           "path": "/pe/agency/{ori}/{query}",
           "method": "GET",
           "statusCode": "200"
@@ -4045,14 +3523,5 @@
         }
       }
     ]
-  },
-  "x-amazon-apigateway-binary-media-types": [
-    "application/font-woff2",
-    "application/font-woff",
-    "application/x-font-ttf",
-    "application/pdf",
-    "image/png",
-    "image/svg+xml",
-    "image/jpeg"
-  ]
+  }
 }
