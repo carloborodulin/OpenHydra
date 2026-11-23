@@ -17,9 +17,13 @@ COPY warehouse/ ./warehouse/
 COPY deploy/seed/ ./data/raw/
 # Committed reference seeds read directly by dbt (e.g. Census population CSV).
 COPY data/seeds/ ./data/seeds/
+# Install dbt from the warehouse lock. The lock pins the DuckDB writer to the
+# same version as the API reader, so the runtime can open the database file.
+WORKDIR /app/warehouse
+RUN uv sync --frozen --only-group dbt --no-install-project
 WORKDIR /app/warehouse/dbt
 # dbt reads ../../data/raw/*.parquet (relative to CWD) and writes ../openhydra.duckdb
-RUN uvx --from "dbt-duckdb>=1.8" dbt build --profiles-dir .
+RUN ../.venv/bin/dbt build --profiles-dir .
 
 # ---- 3. API runtime --------------------------------------------------------
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS final
