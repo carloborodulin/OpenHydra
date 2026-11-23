@@ -30,9 +30,12 @@ from fastapi.staticfiles import StaticFiles
 
 from . import agency_live, obs
 from .cde import ClientProvider, close_shared_client, get_cde_client
+from .config import duckdb_path
 from .db import get_conn
+from .headers import SecurityAndCacheMiddleware
 from .models import (
     AgencyFeature,
+    AgencyPoints,
     ArrestAvailability,
     ArrestBreakdownRow,
     ArrestOffense,
@@ -78,6 +81,30 @@ app = FastAPI(
     description="Read-only access to FBI UCR crime marts (DuckDB).",
     lifespan=lifespan,
 )
+# The release ID of the warehouse, read once (the file changes only with a deploy).
+_release: dict[str, str] = {}
+
+
+def current_release() -> str | None:
+    path = str(duckdb_path())
+    if path not in _release:
+        try:
+            con = duckdb.connect(path, read_only=True)
+            try:
+                row = con.execute("select release_id from meta_snapshot").fetchone()
+            finally:
+                con.close()
+        except duckdb.Error:
+            return None  # not cached: the next request tries again
+        if not row:
+            return None
+        _release[path] = str(row[0])
+    return _release[path]
+
+
+# Security headers and the cache policy wrap the app; the request log (added
+# next, so it is outermost) still records 304 answers.
+app.add_middleware(SecurityAndCacheMiddleware, release=lambda: current_release())
 obs.install(app)
 
 # The browser talks to this service, never to the upstream API, so the API key
@@ -270,6 +297,60 @@ def offenses_benchmark(
     if not rows:
         raise HTTPException(status_code=404, detail="no data for that level/area/offense")
     return rows
+
+
+OriParam = Annotated[
+    str,
+    FastPath(
+        pattern=r"^[A-Za-z]{2}[A-Za-z0-9]{7}$",
+        description="A 9-character NCIC ORI, for example NY0303000.",
+    ),
+]
+
+
+@app.get("/api/agencies/points", response_model=AgencyPoints)
+def agency_points(conn: Conn, state: str | None = None, v: str | None = None) -> dict[str, Any]:
+    """The agency list in a compact column form, for the map and the search.
+
+    Each field is one array, so a key is not repeated about 19,600 times.
+    Clients pass ?v=<release ID>; with the current release the answer is
+    cached as immutable (see headers.py). Details: /api/agencies/{ori}.
+    """
+    sql = (
+        "select ori, agency_name, county, latitude, longitude, is_nibrs, nibrs_start_year "
+        "from dim_agencies"
+    )
+    params: list[Any] = []
+    if state:
+        sql += " where state_abbr = ?"
+        params.append(state.upper())
+    sql += " order by agency_name"
+    rows = conn.execute(sql, params).fetchall()
+    cols = list(zip(*rows, strict=True)) if rows else [()] * 7
+    return {
+        "release_id": current_release(),
+        "ori": list(cols[0]),
+        "name": list(cols[1]),
+        "county": list(cols[2]),
+        "lat": list(cols[3]),
+        "lon": list(cols[4]),
+        "nibrs": list(cols[5]),
+        "nibrs_start_year": list(cols[6]),
+    }
+
+
+@app.get("/api/agencies/{ori}", response_model=AgencyFeature)
+def agency_detail(ori: OriParam, conn: Conn) -> dict[str, Any]:
+    """One agency of the snapshot, by ORI."""
+    rows = _dicts(
+        conn,
+        "select ori, agency_name, agency_type, county, state_abbr, latitude, longitude, "
+        "is_nibrs, nibrs_start_year from dim_agencies where ori = ?",
+        [ori.upper()],
+    )
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"Unknown agency ORI {ori.upper()}.")
+    return rows[0]
 
 
 @app.get("/api/agencies", response_model=list[AgencyFeature])
@@ -530,13 +611,6 @@ def nibrs_estimation(
 # the canonical values and holds the unfiltered rows; the category filter runs
 # after the cache. See agency_live (cache) and live_guard (limits).
 
-OriParam = Annotated[
-    str,
-    FastPath(
-        pattern=r"^[A-Za-z]{2}[A-Za-z0-9]{7}$",
-        description="A 9-character NCIC ORI, for example NY0303000.",
-    ),
-]
 CategoryParam = Annotated[str | None, Query(max_length=80)]
 
 

@@ -84,6 +84,19 @@ class BenchmarkRow(BaseModel):
     relative_index: float | None = None  # area_rate / national_rate * 100 (100 = national)
 
 
+class AgencyPoints(BaseModel):
+    """Agencies in column form: item i of each list is one agency."""
+
+    release_id: str | None = None
+    ori: list[str]
+    name: list[str | None]
+    county: list[str | None]
+    lat: list[float | None]
+    lon: list[float | None]
+    nibrs: list[bool | None]
+    nibrs_start_year: list[int | None]
+
+
 class AgencyFeature(BaseModel):
     ori: str
     agency_name: str | None = None

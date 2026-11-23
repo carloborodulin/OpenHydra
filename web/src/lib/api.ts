@@ -96,6 +96,33 @@ export interface AgencyFeature {
   nibrs_start_year: number | null;
 }
 
+/** /api/agencies/points: agencies in column form (item i of each list is one agency). */
+export interface AgencyPoints {
+  release_id: string | null;
+  ori: string[];
+  name: (string | null)[];
+  county: (string | null)[];
+  lat: (number | null)[];
+  lon: (number | null)[];
+  nibrs: (boolean | null)[];
+  nibrs_start_year: (number | null)[];
+}
+
+/** Rows from the column form, in the shape the views use. */
+export function pointsToAgencies(p: AgencyPoints): AgencyFeature[] {
+  return p.ori.map((ori, i) => ({
+    ori,
+    agency_name: p.name[i],
+    agency_type: null,
+    county: p.county[i],
+    state_abbr: ori.slice(0, 2),
+    latitude: p.lat[i],
+    longitude: p.lon[i],
+    is_nibrs: p.nibrs[i],
+    nibrs_start_year: p.nibrs_start_year[i],
+  }));
+}
+
 export interface PoliceEmploymentRow {
   section: string; // "rate" | "actual"
   metric: string;
@@ -214,6 +241,9 @@ export const api = {
   arrestsAvailable: (level = "national", area = "US") =>
     get<ArrestAvailability>(`/api/arrests/available?${qs({ level, area })}`),
   agencies: (state?: string) => get<AgencyFeature[]>(`/api/agencies?${qs({ state })}`),
+  // `v` is the release ID: with the current release the answer is immutable.
+  agencyPoints: (release: string, state?: string) =>
+    get<AgencyPoints>(`/api/agencies/points?${qs({ state, v: release })}`),
   policeEmployment: (level = "national", area = "US") =>
     get<PoliceEmploymentRow[]>(`/api/police-employment?${qs({ level, area })}`),
   population: (level = "national", area = "US") =>

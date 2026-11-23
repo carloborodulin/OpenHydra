@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { AgencySearch } from "../components/AgencySearch";
+import { LazyMap } from "../components/LazyMap";
 import { DeltaIndicator } from "../components/DeltaIndicator";
 import { Empty } from "../components/Empty";
-import { MapPanel } from "../components/MapPanel";
 import { Panel } from "../components/Panel";
 import { Select } from "../components/Select";
 import { StatTile } from "../components/StatTile";
@@ -313,7 +313,7 @@ export function OverviewView({
               onSelect={(o) => setSelectedAgency({ ori: o })}
             />
             <div className="min-h-0 flex-1">
-              <MapPanel
+              <LazyMap
                 agencies={ag}
                 onSelectAgency={(o) => setSelectedAgency({ ori: o })}
               />

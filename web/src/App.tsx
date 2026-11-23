@@ -1,20 +1,37 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Controls } from "./components/Controls";
+import { Empty } from "./components/Empty";
 import { Nav, type NavItem } from "./components/Nav";
 import { NavDrawer } from "./components/NavDrawer";
 import { Provenance } from "./components/Provenance";
 import { TopBar } from "./components/TopBar";
 import { useMeta } from "./lib/queries";
 import { useUrlState } from "./lib/urlState";
-import { HateCrimeView } from "./views/HateCrimeView";
-import { HomicideView } from "./views/HomicideView";
-import { LesdcView } from "./views/LesdcView";
-import { NibrsEstimationView } from "./views/NibrsEstimationView";
-import { NibrsView } from "./views/NibrsView";
-import { OverviewView } from "./views/OverviewView";
-import { PerformanceView } from "./views/PerformanceView";
-import { PropertyView } from "./views/PropertyView";
-import { UseOfForceView } from "./views/UseOfForceView";
+
+// Each view is its own chunk, so the first load fetches only the open view.
+const HateCrimeView = lazy(() =>
+  import("./views/HateCrimeView").then((m) => ({ default: m.HateCrimeView })),
+);
+const HomicideView = lazy(() =>
+  import("./views/HomicideView").then((m) => ({ default: m.HomicideView })),
+);
+const LesdcView = lazy(() => import("./views/LesdcView").then((m) => ({ default: m.LesdcView })));
+const NibrsEstimationView = lazy(() =>
+  import("./views/NibrsEstimationView").then((m) => ({ default: m.NibrsEstimationView })),
+);
+const NibrsView = lazy(() => import("./views/NibrsView").then((m) => ({ default: m.NibrsView })));
+const OverviewView = lazy(() =>
+  import("./views/OverviewView").then((m) => ({ default: m.OverviewView })),
+);
+const PerformanceView = lazy(() =>
+  import("./views/PerformanceView").then((m) => ({ default: m.PerformanceView })),
+);
+const PropertyView = lazy(() =>
+  import("./views/PropertyView").then((m) => ({ default: m.PropertyView })),
+);
+const UseOfForceView = lazy(() =>
+  import("./views/UseOfForceView").then((m) => ({ default: m.UseOfForceView })),
+);
 
 // Top-level views. Each domain group adds an entry here and a branch in the
 // render switch below.
@@ -99,26 +116,38 @@ export default function App() {
             </>
           )}
         </div>
-        {view === "overview" && (
-          <OverviewView
-            offense={active}
-            region={region}
-            agency={agency}
-            onAgencyChange={(ori) => setUrl({ agency: ori })}
-            compare={compare}
-            onCompareChange={(st) => setUrl({ compare: st })}
-          />
-        )}
-        {view === "performance" && <PerformanceView offense={active} region={region} />}
-        {view === "hate-crime" && <HateCrimeView region={region} />}
-        {view === "homicide" && <HomicideView region={region} />}
-        {view === "property" && <PropertyView region={region} />}
-        {view === "nibrs" && <NibrsView region={region} />}
-        {view === "nibrs-estimation" && <NibrsEstimationView />}
-        {view === "use-of-force" && <UseOfForceView />}
-        {view === "lesdc" && <LesdcView />}
+        <Suspense fallback={<ViewLoading />}>
+          {view === "overview" && (
+            <OverviewView
+              offense={active}
+              region={region}
+              agency={agency}
+              onAgencyChange={(ori) => setUrl({ agency: ori })}
+              compare={compare}
+              onCompareChange={(st) => setUrl({ compare: st })}
+            />
+          )}
+          {view === "performance" && <PerformanceView offense={active} region={region} />}
+          {view === "hate-crime" && <HateCrimeView region={region} />}
+          {view === "homicide" && <HomicideView region={region} />}
+          {view === "property" && <PropertyView region={region} />}
+          {view === "nibrs" && <NibrsView region={region} />}
+          {view === "nibrs-estimation" && <NibrsEstimationView />}
+          {view === "use-of-force" && <UseOfForceView />}
+          {view === "lesdc" && <LesdcView />}
+        </Suspense>
       </main>
       <Provenance snapshot={meta.data?.snapshot} view={view} />
+    </div>
+  );
+}
+
+function ViewLoading() {
+  return (
+    <div className="flex flex-1 p-3" aria-busy="true">
+      <div className="panel brackets flex-1">
+        <Empty state={{ isLoading: true, isError: false }} />
+      </div>
     </div>
   );
 }
