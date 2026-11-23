@@ -194,7 +194,7 @@ jobs:
           docker image ls openhydra:ci --format 'image size: {{.Size}}'
           # A non-default port, as Railway sets it.
           docker run -d --name oh -e PORT=9000 -p 9000:9000 openhydra:ci
-          curl -sf --retry 30 --retry-delay 1 --retry-connrefused -o /dev/null http://127.0.0.1:9000/health
+          curl -sf --retry 30 --retry-delay 1 --retry-all-errors -o /dev/null http://127.0.0.1:9000/health
           curl -sf http://127.0.0.1:9000/ | grep -q '<div id="root">'
           curl -sf -o /dev/null "http://127.0.0.1:9000/api/offenses/monthly?offense=homicide"
           # uvicorn is PID 1 (exec), and it runs as the user without privileges.
