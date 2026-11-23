@@ -24,6 +24,10 @@ another file, and `OPENHYDRA_STATIC_DIR` to serve the built dashboard at `/`.
 The live routes need `FBI_CDE_API_KEY`. The client reads it from the
 environment or from the root `.env` file.
 
+## Versions
+
+The documented API is `/api/v1/...` (see `/docs`). The old paths without the version (`/api/...`) still work as aliases. They answer with `Deprecation: true` and a `Link: </api/v1/...>; rel="successor-version"` header, and the OpenAPI document does not list them. The tables below give the paths without the `/v1` part.
+
 ## Warehouse routes
 
 | Method and path | Returns |

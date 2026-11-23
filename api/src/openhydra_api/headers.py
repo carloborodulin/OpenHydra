@@ -63,6 +63,11 @@ SECURITY: list[tuple[bytes, bytes]] = [
 NO_CSP_PREFIXES = ("/docs", "/redoc")
 
 
+def api_path(path: str) -> str:
+    """The route of a request without its version: /api/v1/x and /api/x -> /api/x."""
+    return "/api/" + path[len("/api/v1/") :] if path.startswith("/api/v1/") else path
+
+
 def _cache_policy(path: str, query: str, status: int, release: str | None) -> str:
     if status != 200 and status != 304:
         return "no-store"
@@ -93,7 +98,10 @@ class SecurityAndCacheMiddleware:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
-        path: str = scope.get("path", "")
+        raw_path: str = scope.get("path", "")
+        path = api_path(raw_path)
+        # The unversioned /api paths are aliases of /api/v1 and are deprecated.
+        legacy = path == raw_path and raw_path.startswith("/api/")
         query = scope.get("query_string", b"").decode("latin-1")
         warehouse_api = (
             scope.get("method") == "GET"
@@ -101,7 +109,7 @@ class SecurityAndCacheMiddleware:
             and not path.startswith("/api/agency/")
         )
         release = self.release() if warehouse_api else None
-        etag = etag_for(release, path, query) if release else None
+        etag = etag_for(release, raw_path, query) if release else None
 
         if etag is not None:
             sent = dict(scope.get("headers") or []).get(b"if-none-match", b"").decode("latin-1")
@@ -127,6 +135,10 @@ class SecurityAndCacheMiddleware:
                 if etag is not None and status == 200:
                     headers.append((b"etag", etag.encode()))
                 headers += [h for h in SECURITY if h[0] not in names]
+                if legacy:
+                    successor = "/api/v1/" + raw_path[len("/api/") :]
+                    headers.append((b"deprecation", b"true"))
+                    headers.append((b"link", f'<{successor}>; rel="successor-version"'.encode()))
                 if not path.startswith(NO_CSP_PREFIXES) and b"content-security-policy" not in names:
                     headers.append((b"content-security-policy", CSP.encode()))
                 message["headers"] = headers

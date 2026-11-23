@@ -236,70 +236,70 @@ const qs = (params: Record<string, string | undefined>) =>
     .join("&");
 
 export const api = {
-  meta: () => get<Meta>("/api/meta"),
+  meta: () => get<Meta>("/api/v1/meta"),
   offensesMonthly: (offense: string, level = "national", area = "US") =>
-    get<OffenseMonthly[]>(`/api/offenses/monthly?${qs({ offense, level, area })}`),
+    get<OffenseMonthly[]>(`/api/v1/offenses/monthly?${qs({ offense, level, area })}`),
   // Area offense rate alongside the national rate + a relative index (100 = national).
   offensesBenchmark: (offense: string, level = "state", area = "US") =>
-    get<BenchmarkRow[]>(`/api/offenses/benchmark?${qs({ offense, level, area })}`),
+    get<BenchmarkRow[]>(`/api/v1/offenses/benchmark?${qs({ offense, level, area })}`),
   arrests: (category: string, offense = "all", level = "national", area = "US") =>
-    get<ArrestBreakdownRow[]>(`/api/arrests?${qs({ level, area, offense, category })}`),
+    get<ArrestBreakdownRow[]>(`/api/v1/arrests?${qs({ level, area, offense, category })}`),
   arrestsAvailable: (level = "national", area = "US") =>
-    get<ArrestAvailability>(`/api/arrests/available?${qs({ level, area })}`),
-  agencies: (state?: string) => get<AgencyFeature[]>(`/api/agencies?${qs({ state })}`),
+    get<ArrestAvailability>(`/api/v1/arrests/available?${qs({ level, area })}`),
+  agencies: (state?: string) => get<AgencyFeature[]>(`/api/v1/agencies?${qs({ state })}`),
   // `v` is the release ID: with the current release the answer is immutable.
   agencyPoints: (release: string, state?: string) =>
-    get<AgencyPoints>(`/api/agencies/points?${qs({ state, v: release })}`),
+    get<AgencyPoints>(`/api/v1/agencies/points?${qs({ state, v: release })}`),
   policeEmployment: (level = "national", area = "US") =>
-    get<PoliceEmploymentRow[]>(`/api/police-employment?${qs({ level, area })}`),
+    get<PoliceEmploymentRow[]>(`/api/v1/police-employment?${qs({ level, area })}`),
   population: (level = "national", area = "US") =>
-    get<PopulationRow[]>(`/api/population?${qs({ level, area })}`),
+    get<PopulationRow[]>(`/api/v1/population?${qs({ level, area })}`),
   // Hate crime breakdowns share the ArrestRow {category, label, value} shape;
   // `category` is the dimension (bias_category, offender_race, victim_type, …).
   hateCrime: (category?: string, level = "national", area = "US") =>
-    get<ArrestRow[]>(`/api/hate-crime?${qs({ level, area, category })}`),
+    get<ArrestRow[]>(`/api/v1/hate-crime?${qs({ level, area, category })}`),
   // Expanded homicide (SHR); `category` is section_dimension (victim_age,
   // offense_weapons, offender_race, …).
   shr: (category?: string, level = "national", area = "US") =>
-    get<ArrestRow[]>(`/api/shr?${qs({ level, area, category })}`),
+    get<ArrestRow[]>(`/api/v1/shr?${qs({ level, area, category })}`),
   // Expanded property; `offense` is NB/NL/NMVT/NROB.
   property: (offense: string, category?: string, level = "national", area = "US", year?: number) =>
     get<PropertyRow[]>(
-      `/api/property?${qs({ level, area, offense, category, year: year == null ? undefined : String(year) })}`,
+      `/api/v1/property?${qs({ level, area, offense, category, year: year == null ? undefined : String(year) })}`,
     ),
   propertyYears: (offense: string, level = "national", area = "US") =>
-    get<PropertyYears>(`/api/property/years?${qs({ level, area, offense })}`),
+    get<PropertyYears>(`/api/v1/property/years?${qs({ level, area, offense })}`),
   // NIBRS incidents; `offense` is a NIBRS code (e.g. 13A).
   nibrs: (offense: string, category?: string, level = "national", area = "US") =>
-    get<ArrestRow[]>(`/api/nibrs?${qs({ level, area, offense, category })}`),
+    get<ArrestRow[]>(`/api/v1/nibrs?${qs({ level, area, offense, category })}`),
   // LESDC (LE suicide data collection); national only, by year + chart type.
   lesdc: (chartType: string, year: number, section?: string) =>
-    get<LesdcRow[]>(`/api/lesdc?${qs({ chart_type: chartType, year: String(year), section })}`),
+    get<LesdcRow[]>(`/api/v1/lesdc?${qs({ chart_type: chartType, year: String(year), section })}`),
   // Use of Force; national only.
-  uofParticipation: () => get<UofParticipationRow[]>("/api/uof/participation"),
+  uofParticipation: () => get<UofParticipationRow[]>("/api/v1/uof/participation"),
   uofQuestions: (year: number, category?: string) =>
-    get<ArrestRow[]>(`/api/uof/questions?${qs({ year: String(year), category })}`),
+    get<ArrestRow[]>(`/api/v1/uof/questions?${qs({ year: String(year), category })}`),
   // NIBRS estimations; national / region, numeric offense code.
   nibrsEstimation: (level: string, area: string, offense: string, category?: string) =>
-    get<EstimateRow[]>(`/api/nibrs-estimation?${qs({ level, area, offense, category })}`),
+    get<EstimateRow[]>(`/api/v1/nibrs-estimation?${qs({ level, area, offense, category })}`),
 
   // Agency drill-down: served live from the CDE API by the backend, same shapes.
   agencyOffenses: (ori: string, offense: string) =>
-    get<OffenseMonthly[]>(`/api/agency/${encodeURIComponent(ori)}/offenses?${qs({ offense })}`),
+    get<OffenseMonthly[]>(`/api/v1/agency/${encodeURIComponent(ori)}/offenses?${qs({ offense })}`),
   agencyArrests: (ori: string, category: string, offense?: string) =>
     get<ArrestBreakdownRow[]>(
-      `/api/agency/${encodeURIComponent(ori)}/arrests?${qs({ category, offense })}`,
+      `/api/v1/agency/${encodeURIComponent(ori)}/arrests?${qs({ category, offense })}`,
     ),
   agencyPoliceEmployment: (ori: string) =>
-    get<PoliceEmploymentRow[]>(`/api/agency/${encodeURIComponent(ori)}/police-employment`),
+    get<PoliceEmploymentRow[]>(`/api/v1/agency/${encodeURIComponent(ori)}/police-employment`),
   agencyHateCrime: (ori: string, category?: string) =>
-    get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/hate-crime?${qs({ category })}`),
+    get<ArrestRow[]>(`/api/v1/agency/${encodeURIComponent(ori)}/hate-crime?${qs({ category })}`),
   agencyShr: (ori: string, category?: string) =>
-    get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/shr?${qs({ category })}`),
+    get<ArrestRow[]>(`/api/v1/agency/${encodeURIComponent(ori)}/shr?${qs({ category })}`),
   agencyProperty: (ori: string, offense: string, category?: string) =>
     get<ArrestRow[]>(
-      `/api/agency/${encodeURIComponent(ori)}/property?${qs({ offense, category })}`,
+      `/api/v1/agency/${encodeURIComponent(ori)}/property?${qs({ offense, category })}`,
     ),
   agencyNibrs: (ori: string, offense: string, category?: string) =>
-    get<ArrestRow[]>(`/api/agency/${encodeURIComponent(ori)}/nibrs?${qs({ offense, category })}`),
+    get<ArrestRow[]>(`/api/v1/agency/${encodeURIComponent(ori)}/nibrs?${qs({ offense, category })}`),
 };

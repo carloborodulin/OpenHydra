@@ -100,13 +100,13 @@ The API serves agency data live. Each route checks the ORI against the agency li
 
 | API route | Upstream path |
 | :--- | :--- |
-| `/api/agency/{ori}/offenses?offense=` | `/summarized/agency/{ori}/{offense}` |
-| `/api/agency/{ori}/arrests?offense=&category=` | `/arrest/agency/{ori}/{code}?type=totals` |
-| `/api/agency/{ori}/police-employment` | `/pe/{ST}/{ori}` |
-| `/api/agency/{ori}/hate-crime?category=` | `/hate-crime/agency/{ori}` |
-| `/api/agency/{ori}/shr?category=` | `/shr/agency/{ori}` |
-| `/api/agency/{ori}/property?offense=&category=` | `/supplemental/agency/{ori}/{offense}` |
-| `/api/agency/{ori}/nibrs?offense=&category=` | `/nibrs/agency/{ori}/{code}` |
+| `/api/v1/agency/{ori}/offenses?offense=` | `/summarized/agency/{ori}/{offense}` |
+| `/api/v1/agency/{ori}/arrests?offense=&category=` | `/arrest/agency/{ori}/{code}?type=totals` |
+| `/api/v1/agency/{ori}/police-employment` | `/pe/{ST}/{ori}` |
+| `/api/v1/agency/{ori}/hate-crime?category=` | `/hate-crime/agency/{ori}` |
+| `/api/v1/agency/{ori}/shr?category=` | `/shr/agency/{ori}` |
+| `/api/v1/agency/{ori}/property?offense=&category=` | `/supplemental/agency/{ori}/{offense}` |
+| `/api/v1/agency/{ori}/nibrs?offense=&category=` | `/nibrs/agency/{ori}/{code}` |
 
 An upstream failure gives an error status (502, 503 or 504) with a stable `code` field. An empty list means that the upstream answer was valid and empty. See [api/README.md](api/README.md).
 

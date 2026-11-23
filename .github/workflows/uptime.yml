@@ -31,7 +31,7 @@ jobs:
           set +e
           fail=0
           : > report.md
-          for path in /health /api/meta "/api/offenses/monthly?offense=violent-crime" /; do
+          for path in /health /api/v1/meta "/api/v1/offenses/monthly?offense=violent-crime" /; do
             out=$(curl -s -o /dev/null -m 20 -w "%{http_code} %{time_total}" "$BASE$path")
             code=${out%% *}; secs=${out##* }
             echo "| \`$path\` | $code | ${secs}s |" >> report.md

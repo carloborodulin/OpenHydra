@@ -134,11 +134,10 @@ class RequestContextMiddleware:
         try:
             await self.app(scope, receive, send_with_id)
         finally:
-            route = scope.get("route")
             record = {
                 "request_id": state["request_id"],
                 "method": scope.get("method"),
-                "route": getattr(route, "path", None) or "(static)",
+                "route": _route_template(scope),
                 "status": status,
                 "duration_ms": round((time.perf_counter() - start) * 1000, 1),
                 "cache": state.get("cache"),
@@ -146,6 +145,19 @@ class RequestContextMiddleware:
             }
             log.info(redact(json.dumps(record, separators=(",", ":"))))
             _request.reset(token)
+
+
+def _route_template(scope: Scope) -> str:
+    """The route template with the prefix the client used (/api/v1 or /api)."""
+    found = getattr(scope.get("route"), "path", None)
+    if not isinstance(found, str):
+        return "(static)"
+    route: str = found
+    path: str = scope.get("path", "")
+    for prefix in ("/api/v1", "/api"):
+        if path.startswith(prefix + "/") and not route.startswith(prefix + "/"):
+            return prefix + route
+    return route
 
 
 def _error(
