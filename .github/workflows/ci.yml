@@ -76,6 +76,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - name: Check the startup JavaScript budget (300 kB gzip)
+        run: npm run check:bundle
 
   secrets:
     name: secret scan (gitleaks)

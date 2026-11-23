@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { api, withSignal } from "./api";
+import { api, pointsToAgencies, withSignal } from "./api";
 
 export const useMeta = () =>
   useQuery({ queryKey: ["meta"], queryFn: ({ signal }) => withSignal(signal, () => api.meta()) });
@@ -149,11 +149,18 @@ export const useNibrsEstimation = (
   });
 
 // `state` undefined => all agencies (national view).
-export const useAgencies = (state?: string) =>
-  useQuery({
-    queryKey: ["agencies", state ?? "all"],
-    queryFn: ({ signal }) => withSignal(signal, () => api.agencies(state)),
+// The agency list for the map, the search and the counts. It uses the compact,
+// release-versioned points route, so the browser caches it until the next release.
+export const useAgencies = (state?: string) => {
+  const release = useMeta().data?.snapshot?.release_id ?? "";
+  return useQuery({
+    queryKey: ["agencies", state ?? "all", release],
+    queryFn: ({ signal }) =>
+      withSignal(signal, () => api.agencyPoints(release, state)).then(pointsToAgencies),
+    enabled: Boolean(release),
+    staleTime: Infinity,
   });
+};
 
 export const usePoliceEmployment = (level = "national", area = "US") =>
   useQuery({

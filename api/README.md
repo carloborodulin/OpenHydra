@@ -33,6 +33,8 @@ environment or from the root `.env` file.
 | `GET /api/offenses/monthly?offense=&level=&area=` | The monthly offense and clearance series, with TTM, YoY and the 2019 index. |
 | `GET /api/offenses/benchmark?offense=&level=&area=` | A state series next to the national series. |
 | `GET /api/agencies?state=` | Agencies with coordinates and NIBRS adoption. |
+| `GET /api/agencies/points?state=&v=` | The same agencies in a compact column form (the map and the search use it). With `v` = the release ID, the answer is cached as immutable. |
+| `GET /api/agencies/{ori}` | One agency. |
 | `GET /api/arrests?level=&area=&offense=&category=` | Arrest breakdowns for one offense (default `all`). |
 | `GET /api/arrests/available?level=&area=` | The arrest offenses with rows for one scope. |
 | `GET /api/police-employment?level=&area=` | Law enforcement employment by year. |
@@ -87,6 +89,18 @@ An upstream failure is never an empty list. The body is
 | Upstream timeout | 504 | `upstream_timeout` |
 | Upstream 404, 5xx or connection failure | 502 | `upstream_error` |
 | Upstream body is not valid | 502 | `upstream_bad_response` |
+
+## Headers and caching
+
+Every response has `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` and a Content-Security-Policy (not on `/docs` and `/redoc`, which load their own scripts). See `src/openhydra_api/headers.py`.
+
+| Response | Cache-Control |
+|---|---|
+| `/assets/*` (content-hashed) | `public, max-age=31536000, immutable` |
+| `/api/agencies/points?v=<current release>` | `public, max-age=31536000, immutable` |
+| Other warehouse `GET /api/*` | `public, max-age=300`, with an ETag (release + URL); a match gives 304 |
+| Live agency routes, `/health`, errors | `no-store` |
+| HTML and other static files | `no-cache` |
 
 ## Logs
 
