@@ -69,9 +69,12 @@ class OffenseMonthly(BaseModel):
     clearances_actual: float | None = None
     clearance_ratio: float | None = None
     # Trailing-12-month trend metrics (warehouse-derived; null for live agency rows).
+    # ttm_rate is null unless all 12 calendar months have a rate (ttm_months = 12).
+    ttm_months: int | None = None
     ttm_rate: float | None = None
     yoy_delta: float | None = None  # YoY change in the trailing-12-month rate
-    index_2019: float | None = None  # offense rate indexed to its 2019 mean (=100)
+    # ttm_rate / mean monthly rate of calendar 2019 x 100 (December 2019 = 100).
+    index_2019: float | None = None
 
 
 class BenchmarkRow(BaseModel):
@@ -97,6 +100,18 @@ class ArrestRow(BaseModel):
     category: str
     label: str
     value: float | None = None
+
+
+class PropertyRow(ArrestRow):
+    """An expanded property row. A null year means a total over the whole window."""
+
+    year: int | None = None
+
+
+class PropertyYears(BaseModel):
+    years: list[int]
+    # True when the snapshot holds window totals with no year (an older extract).
+    window_total: bool = False
 
 
 class ArrestBreakdownRow(ArrestRow):

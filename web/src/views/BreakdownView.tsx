@@ -2,8 +2,9 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import { type ReactNode, useMemo } from "react";
 import { Empty } from "../components/Empty";
 import { Panel } from "../components/Panel";
-import { ArrestsChart } from "../components/charts/ArrestsChart";
+import { HBarChart } from "../components/charts/HBarChart";
 import type { ArrestRow } from "../lib/api";
+import { type Measure, measureFor } from "../lib/measures";
 import { regionName } from "../lib/states";
 
 export interface Dimension {
@@ -23,12 +24,16 @@ const prettify = (key: string): string =>
 // into a grid of horizontal-bar panels. Pass `dimensions` for a curated set +
 // labels, or omit it to render every dimension present in the data.
 export function BreakdownView({
+  domain,
   region,
   query,
   dimensions,
   extra,
   transformRows,
+  measure,
 }: {
+  /** The data domain, for the measure of each dimension (see lib/measures). */
+  domain: string;
   region: string;
   query: UseQueryResult<ArrestRow[]>;
   dimensions?: Dimension[];
@@ -36,6 +41,8 @@ export function BreakdownView({
   extra?: ReactNode;
   // Optional transform applied to the rows before grouping (e.g. per-capita scaling).
   transformRows?: (rows: ArrestRow[]) => ArrestRow[];
+  // Optional override of the measure of a dimension (e.g. dollars per resident).
+  measure?: (key: string) => Measure | undefined;
 }) {
   const byCategory = useMemo(() => {
     const src = transformRows ? transformRows(query.data ?? []) : (query.data ?? []);
@@ -75,7 +82,15 @@ export function BreakdownView({
             title={`${d.label} · ${regionLabel}`}
             className="col-span-1 lg:col-span-4"
           >
-            {data.length ? <ArrestsChart data={data} /> : <Empty state={query} />}
+            {data.length ? (
+              <HBarChart
+                data={data}
+                measure={measure?.(d.key) ?? measureFor(domain, d.key)}
+                label={`${d.label}, ${regionLabel}`}
+              />
+            ) : (
+              <Empty state={query} />
+            )}
           </Panel>
         );
       })}

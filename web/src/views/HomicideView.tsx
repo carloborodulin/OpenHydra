@@ -15,5 +15,5 @@ const DIMENSIONS: Dimension[] = [
 export function HomicideView({ region }: { region: string }) {
   const level = region === "US" ? "national" : "state";
   const query = useShr(undefined, level, region);
-  return <BreakdownView region={region} query={query} dimensions={DIMENSIONS} />;
+  return <BreakdownView domain="homicide" region={region} query={query} dimensions={DIMENSIONS} />;
 }

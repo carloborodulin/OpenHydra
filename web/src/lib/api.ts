@@ -52,9 +52,11 @@ export interface OffenseMonthly {
   clearances_actual: number | null;
   clearance_ratio: number | null;
   // Trailing-12-month trend metrics (warehouse-derived; null for live agency rows).
+  // ttm_rate is null unless all 12 calendar months have a rate (ttm_months = 12).
+  ttm_months?: number | null;
   ttm_rate: number | null;
   yoy_delta: number | null; // YoY change in the trailing-12-month rate (fraction)
-  index_2019: number | null; // rate indexed to its 2019 mean (=100)
+  index_2019: number | null; // ttm_rate ÷ the calendar-2019 mean rate × 100 (Dec 2019 = 100)
 }
 
 export interface ArrestRow {
@@ -99,6 +101,17 @@ export interface PoliceEmploymentRow {
   metric: string;
   year: number;
   value: number | null;
+}
+
+/** An expanded property row. A null year means a total over the whole window. */
+export interface PropertyRow extends ArrestRow {
+  year: number | null;
+}
+
+export interface PropertyYears {
+  years: number[];
+  // True when the snapshot holds window totals with no year (an older extract).
+  window_total: boolean;
 }
 
 export interface PopulationRow {
@@ -156,8 +169,18 @@ export const api = {
   shr: (category?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/shr?${qs({ level, area, category })}`),
   // Expanded property; `offense` is NB/NL/NMVT/NROB.
-  property: (offense: string, category?: string, level = "national", area = "US") =>
-    get<ArrestRow[]>(`/api/property?${qs({ level, area, offense, category })}`),
+  property: (
+    offense: string,
+    category?: string,
+    level = "national",
+    area = "US",
+    year?: number,
+  ) =>
+    get<PropertyRow[]>(
+      `/api/property?${qs({ level, area, offense, category, year: year == null ? undefined : String(year) })}`,
+    ),
+  propertyYears: (offense: string, level = "national", area = "US") =>
+    get<PropertyYears>(`/api/property/years?${qs({ level, area, offense })}`),
   // NIBRS incidents; `offense` is a NIBRS code (e.g. 13A).
   nibrs: (offense: string, category?: string, level = "national", area = "US") =>
     get<ArrestRow[]>(`/api/nibrs?${qs({ level, area, offense, category })}`),

@@ -11,6 +11,7 @@ import {
 } from "../components/charts/PerformanceChart";
 import { fmtNum, fmtPct, fmtRate, titleCase } from "../lib/format";
 import { useAgencies, useOffenseMonthly, usePoliceEmployment } from "../lib/queries";
+import { annualRows } from "../lib/stats";
 import { regionName } from "../lib/states";
 
 // Last row whose `key` is non-null (rows are year-ascending).
@@ -20,8 +21,9 @@ function lastBy(rows: PerfYear[], key: keyof PerfYear): PerfYear | null {
 }
 
 // Correlate crime volume, clearance rate, and officer staffing per 1,000 people.
-// Volume + clearance come from fct_offenses_monthly (aggregated to years); staffing
-// is the per-capita "rate" section of fct_police_employment.
+// Volume and clearance come from fct_offenses_monthly, summed to years (see
+// lib/stats.ts: clearance is a ratio of sums). Staffing is the per-capita "rate"
+// section of fct_police_employment.
 export function PerformanceView({ offense, region }: { offense: string; region: string }) {
   const isNational = region === "US";
   const level = isNational ? "national" : "state";
@@ -38,44 +40,42 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
     const ags = agencies.data ?? [];
     if (!ags.length) return [];
     const out: { year: number; pct: number }[] = [];
-    for (let y = 2015; y <= 2024; y++) {
+    const years = rows.map((r) => Number(r.period.slice(0, 4)));
+    if (!years.length) return [];
+    for (let y = Math.min(...years); y <= Math.max(...years); y++) {
       const n = ags.filter((a) => a.nibrs_start_year != null && a.nibrs_start_year <= y).length;
       out.push({ year: y, pct: (n / ags.length) * 100 });
     }
     return out;
-  }, [agencies.data]);
+  }, [agencies.data, rows]);
 
   const perf = useMemo<PerfYear[]>(() => {
-    const vol = new Map<number, number>();
-    const clrSum = new Map<number, number>();
-    const clrCnt = new Map<number, number>();
-    for (const r of rows) {
-      const y = Number(r.period.slice(0, 4));
-      if (r.offenses_actual != null) vol.set(y, (vol.get(y) ?? 0) + r.offenses_actual);
-      if (r.clearance_ratio != null) {
-        clrSum.set(y, (clrSum.get(y) ?? 0) + r.clearance_ratio);
-        clrCnt.set(y, (clrCnt.get(y) ?? 0) + 1);
-      }
-    }
+    const annual = new Map(annualRows(rows).map((a) => [a.year, a]));
     const staff = new Map<number, number>();
     for (const p of pe.data ?? []) {
       if (p.section === "rate" && p.value != null && /per 1,000/i.test(p.metric)) {
         staff.set(p.year, p.value);
       }
     }
-    const years = [...new Set([...vol.keys(), ...staff.keys()])].sort((a, b) => a - b);
-    return years.map((year) => ({
-      year,
-      volume: vol.get(year) ?? null,
-      clearance: clrCnt.get(year) ? (clrSum.get(year) as number) / (clrCnt.get(year) as number) : null,
-      staffing: staff.get(year) ?? null,
-    }));
+    const years = [...new Set([...annual.keys(), ...staff.keys()])].sort((a, b) => a - b);
+    return years.map((year) => {
+      const a = annual.get(year);
+      return {
+        year,
+        volume: a?.volume ?? null,
+        clearance: a?.clearance ?? null,
+        staffing: staff.get(year) ?? null,
+        partial: a?.partial ?? true,
+      };
+    });
   }, [rows, pe.data]);
+  // Tiles use complete years only, so a partial year cannot be the "latest" or the "peak".
+  const complete = perf.filter((p) => !p.partial);
 
   const latestStaff = lastBy(perf, "staffing");
-  const latestClr = lastBy(perf, "clearance");
-  const latestVol = lastBy(perf, "volume");
-  const peakVol = perf.reduce<PerfYear | null>(
+  const latestClr = lastBy(complete, "clearance");
+  const latestVol = lastBy(complete, "volume");
+  const peakVol = complete.reduce<PerfYear | null>(
     (best, r) => (r.volume != null && (!best || r.volume > (best.volume as number)) ? r : best),
     null,
   );
@@ -94,7 +94,7 @@ export function PerformanceView({ offense, region }: { offense: string; region: 
           label="Clearance"
           accent="warn"
           value={fmtPct(latestClr?.clearance)}
-          sub={latestClr ? `${latestClr.year} · ${titleCase(offense)}` : "—"}
+          sub={latestClr ? `${latestClr.year} · cleared ÷ reported, 12 months` : "—"}
         />
       </div>
       <div className="col-span-1 lg:col-span-3">

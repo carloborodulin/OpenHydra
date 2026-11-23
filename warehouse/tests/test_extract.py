@@ -59,3 +59,14 @@ def test_arrests_fetch_each_code_once_per_area(
     assert set(frame["window_from"].unique()) == {"01-2015"}
     assert set(frame["window_to"].unique()) == {"12-2024"}
     assert (tmp_path / "arrests.parquet").exists()
+
+
+def test_year_windows_keep_the_edges() -> None:
+    from openhydra_etl.extract import year_windows
+
+    assert year_windows("03-2022", "02-2024") == [
+        (2022, "03-2022", "12-2022"),
+        (2023, "01-2023", "12-2023"),
+        (2024, "01-2024", "02-2024"),
+    ]
+    assert year_windows("2024-01", "12-2024") == [(2024, "01-2024", "12-2024")]

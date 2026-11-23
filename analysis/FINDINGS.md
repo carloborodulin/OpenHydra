@@ -1,41 +1,53 @@
-# OpenHydra — findings: U.S. crime trends, 2017–2023
+# OpenHydra — findings: U.S. crime trends, 2015–2024
 
 National analysis over the DuckDB marts (`fct_offenses_monthly`, `fct_arrests`)
 built by the [warehouse](../warehouse) layer. Source notebook:
 [`notebooks/01_crime_trends.py`](notebooks/01_crime_trends.py) (paired `.ipynb`).
-Charts in [`outputs/`](outputs).
+Charts, the plotted values ([`outputs/values.csv`](outputs/values.csv)) and the
+provenance ([`outputs/provenance.json`](outputs/provenance.json)) are in
+[`outputs/`](outputs).
 
-> Data caveats: national figures; offense series are FBI UCR rates per 100k;
-> "clearance ratio" is monthly cleared ÷ reported (a standard proxy, not a cohort
-> rate); arrest demographics are 2017–2023 totals. Coverage varies year to year.
+> **Inputs.** Data release `2026-06-11-reconstructed` (FBI CDE extracts of
+> 9–11 June 2026; the dates come from the project history). Observation window:
+> January 2015 to December 2024. The notebook stops if the warehouse holds
+> another release. The FBI revises past months, so a later release can change
+> these numbers.
+>
+> **Definitions.** National figures. Offense series are FBI UCR rates per 100k.
+> The index is the trailing-12-month rate ÷ the mean monthly rate of 2019 × 100
+> (December 2019 = 100), the same definition as the dashboard. Annual clearance
+> is cleared ÷ reported, both summed over the year (complete years only); a
+> clearance can belong to an offense of an earlier month, so it is not a cohort
+> rate. Arrest demographics are totals for all offenses over the window.
 
 ## 1. Crime did not uniformly "spike" in COVID — it split
 
 ![Crime indexed to 2019](outputs/01_covid_indexed.png)
 
-Indexing each offense's 12-month-average rate to its 2019 level (=100) separates
-the signal from seasonality:
+The trailing-12-month index separates the signal from seasonality:
 
-- **Homicide** rose to **~140% of 2019**, peaking in late 2021, then receded toward
-  ~110% by 2023 — the sharpest violent-crime swing.
-- **Aggravated assault** rose and stayed elevated (~110%+).
-- **Motor-vehicle theft** is the standout late mover: flat through 2020, then a
-  steep climb to **~145% of 2019 by late 2023**.
-- **Burglary (~73%)** and **property crime (~90%)** kept *falling* throughout.
+- **Homicide** rose to **about 139% of 2019** in late 2021, the sharpest
+  violent-crime swing, then fell back to **about 99%** by December 2024.
+- **Aggravated assault** peaked at **about 114%** in 2021 and ended near **104%**.
+- **Motor-vehicle theft** was the late mover: it climbed to **about 148% of 2019
+  in November 2023**, then fell to **about 117%** by December 2024.
+- **Burglary** fell through the whole window, to **about 70%** of 2019.
+  **Property crime** fell to **about 84%** and stayed there.
 
-So the "COVID crime wave" was really a **violence + auto-theft** story; property
-and burglary continued their long-run decline.
+So the "COVID crime wave" was a **violence and auto-theft** story; property
+crime and burglary continued their long-run decline.
 
-## 2. Clearance rates dipped during COVID — and motor-vehicle theft never recovered
+## 2. Clearance dipped during COVID and then recovered, except for vehicle theft
 
-![Clearance ratios](outputs/02_clearance_ratio.png)
+![Clearance](outputs/02_clearance_ratio.png)
 
-- **Homicide** clearance fell from **~58% (2017) to ~51% (2021)**, then recovered to
-  ~58% by 2023.
-- **Aggravated assault** slid from ~51% to ~42%.
-- **Motor-vehicle theft** clearance kept declining to **~8.5%** — fewer than 1 in 12
-  solved, even as MVT offenses surged (see chart 1). That gap is the most striking
-  result here.
+- **Homicide** clearance fell from **about 59% (2015)** to **about 50% (2021)**,
+  then rose to **about 60% in 2024**.
+- **Aggravated assault** slid from **about 52%** to **about 42% (2022)**, then
+  recovered to **about 49%**.
+- **Motor-vehicle theft** clearance fell from **about 14% (2019)** to **about
+  8.4% (2023)**, fewer than 1 in 11 cleared, while the offense surged (chart 1).
+  It was **about 9.3%** in 2024.
 
 ## 3. Arrests by race
 
@@ -57,5 +69,6 @@ the whole curve.
 
 ---
 
-*Reproduce:* `cd analysis && uv sync && uv run python notebooks/01_crime_trends.py`
-(after building the warehouse — see [../warehouse](../warehouse)).
+*Reproduce:* run `make setup data notebook` at the repository root. `make data`
+builds the warehouse from the committed release, and `make notebook` writes the
+charts, `values.csv` and `provenance.json`.

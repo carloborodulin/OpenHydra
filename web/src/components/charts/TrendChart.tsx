@@ -77,7 +77,7 @@ export function TrendChart({
             stroke={c.axis}
             strokeDasharray="4 4"
             label={{
-              value: mode === "index" ? "2019" : "US",
+              value: mode === "index" ? "Dec 2019" : "US",
               fill: c.muted,
               fontSize: 9,
               position: "insideTopLeft",

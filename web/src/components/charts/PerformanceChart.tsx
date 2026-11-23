@@ -22,8 +22,9 @@ import { DarkTooltip } from "./DarkTooltip";
 export interface PerfYear {
   year: number;
   volume: number | null;
-  clearance: number | null; // ratio 0..1
+  clearance: number | null; // cleared ÷ reported, summed over the year (0..1)
   staffing: number | null; // law-enforcement employees per 1,000 people
+  partial: boolean; // fewer than 12 months with both counts
 }
 
 const compact = (v: number) => Intl.NumberFormat("en", { notation: "compact" }).format(v);

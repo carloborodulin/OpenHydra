@@ -3,7 +3,7 @@ import { useChartColors } from "../../lib/theme";
 import { DarkTooltip } from "./DarkTooltip";
 
 // Horizontal bar of percentage values (top 6, descending) — e.g. recovery rate by
-// property type. Like ArrestsChart but axis/tooltip read as percents.
+// property type. Like HBarChart but axis/tooltip read as percents.
 export function PercentBarChart({
   data,
   seriesName = "Rate",

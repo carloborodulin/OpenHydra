@@ -68,7 +68,7 @@ models:
     tests:
       - unique_combination:
           arguments:
-            columns: [level, area, offense, category, label]
+            columns: [level, area, offense, year, category, label]
 
   - name: stg_nibrs
     description: NIBRS incident breakdowns by offense & section_dimension (long format).

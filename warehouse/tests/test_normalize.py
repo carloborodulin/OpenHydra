@@ -93,8 +93,9 @@ def test_shr_to_frame(sample: Callable[[str], Any]) -> None:
 
 def test_property_to_frame(sample: Callable[[str], Any]) -> None:
     resp = PropertyResponse.model_validate(sample("supplemental_national_NB_totals"))
-    df = normalize.property_to_frame(resp, level="national", area="US", offense="NB")
+    df = normalize.property_to_frame(resp, level="national", area="US", offense="NB", year=2023)
     assert df.columns == list(normalize.PROPERTY_SCHEMA)
+    assert set(df["year"].unique()) == {2023}
     assert df.height > 0
     assert set(df["offense"].unique()) == {"NB"}
     assert {"stolen_value", "recovered_value"} <= set(df["category"].unique())

@@ -44,6 +44,8 @@ from .models import (
     OffenseMonthly,
     PoliceEmploymentRow,
     PopulationRow,
+    PropertyRow,
+    PropertyYears,
     Snapshot,
     SnapshotDomain,
     UofParticipationRow,
@@ -228,7 +230,7 @@ def offenses_monthly(
         """
         select period, offenses_rate, offenses_actual,
                clearances_rate, clearances_actual, clearance_ratio,
-               ttm_rate, yoy_delta, index_2019
+               ttm_months, ttm_rate, yoy_delta, index_2019
         from fct_offenses_monthly
         where level = ? and area = ? and offense = ?
         order by period
@@ -380,21 +382,48 @@ def shr(
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/property", response_model=list[ArrestRow])
+@app.get("/api/property/years", response_model=PropertyYears)
+def property_years(
+    conn: Conn, level: str = "national", area: str = "US", offense: str = "NB"
+) -> dict[str, Any]:
+    """The calendar years of expanded property data for one scope and offense."""
+    rows = conn.execute(
+        "select distinct year from fct_property where level = ? and area = ? and offense = ?",
+        [level, area, offense],
+    ).fetchall()
+    years = sorted(r[0] for r in rows if r[0] is not None)
+    return {"years": years, "window_total": any(r[0] is None for r in rows)}
+
+
+@app.get("/api/property", response_model=list[PropertyRow])
 def expanded_property(
     conn: Conn,
     level: str = "national",
     area: str = "US",
     offense: str | None = None,
     category: str | None = None,
+    year: int | None = None,
 ) -> list[dict[str, Any]]:
-    # Expanded property (supplemental); `offense` is NB/NL/NMVT/NROB, `category`
-    # the value/count dimension (stolen_value, recovered_value, location_counts…).
-    sql = "select category, label, value from fct_property where level = ? and area = ?"
+    """Expanded property (supplemental) breakdowns for one year.
+
+    `offense` is NB/NL/NMVT/NROB and `category` the value or count dimension.
+    Without `year`, the route uses the latest year. When the data has no years
+    (an older snapshot), the rows are totals over the whole window (year null).
+    """
+    sql = "select year, category, label, value from fct_property where level = ? and area = ?"
     params: list[Any] = [level, area]
     if offense:
         sql += " and offense = ?"
         params.append(offense)
+    if year is not None:
+        sql += " and year = ?"
+        params.append(year)
+    else:
+        sql += (
+            " and year is not distinct from (select max(year) from fct_property"
+            " where level = ? and area = ?" + (" and offense = ?" if offense else "") + ")"
+        )
+        params += [level, area] + ([offense] if offense else [])
     if category:
         sql += " and category = ?"
         params.append(category)

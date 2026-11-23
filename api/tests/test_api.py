@@ -210,6 +210,25 @@ def test_property_offense_filter(client: TestClient) -> None:
     assert {row["label"] for row in nl.json()} == {"Currency, Notes, etc."}
 
 
+def test_property_years_and_default_year(client: TestClient) -> None:
+    # Without a year, the latest year; with one, that year only.
+    rows = client.get("/api/property", params={"offense": "NB"}).json()
+    assert {r["year"] for r in rows} == {2024}
+    old = client.get("/api/property", params={"offense": "NB", "year": 2023}).json()
+    assert [(r["label"], r["value"]) for r in old] == [("Firearms", 1.0)]
+    assert client.get("/api/property/years", params={"offense": "NB"}).json() == {
+        "years": [2023, 2024],
+        "window_total": False,
+    }
+    # An older snapshot has only window totals (year null).
+    nl = client.get("/api/property", params={"offense": "NL"}).json()
+    assert [r["year"] for r in nl] == [None]
+    assert client.get("/api/property/years", params={"offense": "NL"}).json() == {
+        "years": [],
+        "window_total": True,
+    }
+
+
 def test_nibrs(client: TestClient) -> None:
     r = client.get("/api/nibrs", params={"offense": "13A", "category": "offense_weapons"})
     assert r.status_code == 200

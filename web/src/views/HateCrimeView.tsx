@@ -15,5 +15,5 @@ const DIMENSIONS: Dimension[] = [
 export function HateCrimeView({ region }: { region: string }) {
   const level = region === "US" ? "national" : "state";
   const query = useHateCrime(undefined, level, region);
-  return <BreakdownView region={region} query={query} dimensions={DIMENSIONS} />;
+  return <BreakdownView domain="hate-crime" region={region} query={query} dimensions={DIMENSIONS} />;
 }

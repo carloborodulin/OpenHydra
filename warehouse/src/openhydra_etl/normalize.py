@@ -90,6 +90,9 @@ PROPERTY_SCHEMA: dict[str, pl.DataType] = {
     "level": pl.String(),
     "area": pl.String(),
     "offense": pl.String(),  # NB | NL | NMVT | NROB
+    # The calendar year of the values. Null means a total over the whole request
+    # window (the seed before per-year extracts).
+    "year": pl.Int32(),
     "category": pl.String(),  # dimension (stolen_value, recovered_value, location_counts, …)
     "label": pl.String(),
     "value": pl.Float64(),
@@ -279,12 +282,12 @@ def shr_to_frame(resp: ShrResponse, *, level: str, area: str) -> pl.DataFrame:
 
 
 def property_to_frame(
-    resp: PropertyResponse, *, level: str, area: str, offense: str
+    resp: PropertyResponse, *, level: str, area: str, offense: str, year: int | None = None
 ) -> pl.DataFrame:
     """Flatten expanded-property value/count dimensions to tidy long rows, keyed
-    on the property offense (NB/NL/NMVT/NROB)."""
+    on the property offense (NB/NL/NMVT/NROB) and the calendar year."""
     return _breakdowns_to_frame(
-        resp, PROPERTY_SCHEMA, level=level, area=area, extra={"offense": offense}
+        resp, PROPERTY_SCHEMA, level=level, area=area, extra={"offense": offense, "year": year}
     )
 
 
