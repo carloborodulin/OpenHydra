@@ -1,10 +1,9 @@
 {
   "name": "openhydra-railway-config",
   "private": true,
-  "description": "Railway infrastructure definition for the OpenHydra service.",
+  "description": "Railway infrastructure definition for the OpenHydra service. The Railway CLI is installed from its pinned GitHub release (see .github/workflows/railway-plan.yml), not from npm: the npm wrapper depends on a vulnerable tar.",
   "type": "module",
   "devDependencies": {
-    "@railway/cli": "5.75.0",
     "railway": "3.17.0"
   }
 }

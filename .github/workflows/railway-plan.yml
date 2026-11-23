@@ -1,0 +1,92 @@
+# Show the difference between .railway/railway.ts and the live Railway service
+# for each PR that changes the definition. It never applies a change.
+#
+# The project token (RAILWAY_TOKEN) lives in the protected Environment
+# "railway-production-plan". The owner approves each run, so code from a PR
+# cannot use the token without review. A PR with a real difference also needs
+# the approval of the "railway-change-review" Environment.
+name: Railway configuration review
+
+on:
+  pull_request:
+    paths:
+      - ".railway/**"
+      - ".github/workflows/railway-plan.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RAILWAY_CLI_VERSION: "5.75.0"
+  RAILWAY_CLI_SHA256: "ba5d9fb5dce1c59789f4216e6b754becd75025ed740388452be55aae83720400"
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    environment: railway-production-plan
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - name: Require a branch of this repository before any step with the token
+        env:
+          SAME_REPO: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
+        run: test "$SAME_REPO" = true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Install the locked authoring SDK
+        run: npm ci --prefix .railway --ignore-scripts
+      - name: Install the Railway CLI from its release (checksum checked)
+        run: |
+          url="https://github.com/railwayapp/cli/releases/download/v${RAILWAY_CLI_VERSION}/railway-v${RAILWAY_CLI_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+          curl -sSfL -o railway.tgz "$url"
+          echo "${RAILWAY_CLI_SHA256}  railway.tgz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/railway" && tar -xzf railway.tgz -C "$RUNNER_TEMP/railway"
+          echo "$RUNNER_TEMP/railway" >> "$GITHUB_PATH"
+      - id: diff
+        name: Plan against production
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::Add the RAILWAY_TOKEN project token to the railway-production-plan Environment."
+            exit 1
+          fi
+          set +e
+          cli="$(command -v railway)"
+          env "_=$cli" "$cli" config plan --file .railway/railway.ts --environment production --detailed-exit-code
+          rc=$?
+          set -e
+          case "$rc" in
+            0) echo 'changed=false' >> "$GITHUB_OUTPUT" ;;
+            2) echo 'changed=true'  >> "$GITHUB_OUTPUT" ;;
+            *) exit "$rc" ;;
+          esac
+
+  review_changes:
+    needs: plan
+    if: needs.plan.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    environment: railway-change-review
+    steps:
+      - run: echo "The owner reviewed the production plan."
+
+  gate:
+    name: railway-plan-gate
+    needs: [plan, review_changes]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a clean plan, or a reviewed one
+        env:
+          PLAN: ${{ needs.plan.result }}
+          REVIEW: ${{ needs.review_changes.result }}
+          CHANGED: ${{ needs.plan.outputs.changed }}
+        run: |
+          test "$PLAN" = success
+          if [ "$CHANGED" = true ]; then test "$REVIEW" = success; fi
