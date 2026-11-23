@@ -220,11 +220,14 @@ docker compose up --build
 ```
 
 #### Deploying to Railway:
-The repository is pre-configured for automated deployment on Railway using [railway.json](file:///Users/carlo/Documents/Development/personal/OpenHydra/railway.json):
+The file [.railway/railway.ts](.railway/railway.ts) defines the Railway service. It sets the Dockerfile builder, the `/health` readiness probe and the restart policy. A push to `main` starts a deploy.
+
+To see the difference between the file and the live service, run this command:
 ```bash
-railway up
+railway config plan --file .railway/railway.ts --environment production
 ```
-Ensure that the `FBI_CDE_API_KEY` environment variable is defined within the Railway dashboard settings.
+To change the live service, edit the file and run `railway config apply`.
+Set the `FBI_CDE_API_KEY` variable in the Railway service settings.
 
 ## License
 
