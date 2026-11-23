@@ -158,7 +158,11 @@ def test_access_log_line(client_for: Any, caplog: pytest.LogCaptureFixture) -> N
 
 
 def test_unsafe_request_id_is_replaced(client_for: Any) -> None:
-    c = client_for(FakeCde())
-    r = c.get("/health", headers={"X-Request-ID": "bad id\nwith newline"})
-    assert r.headers["x-request-id"] != "bad id\nwith newline"
+    c = client_for(FakeCde(summarized=CdeTimeout("p")))
+    r = c.get(
+        f"/api/agency/{ORI}/offenses",
+        params={"offense": "homicide"},
+        headers={"X-Request-ID": "bad id\twith tab"},
+    )
+    assert r.headers["x-request-id"] != "bad id\twith tab"
     assert len(r.headers["x-request-id"]) == 32

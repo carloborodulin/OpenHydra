@@ -9,8 +9,8 @@ from typing import Annotated, Any
 import typer
 
 from .client import CdeClient
-from .errors import CdeError
 from .constants import ArrestType, Offense
+from .errors import CdeError
 
 app = typer.Typer(
     no_args_is_help=True,
