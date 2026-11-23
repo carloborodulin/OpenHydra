@@ -18,11 +18,11 @@ export NODE_OPTIONS
 
 .PHONY: setup data web serve smoke check notebook clean
 
+# One uv workspace: one environment (.venv at the root) for all four projects.
+VENV := $(CURDIR)/.venv/bin
+
 setup:
-	cd cdeclient && uv sync --frozen
-	cd warehouse && uv sync --frozen --group dbt
-	cd api && uv sync --frozen
-	cd analysis && uv sync --frozen
+	uv sync --frozen --all-packages --all-groups
 	cd web && npm ci
 
 # dbt reads data/raw/*.parquet and data/seeds/population.csv, and writes
@@ -30,8 +30,8 @@ setup:
 data:
 	mkdir -p $(RAW)
 	cp $(SEED)/*.parquet $(SEED)/_manifest.json $(RAW)/
-	cd warehouse && uv sync --frozen --group dbt
-	cd warehouse/dbt && ../.venv/bin/dbt build --profiles-dir .
+	uv sync --frozen --all-packages --all-groups
+	cd warehouse/dbt && $(VENV)/dbt build --profiles-dir .
 
 web:
 	cd web && npm run build
@@ -40,7 +40,7 @@ serve:
 	@test -f warehouse/openhydra.duckdb || { echo "Run 'make data' first."; exit 1; }
 	@test -d web/dist || { echo "Run 'make web' first."; exit 1; }
 	OPENHYDRA_STATIC_DIR=$(CURDIR)/web/dist \
-	  api/.venv/bin/uvicorn openhydra_api.main:app --app-dir api/src \
+	  $(VENV)/uvicorn openhydra_api.main:app --app-dir api/src \
 	  --host 127.0.0.1 --port $(PORT) --no-access-log
 
 # Start the server in the background, wait for /health, check the routes that
@@ -48,7 +48,7 @@ serve:
 smoke:
 	@test -f warehouse/openhydra.duckdb || { echo "Run 'make data' first."; exit 1; }
 	@OPENHYDRA_STATIC_DIR=$(CURDIR)/web/dist \
-	  api/.venv/bin/uvicorn openhydra_api.main:app --app-dir api/src \
+	  $(VENV)/uvicorn openhydra_api.main:app --app-dir api/src \
 	  --host 127.0.0.1 --port $(PORT) --no-access-log > /dev/null 2>&1 & \
 	pid=$$!; trap 'kill $$pid 2>/dev/null' EXIT; \
 	curl -sf --retry 30 --retry-delay 1 --retry-connrefused -o /dev/null http://127.0.0.1:$(PORT)/health && \
@@ -58,13 +58,15 @@ smoke:
 	done
 
 check:
-	cd cdeclient && uv run --frozen ruff check && uv run --frozen ruff format --check && uv run --frozen mypy && uv run --frozen pytest -q
-	cd warehouse && uv run --frozen ruff check && uv run --frozen ruff format --check && uv run --frozen mypy && uv run --frozen pytest -q
-	cd api && uv run --frozen ruff check && uv run --frozen ruff format --check && uv run --frozen mypy && uv run --frozen pytest -q
+	uv lock --check
+	for p in cdeclient warehouse api; do \
+	  (cd $$p && uv run --frozen --all-packages --all-groups ruff check && uv run --frozen --all-packages --all-groups ruff format --check \
+	    && uv run --frozen --all-packages --all-groups mypy && uv run --frozen --all-packages --all-groups pytest -q) || exit 1; \
+	done
 	cd web && npm run lint && npm run build
 
 notebook:
-	cd analysis && uv run --frozen python notebooks/01_crime_trends.py
+	cd analysis && uv run --frozen --all-packages --all-groups python notebooks/01_crime_trends.py
 
 clean:
 	rm -rf $(RAW) warehouse/openhydra.duckdb web/dist

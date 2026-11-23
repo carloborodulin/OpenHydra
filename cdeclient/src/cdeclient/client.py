@@ -6,7 +6,7 @@ import time
 from collections.abc import Callable
 from datetime import date
 from functools import wraps
-from typing import Any, ParamSpec, TypeVar
+from typing import Any
 
 import httpx
 from pydantic import SecretStr, TypeAdapter, ValidationError
@@ -76,11 +76,8 @@ _RETRYABLE_TRANSPORT = (
     httpx.ReadError,
 )
 
-P = ParamSpec("P")
-R = TypeVar("R")
 
-
-def _parses(fn: Callable[P, R]) -> Callable[P, R]:
+def _parses[**P, R](fn: Callable[P, R]) -> Callable[P, R]:
     """Turn a pydantic ValidationError from a response model into CdeDecodeError."""
 
     @wraps(fn)

@@ -54,7 +54,7 @@ FBI Crime Data Explorer API
 | Web | `React`, `Vite`, `TypeScript`, `TanStack Query`, `Tailwind CSS`, `Recharts`, `MapLibre GL` | The dashboard. |
 | Delivery | `Docker`, `GitHub Actions`, `Railway` | The container image, CI and the hosted service. |
 
-The project uses Python 3.12, managed by `uv`, and Node.js 26 (LTS).
+The project uses Python 3.12 to 3.14 (CI tests all three), managed by `uv` as one workspace with one lock (`uv.lock`), and Node.js 26 (LTS).
 
 ## Repository structure
 
@@ -164,7 +164,7 @@ cd warehouse
 uv run oh-etl pull --states NY --domains summarized,arrests --from 01-2020 --to 12-2022
 ```
 
-`--states all` pulls every state. `--domains` selects the families. To build the warehouse from these files, run `../.venv/bin/dbt build --profiles-dir .` in `warehouse/dbt`. (`make data` copies the committed snapshot over `data/raw/` first.) The committed snapshot in `deploy/seed/` changes only through a reviewed pull request.
+`--states all` pulls every state. `--domains` selects the families. To build the warehouse from these files, run `../../.venv/bin/dbt build --profiles-dir .` in `warehouse/dbt`. (`make data` copies the committed snapshot over `data/raw/` first.) The committed snapshot in `deploy/seed/` changes only through a reviewed pull request.
 
 To look at raw responses, `./explore.sh` saves samples in `data/samples/`.
 

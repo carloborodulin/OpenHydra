@@ -21,12 +21,15 @@ env:
 
 jobs:
   check:
-    name: ${{ matrix.package }} — lint, types, tests
+    name: ${{ matrix.package }} (py${{ matrix.python }}) — lint, types, tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         package: [cdeclient, warehouse, api]
+        python: ["3.12", "3.13", "3.14"]
+    env:
+      UV_PYTHON: ${{ matrix.python }}
     defaults:
       run:
         working-directory: ${{ matrix.package }}
@@ -41,7 +44,7 @@ jobs:
           version: ${{ env.UV_VERSION }}
           enable-cache: true
 
-      - name: Check that the lockfile matches pyproject.toml
+      - name: Check that the workspace lock matches the pyproject.toml files
         run: uv lock --check
 
       - name: Sync dependencies (locked)
@@ -97,7 +100,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - name: The warehouse writer and the API reader lock the same DuckDB
+      - name: The workspace locks one DuckDB for the writer and the reader
         run: python3 scripts/check_duckdb_versions.py
       - name: Export the OpenAPI document
         working-directory: api
@@ -126,9 +129,9 @@ jobs:
       - name: Build the warehouse from the committed release (dbt build, all tests)
         run: make data
       - name: Start the API and check the main routes
-        run: (cd api && uv sync --frozen) && make smoke
+        run: make smoke
       - name: Run the analysis notebook
-        run: (cd analysis && uv sync --frozen) && make notebook
+        run: make notebook
       - name: Keep the notebook output
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -156,14 +159,13 @@ jobs:
       - name: Build the warehouse and the dashboard
         run: |
           make data
-          (cd api && uv sync --frozen)
           (cd web && npm ci && npm run build)
       - name: Install the Playwright browser
         working-directory: web
         run: npx playwright install --with-deps chromium
       - name: Run the browser tests against the real server
         run: |
-          OPENHYDRA_STATIC_DIR="$PWD/web/dist" api/.venv/bin/uvicorn openhydra_api.main:app \
+          OPENHYDRA_STATIC_DIR="$PWD/web/dist" .venv/bin/uvicorn openhydra_api.main:app \
             --app-dir api/src --host 127.0.0.1 --port 8146 --no-access-log > server.log 2>&1 &
           SERVER=$!
           trap 'kill $SERVER' EXIT

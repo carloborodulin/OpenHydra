@@ -3,7 +3,7 @@
 version: 2
 updates:
   - package-ecosystem: uv
-    directories: ["/cdeclient", "/warehouse", "/api", "/analysis"]
+    directory: "/"  # one uv workspace, one lock
     schedule: { interval: weekly, day: monday }
     groups:
       python:
