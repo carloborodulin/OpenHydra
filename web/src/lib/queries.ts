@@ -1,8 +1,33 @@
 import { useQuery } from "@tanstack/react-query";
-import { api, pointsToAgencies, withSignal } from "./api";
+import { ApiError, api, pointsToAgencies, withSignal } from "./api";
 
 export const useMeta = () =>
   useQuery({ queryKey: ["meta"], queryFn: ({ signal }) => withSignal(signal, () => api.meta()) });
+
+/**
+ * A query for live agency data. Live data needs the FBI key on the server, and
+ * /api/meta says if the server has one. Without a key, the query fails at once
+ * with the error that the server would send, and makes no request. The panel
+ * then shows its "not available" state.
+ */
+function useLiveQuery<T>(key: readonly unknown[], call: () => Promise<T>, enabled: boolean) {
+  const live = useMeta().data?.capabilities.live_agency;
+  return useQuery({
+    queryKey: key,
+    queryFn: ({ signal }) =>
+      live
+        ? withSignal(signal, call)
+        : Promise.reject(
+            new ApiError(
+              503,
+              "live_data_unconfigured",
+              null,
+              "Live agency data is not configured.",
+            ),
+          ),
+    enabled: enabled && live !== undefined,
+  });
+}
 
 export const useOffenseMonthly = (
   offense: string,
@@ -46,11 +71,11 @@ export const useHateCrime = (category: string | undefined, level = "national", a
   });
 
 export const useAgencyHateCrime = (ori: string | undefined, category?: string) =>
-  useQuery({
-    queryKey: ["agency-hate-crime", ori, category],
-    queryFn: ({ signal }) => withSignal(signal, () => api.agencyHateCrime(ori as string, category)),
-    enabled: Boolean(ori),
-  });
+  useLiveQuery(
+    ["agency-hate-crime", ori, category],
+    () => api.agencyHateCrime(ori as string, category),
+    Boolean(ori),
+  );
 
 // Expanded homicide (SHR). `category` undefined => all section_dimensions.
 export const useShr = (category: string | undefined, level = "national", area = "US") =>
@@ -60,11 +85,11 @@ export const useShr = (category: string | undefined, level = "national", area = 
   });
 
 export const useAgencyShr = (ori: string | undefined, category?: string) =>
-  useQuery({
-    queryKey: ["agency-shr", ori, category],
-    queryFn: ({ signal }) => withSignal(signal, () => api.agencyShr(ori as string, category)),
-    enabled: Boolean(ori),
-  });
+  useLiveQuery(
+    ["agency-shr", ori, category],
+    () => api.agencyShr(ori as string, category),
+    Boolean(ori),
+  );
 
 // Expanded property. `offense` is NB/NL/NMVT/NROB; `category` undefined => all dims.
 export const useProperty = (
@@ -88,12 +113,11 @@ export const usePropertyYears = (offense: string, level = "national", area = "US
   });
 
 export const useAgencyProperty = (ori: string | undefined, offense: string, category?: string) =>
-  useQuery({
-    queryKey: ["agency-property", ori, offense, category],
-    queryFn: ({ signal }) =>
-      withSignal(signal, () => api.agencyProperty(ori as string, offense, category)),
-    enabled: Boolean(ori),
-  });
+  useLiveQuery(
+    ["agency-property", ori, offense, category],
+    () => api.agencyProperty(ori as string, offense, category),
+    Boolean(ori),
+  );
 
 // NIBRS incidents. `offense` is a NIBRS code; `category` undefined => all dims.
 export const useNibrs = (
@@ -109,12 +133,11 @@ export const useNibrs = (
   });
 
 export const useAgencyNibrs = (ori: string | undefined, offense: string, category?: string) =>
-  useQuery({
-    queryKey: ["agency-nibrs", ori, offense, category],
-    queryFn: ({ signal }) =>
-      withSignal(signal, () => api.agencyNibrs(ori as string, offense, category)),
-    enabled: Boolean(ori),
-  });
+  useLiveQuery(
+    ["agency-nibrs", ori, offense, category],
+    () => api.agencyNibrs(ori as string, offense, category),
+    Boolean(ori),
+  );
 
 // LESDC — national only, by year + chart type.
 export const useLesdc = (chartType: string, year: number, section?: string) =>
@@ -176,23 +199,18 @@ export const usePopulation = (level = "national", area = "US") =>
 
 // Agency drill-down hooks — disabled until an agency (ori) is selected.
 export const useAgencyOffenseMonthly = (ori: string | undefined, offense: string) =>
-  useQuery({
-    queryKey: ["agency-offense-monthly", ori, offense],
-    queryFn: ({ signal }) => withSignal(signal, () => api.agencyOffenses(ori as string, offense)),
-    enabled: Boolean(ori && offense),
-  });
+  useLiveQuery(
+    ["agency-offense-monthly", ori, offense],
+    () => api.agencyOffenses(ori as string, offense),
+    Boolean(ori && offense),
+  );
 
 export const useAgencyArrests = (ori: string | undefined, category: string, offense?: string) =>
-  useQuery({
-    queryKey: ["agency-arrests", ori, category, offense],
-    queryFn: ({ signal }) =>
-      withSignal(signal, () => api.agencyArrests(ori as string, category, offense)),
-    enabled: Boolean(ori),
-  });
+  useLiveQuery(
+    ["agency-arrests", ori, category, offense],
+    () => api.agencyArrests(ori as string, category, offense),
+    Boolean(ori),
+  );
 
 export const useAgencyPoliceEmployment = (ori: string | undefined) =>
-  useQuery({
-    queryKey: ["agency-pe", ori],
-    queryFn: ({ signal }) => withSignal(signal, () => api.agencyPoliceEmployment(ori as string)),
-    enabled: Boolean(ori),
-  });
+  useLiveQuery(["agency-pe", ori], () => api.agencyPoliceEmployment(ori as string), Boolean(ori));
