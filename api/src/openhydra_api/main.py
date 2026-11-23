@@ -13,10 +13,12 @@ import duckdb
 from cdeclient.constants import (
     ARREST_CODE_TO_SLUG,
     ARREST_OFFENSES,
+    ARREST_ROLLUP_NAMES,
+    ARREST_ROLLUPS,
     EXPANDED_PROPERTY_OFFENSES,
     NIBRS_OFFENSE_CODES,
     Offense,
-    arrest_code,
+    arrest_components,
 )
 from cdeclient.models import ArrestTotalsResponse
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -29,6 +31,8 @@ from .cde import ClientProvider, close_shared_client, get_cde_client
 from .db import get_conn
 from .models import (
     AgencyFeature,
+    ArrestAvailability,
+    ArrestBreakdownRow,
     ArrestOffense,
     ArrestRow,
     BenchmarkRow,
@@ -114,8 +118,30 @@ def meta(conn: Conn) -> Meta:
         r[0]
         for r in conn.execute("select distinct category from fct_arrests order by 1").fetchall()
     ]
+    in_snapshot = {
+        r[0]
+        for r in conn.execute(
+            "select distinct offense from fct_arrests where level = 'national'"
+        ).fetchall()
+    }
     arrest_offenses = [
-        ArrestOffense(slug=slug, code=info.code, name=info.name, category=info.category)
+        ArrestOffense(
+            slug=slug,
+            code="derived",
+            name=ARREST_ROLLUP_NAMES[slug],
+            category="Derived Rollup",
+            derived=True,
+            in_snapshot=slug in in_snapshot,
+        )
+        for slug in ARREST_ROLLUPS
+    ] + [
+        ArrestOffense(
+            slug=slug,
+            code=info.code,
+            name=info.name,
+            category=info.category,
+            in_snapshot=slug in in_snapshot,
+        )
         for slug, info in ARREST_OFFENSES.items()
     ]
     return Meta(
@@ -195,24 +221,36 @@ def agencies(conn: Conn, state: str | None = None) -> list[dict[str, Any]]:
     return _dicts(conn, sql, params)
 
 
-@app.get("/api/arrests", response_model=list[ArrestRow])
+@app.get("/api/arrests", response_model=list[ArrestBreakdownRow])
 def arrests(
     conn: Conn,
     level: str = "national",
     area: str = "US",
-    offense: str | None = None,
+    offense: str = "all",
     category: str | None = None,
 ) -> list[dict[str, Any]]:
-    sql = "select category, label, value from fct_arrests where level = ? and area = ?"
-    params: list[Any] = [level, area]
-    if offense:
-        sql += " and offense = ?"
-        params.append(offense)
+    """Arrest breakdowns for one offense. The default offense is "all" (every
+    offense together). Each row carries its offense, so totals never mix codes."""
+    sql = (
+        "select offense, is_derived, category, label, value from fct_arrests "
+        "where level = ? and area = ? and offense = ?"
+    )
+    params: list[Any] = [level, area, offense]
     if category:
         sql += " and category = ?"
         params.append(category)
     sql += " order by category, value desc"
     return _dicts(conn, sql, params)
+
+
+@app.get("/api/arrests/available", response_model=ArrestAvailability)
+def arrests_available(conn: Conn, level: str = "national", area: str = "US") -> dict[str, Any]:
+    """The arrest offenses that have rows in the snapshot for one scope."""
+    rows = conn.execute(
+        "select distinct offense from fct_arrests where level = ? and area = ? order by 1",
+        [level, area],
+    ).fetchall()
+    return {"level": level, "area": area, "offenses": [r[0] for r in rows]}
 
 
 @app.get("/api/police-employment", response_model=list[PoliceEmploymentRow])
@@ -422,14 +460,17 @@ def known_ori(ori: OriParam, conn: Conn) -> str:
 Ori = Annotated[str, Depends(known_ori)]
 
 
-def _arrest_code_or_422(offense: str | None) -> str:
-    if offense is None or offense == "":
-        return "all"
-    if offense in ARREST_OFFENSES or offense in ARREST_CODE_TO_SLUG:
-        return arrest_code(offense)
-    if offense in {o.value for o in Offense}:
-        return arrest_code(offense)
-    raise HTTPException(status_code=422, detail=f"Unknown arrest offense {offense!r}.")
+def _arrest_codes_or_422(offense: str | None) -> tuple[str, tuple[str, ...]]:
+    """Return the canonical offense slug and the arrest codes whose sum gives it."""
+    try:
+        codes = arrest_components(offense)
+    except ValueError:
+        raise HTTPException(
+            status_code=422, detail=f"Unknown arrest offense {offense!r}."
+        ) from None
+    if offense in ARREST_ROLLUPS:
+        return str(offense), codes
+    return ARREST_CODE_TO_SLUG[codes[0]], codes
 
 
 @app.get("/api/agency/{ori}/offenses", response_model=list[OffenseMonthly])
@@ -441,7 +482,7 @@ def agency_offenses(ori: Ori, offense: Offense, client: Cde) -> list[dict[str, A
     return agency_live.fetch(agency_live.cache_key("offenses", ori, offense.value), produce)
 
 
-@app.get("/api/agency/{ori}/arrests", response_model=list[ArrestRow])
+@app.get("/api/agency/{ori}/arrests", response_model=list[ArrestBreakdownRow])
 def agency_arrests(
     ori: Ori,
     client: Cde,
@@ -449,17 +490,35 @@ def agency_arrests(
     offense: Annotated[str | None, Query(max_length=40)] = None,
 ) -> list[dict[str, Any]]:
     # Arrests use a numeric offense code, not a slug: an arrest slug, a
-    # summarized slug or a raw code all resolve. Anything else is a 422.
-    code = _arrest_code_or_422(offense)
+    # summarized slug or a raw code all resolve. A rollup (violent-crime,
+    # property-crime) is the sum of its 4 Part I codes, each cached on its own.
+    # Anything else is a 422.
+    slug, codes = _arrest_codes_or_422(offense)
 
-    def produce() -> list[dict[str, Any]]:
-        resp = client().arrests_agency(ori, code, from_=LIVE_FROM, to=LIVE_TO)
-        if not isinstance(resp, ArrestTotalsResponse):  # type=totals -> totals shape
-            return []
-        return agency_live.arrests_to_rows(resp)
+    def rows_for(code: str) -> list[dict[str, Any]]:
+        def produce() -> list[dict[str, Any]]:
+            resp = client().arrests_agency(ori, code, from_=LIVE_FROM, to=LIVE_TO)
+            if not isinstance(resp, ArrestTotalsResponse):  # type=totals -> totals shape
+                return []
+            return agency_live.arrests_to_rows(resp)
 
-    rows = agency_live.fetch(agency_live.cache_key("arrests", ori, code), produce)
-    return agency_live.filter_category(rows, category)
+        return agency_live.fetch(agency_live.cache_key("arrests", ori, code), produce)
+
+    if len(codes) == 1:
+        rows = rows_for(codes[0])
+    else:
+        totals: dict[tuple[str, str], float] = {}
+        for code in codes:
+            for r in rows_for(code):
+                k = (r["category"], r["label"])
+                totals[k] = totals.get(k, 0.0) + (r["value"] or 0.0)
+        rows = [{"category": c, "label": lbl, "value": v} for (c, lbl), v in totals.items()]
+        rows.sort(key=lambda r: (r["category"], -r["value"]))
+    derived = len(codes) > 1
+    return [
+        {**r, "offense": slug, "is_derived": derived}
+        for r in agency_live.filter_category(rows, category)
+    ]
 
 
 @app.get("/api/agency/{ori}/police-employment", response_model=list[PoliceEmploymentRow])

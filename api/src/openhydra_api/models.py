@@ -12,6 +12,11 @@ class ArrestOffense(BaseModel):
     code: str
     name: str
     category: str
+    # True for violent-crime and property-crime: the sum of 4 Part I offenses.
+    derived: bool = False
+    # True when the national snapshot has rows for this offense. The others are
+    # available only through the live agency route.
+    in_snapshot: bool = False
 
 
 class Meta(BaseModel):
@@ -58,6 +63,19 @@ class ArrestRow(BaseModel):
     category: str
     label: str
     value: float | None = None
+
+
+class ArrestBreakdownRow(ArrestRow):
+    """An arrest breakdown row with its offense, so a row can never lose it."""
+
+    offense: str
+    is_derived: bool = False
+
+
+class ArrestAvailability(BaseModel):
+    level: str
+    area: str
+    offenses: list[str]
 
 
 class PoliceEmploymentRow(BaseModel):

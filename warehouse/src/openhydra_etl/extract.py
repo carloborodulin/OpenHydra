@@ -9,6 +9,7 @@ from pathlib import Path
 import polars as pl
 from cdeclient import CdeClient, CdeError
 from cdeclient.constants import (
+    ARREST_OFFENSE_CODES,
     ARREST_OFFENSES,
     EXPANDED_PROPERTY_OFFENSES,
     LESDC_CHART_TYPES,
@@ -16,8 +17,9 @@ from cdeclient.constants import (
     NIBRS_ESTIMATION_REGIONS,
     NIBRS_OFFENSES,
     Offense,
-    arrest_code,
+    arrest_components,
 )
+from cdeclient.dates import to_month
 
 from . import normalize
 from .config import RAW_DIR
@@ -25,6 +27,8 @@ from .config import RAW_DIR
 ALL_OFFENSES: list[str] = [o.value for o in Offense]
 # All 48 arrest offense slugs (the full `arrest_offense` taxonomy).
 ALL_ARREST_OFFENSES: list[str] = list(ARREST_OFFENSES)
+# The default arrest pull: the all-offense total plus the 8 Part I offenses.
+DEFAULT_ARREST_OFFENSES: list[str] = ["all", *ARREST_OFFENSE_CODES]
 # LESDC has data for these years only (national, year-keyed).
 LESDC_YEARS: list[str] = ["2022", "2023"]
 # Use-of-Force collection years (national, year-keyed).
@@ -98,21 +102,26 @@ class Extractor:
         include_national: bool = True,
     ) -> pl.DataFrame:
         # Arrests take a numeric offense code, a different taxonomy from the
-        # offense slugs. Resolve slug -> code (arrest slug, summarized slug, or a
-        # raw code); offenses sharing a code (e.g. the aggregates -> "all") are
-        # fetched once per area, then a frame is emitted per slug (keyed on the
-        # slug the rest of the app uses).
-        codes: dict[str, str] = {off: arrest_code(off) for off in offenses}
+        # offense slugs. Each requested slug resolves to one or more codes: a
+        # rollup (violent-crime, property-crime) gives its component codes, and
+        # dbt adds the rollup back up. Each unique code is fetched once per area
+        # and written once, keyed by its canonical arrest slug.
+        codes: list[str] = list(
+            dict.fromkeys(code for off in offenses for code in arrest_components(off))
+        )
 
         def _per_area(fetch, level: str, area: str) -> list[pl.DataFrame]:  # type: ignore[no-untyped-def]
-            by_code: dict[str, object] = {}
-            out: list[pl.DataFrame] = []
-            for off, code in codes.items():
-                resp = by_code.setdefault(code, fetch(code))
-                out.append(
-                    normalize.arrests_to_frame(resp, level=level, area=area, offense=off)  # type: ignore[arg-type]
+            return [
+                normalize.arrests_to_frame(
+                    fetch(code),
+                    level=level,
+                    area=area,
+                    code=code,
+                    window_from=to_month(from_),
+                    window_to=to_month(to),
                 )
-            return out
+                for code in codes
+            ]
 
         frames: list[pl.DataFrame] = []
         if include_national:

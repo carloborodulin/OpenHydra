@@ -3,11 +3,19 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
+import pytest
 import respx
 from httpx import Response
 
 from cdeclient.client import CdeClient
-from cdeclient.constants import ARREST_OFFENSE_CODES, ARREST_OFFENSES, Offense, arrest_code
+from cdeclient.constants import (
+    ARREST_OFFENSE_CODES,
+    ARREST_OFFENSES,
+    ARREST_ROLLUPS,
+    Offense,
+    arrest_code,
+    arrest_components,
+)
 
 BASE = "https://api.test/crime/fbi/cde"
 
@@ -286,10 +294,12 @@ def test_pe_tolerates_null_series() -> None:
 
 
 def test_arrest_offense_codes_cover_all_offenses() -> None:
-    # Every summarized offense slug has an arrest code; aggregates fall back to "all".
-    assert set(ARREST_OFFENSE_CODES) == set(Offense)
+    # Every summarized slug is a single code or a rollup of single codes, never "all".
+    assert set(ARREST_OFFENSE_CODES) | set(ARREST_ROLLUPS) == set(Offense)
     assert ARREST_OFFENSE_CODES[Offense.HOMICIDE] == "11"
-    assert ARREST_OFFENSE_CODES[Offense.VIOLENT_CRIME] == "all"
+    assert "all" not in ARREST_OFFENSE_CODES.values()
+    for parts in ARREST_ROLLUPS.values():
+        assert all(p in ARREST_OFFENSE_CODES for p in parts)
 
 
 def test_arrest_offenses_taxonomy_is_complete() -> None:
@@ -304,8 +314,17 @@ def test_arrest_offenses_taxonomy_is_complete() -> None:
 def test_arrest_code_resolves_slugs_and_codes() -> None:
     assert arrest_code("homicide") == "11"  # arrest slug (also a summarized slug)
     assert arrest_code("drug-abuse-violations") == "150"  # arrest-only slug
-    assert arrest_code("violent-crime") == "all"  # summarized aggregate -> all
     assert arrest_code("150") == "150"  # raw code passes through
-    assert arrest_code("nonsense") == "all"  # unknown -> all
     assert arrest_code(None) == "all"
     assert arrest_code("") == "all"
+    with pytest.raises(ValueError, match="rollup"):
+        arrest_code("violent-crime")
+    with pytest.raises(ValueError, match="unknown"):
+        arrest_code("nonsense")
+
+
+def test_arrest_components() -> None:
+    assert arrest_components("homicide") == ("11",)
+    assert arrest_components("all") == ("all",)
+    assert arrest_components("violent-crime") == ("11", "20", "30", "50")
+    assert arrest_components("property-crime") == ("60", "70", "90", "110")

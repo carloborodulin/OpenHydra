@@ -237,3 +237,23 @@ def test_missing_api_key_returns_503(monkeypatch, live_db) -> None:
     r = TestClient(app).get("/api/agency/NY0303000/police-employment")
     assert r.status_code == 503
     assert r.json()["code"] == "live_data_unconfigured"
+
+
+def test_agency_arrest_rollup_sums_its_components(make_client) -> None:
+    resp = ArrestTotalsResponse.model_validate(_sample("arrest_state_NY_all"))
+    fake = FakeCde(arrests=resp)
+    c = make_client(fake)
+    single = c.get(
+        "/api/agency/NY0303000/arrests", params={"offense": "homicide", "category": "Arrestee Sex"}
+    ).json()
+    rollup = c.get(
+        "/api/agency/NY0303000/arrests",
+        params={"offense": "violent-crime", "category": "Arrestee Sex"},
+    ).json()
+    # The fake returns the same payload for each code, so the rollup is 4 times one code.
+    by_label = {r["label"]: r["value"] for r in single}
+    assert {r["label"]: r["value"] for r in rollup} == {k: 4 * v for k, v in by_label.items()}
+    assert all(r["offense"] == "violent-crime" and r["is_derived"] for r in rollup)
+    assert all(r["offense"] == "homicide" and not r["is_derived"] for r in single)
+    # 4 component codes, and homicide (code 11) was already cached.
+    assert fake.calls["arrests"] == 4

@@ -17,10 +17,16 @@ def test_meta(client: TestClient) -> None:
     assert "homicide" in body["offenses"]
     assert "NY" in body["states"]
     assert body["levels"] == ["national", "state", "agency"]
-    # Full 48-code arrest taxonomy is advertised, plus the categories present.
-    assert len(body["arrest_offenses"]) == 48
-    drugs = next(o for o in body["arrest_offenses"] if o["slug"] == "drug-abuse-violations")
-    assert drugs["code"] == "150"
+    # The 48-code arrest taxonomy plus the 2 derived rollups, each flagged with
+    # whether the national snapshot holds it.
+    offenses = {o["slug"]: o for o in body["arrest_offenses"]}
+    assert len(offenses) == 50
+    assert offenses["drug-abuse-violations"]["code"] == "150"
+    assert offenses["drug-abuse-violations"]["in_snapshot"] is False
+    assert offenses["homicide"]["in_snapshot"] is True
+    assert offenses["violent-crime"]["derived"] is True
+    assert offenses["violent-crime"]["in_snapshot"] is True
+    assert offenses["property-crime"]["in_snapshot"] is False
     assert "Arrestee Sex" in body["arrest_categories"]
 
 
@@ -78,6 +84,41 @@ def test_arrests(client: TestClient) -> None:
     rows = r.json()
     assert {row["label"] for row in rows} == {"Male", "Female"}
     assert rows[0]["value"] == 100.0  # ordered by value desc
+
+
+def test_arrests_default_is_all_offenses_with_offense_column(client: TestClient) -> None:
+    rows = client.get("/api/arrests", params={"category": "Arrestee Sex"}).json()
+    # One row per label: the default never mixes offense codes.
+    assert [(r["offense"], r["label"], r["value"]) for r in rows] == [
+        ("all", "Male", 900.0),
+        ("all", "Female", 400.0),
+    ]
+
+
+def test_arrest_rollup_rows_are_flagged(client: TestClient) -> None:
+    rows = client.get("/api/arrests", params={"offense": "violent-crime"}).json()
+    assert rows and all(r["is_derived"] for r in rows)
+
+
+def test_every_available_arrest_offense_has_rows(client: TestClient) -> None:
+    # The selector shows only the offenses this route lists for a scope, so each
+    # one must return rows (DATA-2).
+    for level, area in (("national", "US"), ("state", "NY"), ("state", "TX")):
+        avail = client.get("/api/arrests/available", params={"level": level, "area": area})
+        assert avail.status_code == 200
+        for offense in avail.json()["offenses"]:
+            r = client.get(
+                "/api/arrests", params={"level": level, "area": area, "offense": offense}
+            )
+            assert r.json(), (level, area, offense)
+    nat = client.get("/api/arrests/available").json()["offenses"]
+    assert nat == ["all", "burglary", "homicide", "violent-crime"]
+    assert (
+        client.get("/api/arrests/available", params={"level": "state", "area": "TX"}).json()[
+            "offenses"
+        ]
+        == []
+    )
 
 
 def test_arrests_offense_filter(client: TestClient) -> None:

@@ -29,13 +29,11 @@ class ArrestType(StrEnum):
 
 
 # The /arrest endpoints take a *numeric* offense code in the path, a different
-# taxonomy from the hyphenated summarized slugs. This maps each summarized
-# offense to its arrest code so the warehouse can key arrests on the same slug
-# the rest of the app uses. Codes were verified against the live API by matching
-# each code's total arrests to the labelled "Offense Name" breakdown of code
-# "all". The two aggregate slugs (violent-crime, property-crime) have no single
-# arrest code, so they fall back to "all" (all-offense demographics).
-#   note: "rape" maps to the legacy rape code (20) — the only one carrying data;
+# taxonomy from the hyphenated summarized slugs. This maps each single-code
+# summarized offense to its arrest code. Codes were verified against the live
+# API by matching each code's total arrests to the labelled "Offense Name"
+# breakdown of code "all".
+#   note: "rape" maps to the legacy rape code (20), the only one carrying data;
 #   the revised-definition rape codes return ~0 arrests.
 ARREST_OFFENSE_CODES: dict[str, str] = {
     Offense.HOMICIDE: "11",
@@ -46,8 +44,30 @@ ARREST_OFFENSE_CODES: dict[str, str] = {
     Offense.LARCENY: "70",
     Offense.MOTOR_VEHICLE_THEFT: "90",
     Offense.ARSON: "110",
-    Offense.VIOLENT_CRIME: "all",
-    Offense.PROPERTY_CRIME: "all",
+}
+
+# The two aggregate slugs have no arrest code of their own. Code "all" is every
+# offense, not violent or property crime, so it must not stand in for them.
+# Each aggregate is the sum of its Part I component offenses. Arrest counts add
+# across offense codes, because the UCR counts each arrest under one offense.
+ARREST_ROLLUPS: dict[str, tuple[str, ...]] = {
+    Offense.VIOLENT_CRIME: (
+        Offense.HOMICIDE,
+        Offense.RAPE,
+        Offense.ROBBERY,
+        Offense.AGGRAVATED_ASSAULT,
+    ),
+    Offense.PROPERTY_CRIME: (
+        Offense.BURGLARY,
+        Offense.LARCENY,
+        Offense.MOTOR_VEHICLE_THEFT,
+        Offense.ARSON,
+    ),
+}
+
+ARREST_ROLLUP_NAMES: dict[str, str] = {
+    Offense.VIOLENT_CRIME: "Violent Crime (sum of 4 offenses)",
+    Offense.PROPERTY_CRIME: "Property Crime (sum of 4 offenses)",
 }
 
 
@@ -176,9 +196,12 @@ ARREST_CODE_TO_SLUG: dict[str, str] = {info.code: slug for slug, info in ARREST_
 def arrest_code(offense: str | None) -> str:
     """Resolve an offense identifier to its numeric arrest code.
 
-    Accepts an arrest slug (``ARREST_OFFENSES``), a summarized ``Offense`` slug
-    (via ``ARREST_OFFENSE_CODES`` — the two aggregates resolve to ``"all"``), or a
-    raw code already. Unknown / empty values fall back to ``"all"``.
+    Accepts an arrest slug (``ARREST_OFFENSES``), a single-code summarized
+    ``Offense`` slug, or a raw code. An empty value means ``"all"``.
+
+    Raises:
+        ValueError: for a rollup slug (violent-crime, property-crime: use
+            ``arrest_components``) or an unknown value.
     """
     if not offense:
         return "all"
@@ -190,7 +213,23 @@ def arrest_code(offense: str | None) -> str:
         return summarized
     if offense in ARREST_CODE_TO_SLUG:  # already a raw code
         return offense
-    return "all"
+    if offense in ARREST_ROLLUPS:
+        raise ValueError(f"{offense!r} is a rollup; use arrest_components()")
+    raise ValueError(f"unknown arrest offense {offense!r}")
+
+
+def arrest_components(offense: str | None) -> tuple[str, ...]:
+    """The arrest codes whose sum gives this offense.
+
+    A single offense gives one code. A rollup (violent-crime, property-crime)
+    gives the codes of its component offenses.
+
+    Raises:
+        ValueError: for an unknown value.
+    """
+    if offense in ARREST_ROLLUPS:
+        return tuple(ARREST_OFFENSE_CODES[c] for c in ARREST_ROLLUPS[offense])
+    return (arrest_code(offense),)
 
 
 # /supplemental (expanded property) offense codes -> display name. These are the

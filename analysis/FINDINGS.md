@@ -41,8 +41,10 @@ and burglary continued their long-run decline.
 
 ![Arrests by race](outputs/03_arrests_by_race.png)
 
-2017–2023 totals: White ~34M and Black or African American ~14M dominate the
-recorded totals, with all other groups well under 2M each.
+Totals for all offenses, January 2015 to December 2024: White about 51.0M and
+Black or African American about 20.8M. Each other group is below 1.8M. The chart
+uses the offense `all` only. The previous version of this chart added the rows of
+all offenses together, so it counted many arrests more than once.
 
 ## 4. The age–crime curve
 
